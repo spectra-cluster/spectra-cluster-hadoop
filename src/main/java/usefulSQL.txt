@@ -1,0 +1,96 @@
+select count(*) FROM  proteomics.proteins 
+
+select count(*)  from  load_fragments
+
+LOAD Data LOCAL INFILE 'E:/Concurrent/JXTandem/fasta/uniprothumproteins.sql' into table proteins
+
+LOAD Data LOCAL INFILE 'E:/Concurrent/JXTandem/fasta/uniprothumfragments.sql' into table load_fragments 
+
+delete  from  `proteomics`.`load_fragments` where protein_id < 1000;
+
+create index start_location_index on   proteomics.load_fragments (start_location)
+
+create index start_location_index on   proteomics.load_fragments (protein_id)
+
+insert into proteomics.peptide_fragments select distinct sequence from proteomics.load_fragments
+
+insert into proteomics.peptide_fragments (sequence) (select distinct sequence from proteomics.load_fragments)
+
+insert into average_mz_to_fragments (select  distinct iaverage_mass, sequence,average_mass from load_fragments )
+
+insert into mono_mz_to_fragments (select  distinct imono_mass, sequence,mono_mass from load_fragments )
+
+grant all on uniprothum.* TO proteomics@'%' identified by 'tandem' 
+ 
+CREATE TABLE `load_fragmentsXX` (
+  `sequence` varchar(256) NOT NULL,
+  `protein_id` int(11) NOT NULL,
+  `start_location` int(11) NOT NULL,
+  `average_mass` double DEFAULT NULL,
+  `iaverage_mass` int(11) DEFAULT NULL,
+  `mono_mass` double DEFAULT NULL,
+  `imono_mass` int(11) DEFAULT NULL,
+  `missed_cleavages` int(11) DEFAULT NULL,
+  PRIMARY KEY (`sequence`,`start_location`,`protein_id`),
+  KEY `start_index` (`start_location`),
+  KEY `protein_index` (`protein_id`)
+)  
+
+CREATE TABLE `load_fragmentsX` (
+  `protein_id` int(11) NOT NULL,
+  `start_location` int(11) NOT NULL,
+   `sequence` varchar(256) NOT NULL,
+   `average_mass` double DEFAULT NULL,
+  `iaverage_mass` int(11) DEFAULT NULL,
+  `mono_mass` double DEFAULT NULL,
+  `imono_mass` int(11) DEFAULT NULL,
+  `missed_cleavages` int(11) DEFAULT NULL,
+  PRIMARY KEY (`sequence`,`start_location`,`protein_id`),
+ )  
+
+
+CREATE TABLE `load_fragments` (
+  `protein_id` int(11) NOT NULL,
+  `start_location` int(11) NOT NULL,
+   `sequence` varchar(256) NOT NULL,
+   `average_mass` double DEFAULT NULL,
+  `iaverage_mass` int(11) DEFAULT NULL,
+  `mono_mass` double DEFAULT NULL,
+  `imono_mass` int(11) DEFAULT NULL,
+  `missed_cleavages` int(11) DEFAULT NULL 
+ )  
+
+ 
+ CREATE TABLE `proteins` (
+  `id` int(10) unsigned NOT NULL ,
+  `annotation` varchar(60) NOT NULL,
+  `sequence` text NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `annotation_UNIQUE` (`annotation`)
+)  
+
+CREATE TABLE `peptide_fragments` (
+  `fragment_id` int(11) NOT NULL ,
+  `sequence` varchar(1024) NOT NULL,
+  PRIMARY KEY (`fragment_id`)
+)
+
+CREATE TABLE `mono_mz_to_fragments` (
+  `mz` int(11) NOT NULL,
+  `fragment_id` int(11) DEFAULT NULL,
+  `real_mass` double DEFAULT NULL,
+  PRIMARY KEY (`mz`)
+)
+
+CREATE TABLE `average_mz_to_fragments` (
+  `mz` int(11) NOT NULL,
+  `fragment_id` int(11) NOT NULL,
+  `real_mass` double DEFAULT NULL,
+  PRIMARY KEY (`mz`,`fragment_id`)
+) 
+
+My Machine UniProtHum Load statistics
+Loaded Proteins in  in 17.013 sec
+Loaded Fragments in  in 6.61 hour
+Loaded Mono in  in 678.5 sec
+Loaded average in  in 558.176 sec
