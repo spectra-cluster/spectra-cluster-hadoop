@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+    <persistence-unit name="csarc">
+        <class>org.systemsbiology.csarc.AliquotsEntity</class>
+        <class>org.systemsbiology.csarc.AliquotsUEntity</class>
+        <class>org.systemsbiology.csarc.GenomeWideSnp6Entity</class>
+        <class>org.systemsbiology.csarc.PatientsEntity</class>
+        <class>org.systemsbiology.csarc.PatientsFilesEntity</class>
+        <class>org.systemsbiology.csarc.PatientsUEntity</class>
+        <class>org.systemsbiology.csarc.PlatformsEntity</class>
+        <class>org.systemsbiology.csarc.SamplesEntity</class>
+        <class>org.systemsbiology.csarc.SamplesUEntity</class>
+        <class>org.systemsbiology.csarc.SampleTypesEntity</class>
+        <class>org.systemsbiology.csarc.TcgaCentersEntity</class>
+        <class>org.systemsbiology.csarc.TissueCollectionSitesEntity</class>
+        <class>org.systemsbiology.csarc.VBatchTissuetypeEntity</class>
+        <class>org.systemsbiology.csarc.VGroupCollsiteOutcomePatientEntity</class>
+        <class>org.systemsbiology.csarc.VGroupCollsitePatientEntity</class>
+        <class>org.systemsbiology.csarc.VGroupTissuetypeOutcomePatientEntity</class>
+        <class>org.systemsbiology.csarc.VPatientPrognosisLabeledEntity</class>
+        <class>org.systemsbiology.csarc.CghMatrixEntity</class>
+        <class>org.systemsbiology.csarc.CghMatrixWideEntity</class>
+        <class>org.systemsbiology.csarc.CghMatrixWideNewEntity</class>
+        <class>org.systemsbiology.csarc.CorrelationAcghExpEntity</class>
+        <class>org.systemsbiology.csarc.DpgapFilesEntity</class>
+        <class>org.systemsbiology.csarc.ExpressionSubsetEntity</class>
+        <class>org.systemsbiology.csarc.ExpressionSubsetWithPatientsAndSamplesEntity</class>
+        <class>org.systemsbiology.csarc.GeneMethylationEntity</class>
+        <class>org.systemsbiology.csarc.GenePeptideatlasEntity</class>
+        <class>org.systemsbiology.csarc.GenesEntity</class>
+        <class>org.systemsbiology.csarc.HuexTranscriptClustersEntity</class>
+        <class>org.systemsbiology.csarc.Level3ExpressionWideEntity</class>
+        <class>org.systemsbiology.csarc.Level3ExpressionWideNewEntity</class>
+        <class>org.systemsbiology.csarc.OverallSurvivalEntity</class>
+        <class>org.systemsbiology.csarc.OverallSurvivalDaysEntity</class>
+        <class>org.systemsbiology.csarc.PatientPrognosisEntity</class>
+        <class>org.systemsbiology.csarc.PatientPrognosisLabelsEntity</class>
+        <class>org.systemsbiology.csarc.PrognosisEntity</class>
+        <class>org.systemsbiology.csarc.TcgaLociiEntity</class>
+        <class>org.systemsbiology.csarc.TcgaSummaryEntity</class>
+        <properties>
+            <property name="openjpa.ConnectionURL" value="jdbc:mysql://giza:3306/csacr"/>
+            <property name="openjpa.ConnectionDriverName" value="com.mysql.jdbc.Driver"/>
+            <property name="openjpa.ConnectionUserName" value="slewis"/>
+            <property name="openjpa.ConnectionPassword" value="alaron"/>
+        </properties>
+    </persistence-unit>
+</persistence>
