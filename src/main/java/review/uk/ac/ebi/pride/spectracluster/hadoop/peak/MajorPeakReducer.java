@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Reducer to cluster spectra share the same major peaks
+ *
  * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
@@ -57,15 +59,19 @@ public class MajorPeakReducer extends Reducer<Text, Text, Text, Text> {
             updateEngine(context, peakMZKey);
         }
 
+        // iterate and cluster all the spectra
         for (Text val : values) {
+            // convert spectra to clusters
             final ISpectrum match = parseSpectrumFromString(val.toString());
             //todo: why do we need the following commented out line
 //            if (match == null)
 //                continue; // not sure why this happens but nothing seems like the thing to do
             final ICluster cluster = ClusterUtilities.asCluster(match);
 
+            // incrementally cluster
             final Collection<ICluster> removedClusters = getClusterEngine().addClusterIncremental(cluster);
 
+            // output clusters
             writeClusters(context, removedClusters);
         }
     }
@@ -86,26 +92,38 @@ public class MajorPeakReducer extends Reducer<Text, Text, Text, Text> {
         }
     }
 
+    /**
+     * Update the current engine when the major peak m/z value changes
+     */
     private void updateEngine(Context context, PeakMZKey peakMZKey) throws IOException, InterruptedException {
+
+        // if the current cluster engine is not null, write out all the existing clusters
         if (getClusterEngine() != null) {
             final Collection<ICluster> clusters = getClusterEngine().getClusters();
             writeClusters(context, clusters);
             setClusterEngine(null);
         }
 
-        // if not at end make a new engine
+        // set new cluster engine and new major peak
         if (peakMZKey != null) {
+            // if not at end make a new engine
             setClusterEngine(factory.getIncrementalClusteringEngine((float) majorPeakWindowSize));
             setMajorPeak(peakMZKey.getPeakMZ());
         }
     }
 
+    /**
+     * Write out a collection of clusters
+     */
     private void writeClusters(Context context, Collection<ICluster> clusters) throws IOException, InterruptedException {
         for (ICluster cluster : clusters) {
             writeCluster(context, cluster);
         }
     }
 
+    /**
+     * Before writing out a cluster, remove all the non-fitting spectra and each out as a single-spectrum cluster
+     */
     private void writeCluster(Context context, ICluster cluster) throws IOException, InterruptedException {
         final List<ICluster> allClusters = ClusterUtilities.findNoneFittingSpectra(cluster,
                 getClusterEngine().getSimilarityChecker(), clusterRetainThreshold);
@@ -129,6 +147,9 @@ public class MajorPeakReducer extends Reducer<Text, Text, Text, Text> {
         writeOneCluster(context, cluster);     // nothing removed
     }
 
+    /**
+     * Write out a cluster, if clustered spectra is only one, check whether it has already been written before
+     */
     private void writeOneCluster(Context context, ICluster cluster) throws IOException, InterruptedException {
         List<ISpectrum> clusteredSpectra = cluster.getClusteredSpectra();
 
@@ -144,11 +165,6 @@ public class MajorPeakReducer extends Reducer<Text, Text, Text, Text> {
 
     /**
      * this version of writeCluster does all the real work
-     *
-     * @param context
-     * @param cluster
-     * @throws IOException
-     * @throws InterruptedException
      */
     protected void writeOneVettedCluster(final Context context, final ICluster cluster) throws IOException, InterruptedException {
         MZKey key = new MZKey(cluster.getPrecursorMz());
@@ -160,6 +176,9 @@ public class MajorPeakReducer extends Reducer<Text, Text, Text, Text> {
         incrementBinCounters(key, context); // how big are the bins - used in next job
     }
 
+    /**
+     * convert a cluster to string for output
+     */
     private String convertClusterToString(ICluster cluster) {
         StringBuilder sb = new StringBuilder();
         CGFClusterAppender clusterAppender = CGFClusterAppender.INSTANCE;
@@ -168,6 +187,9 @@ public class MajorPeakReducer extends Reducer<Text, Text, Text, Text> {
     }
 
 
+    /**
+     * Increment bin counters which will be used by the follow-on jobs
+     */
     private void incrementBinCounters(MZKey mzKey, Context context) {
         IWideBinner binner = HadoopDefaults.DEFAULT_WIDE_MZ_BINNER;
         int[] bins = binner.asBins(mzKey.getPrecursorMZ());
