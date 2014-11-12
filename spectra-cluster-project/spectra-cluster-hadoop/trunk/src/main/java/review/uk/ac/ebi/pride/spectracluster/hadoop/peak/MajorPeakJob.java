@@ -25,7 +25,7 @@ public class MajorPeakJob extends Configured implements Tool {
     @Override
     public int run(String[] args) throws Exception {
         if (args.length != 3) {
-            System.err.printf("Usage: %s [generic options] <input> <output> <counter file name>\n", getClass().getSimpleName());
+            System.err.printf("Usage: %s [generic options] <input> <output> <counter file path>\n", getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
         }

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<!--
+    Local mode configuration for Hadoop
+
+    You can test this configuration xml using the command below:
+    hadoop fs -conf conf/hadoop/hadoop-local.xml -ls .
+-->
+
+<configuration>
+    <property>
+        <name>fs.default.name</name>
+        <value>file:///</value>
+    </property>
+
+    <property>
+        <name>mapred.job.tracker</name>
+        <value>local</value>
+    </property>
+</configuration>

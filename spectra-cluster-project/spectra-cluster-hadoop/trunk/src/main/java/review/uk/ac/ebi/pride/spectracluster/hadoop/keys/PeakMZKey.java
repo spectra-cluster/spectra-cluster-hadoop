@@ -58,7 +58,7 @@ public class PeakMZKey implements Comparable<PeakMZKey>, IPartitionable, Seriali
 
     @Override
     public boolean equals(final Object o) {
-        return getClass() == o.getClass() && toString().equals(o.toString());
+        return o != null && getClass() == o.getClass() && toString().equals(o.toString());
     }
 
     @Override
