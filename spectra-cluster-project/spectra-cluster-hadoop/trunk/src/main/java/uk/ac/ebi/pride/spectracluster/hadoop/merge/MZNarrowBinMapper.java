@@ -1,8 +1,8 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.merge;
+package uk.ac.ebi.pride.spectracluster.hadoop.merge;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import review.uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopDefaults;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 
 import java.io.IOException;

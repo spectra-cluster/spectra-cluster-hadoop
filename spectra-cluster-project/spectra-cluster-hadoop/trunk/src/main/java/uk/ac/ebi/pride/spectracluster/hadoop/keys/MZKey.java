@@ -1,4 +1,4 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.keys;
+package uk.ac.ebi.pride.spectracluster.hadoop.keys;
 
 
 import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;

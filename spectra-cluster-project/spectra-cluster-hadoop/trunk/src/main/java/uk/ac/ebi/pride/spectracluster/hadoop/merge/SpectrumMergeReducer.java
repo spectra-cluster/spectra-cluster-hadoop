@@ -1,4 +1,4 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.merge;
+package uk.ac.ebi.pride.spectracluster.hadoop.merge;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;

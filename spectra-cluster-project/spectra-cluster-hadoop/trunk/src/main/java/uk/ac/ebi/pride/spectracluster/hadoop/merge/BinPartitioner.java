@@ -1,9 +1,9 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.merge;
+package uk.ac.ebi.pride.spectracluster.hadoop.merge;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
-import review.uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
-import review.uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopDefaults;
+import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 
 /**

@@ -1,4 +1,4 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.util;
+package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import java.io.InputStream;
 

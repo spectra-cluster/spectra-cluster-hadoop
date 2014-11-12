@@ -1,4 +1,4 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.merge;
+package uk.ac.ebi.pride.spectracluster.hadoop.peak;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -7,38 +7,30 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import review.uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
+import org.systemsbiology.hadoop.MGFInputFormat;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
 
 /**
- *
- *
- * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
  */
-public class MergeByOffsetJob extends Configured implements Tool {
+public class MajorPeakJob extends Configured implements Tool {
 
-    public static final String JOB_NAME = "Merge Cluster By Offset";
+    public static final String JOB_NAME = "Major Peak Cluster";
 
     @Override
     public int run(String[] args) throws Exception {
         if (args.length != 3) {
-            System.err.printf("Usage: %s <input directory> <output directory> <counter file path>\n", getClass().getSimpleName());
+            System.err.printf("Usage: %s [generic options] <input> <output> <counter file path>\n", getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
         }
 
-        // pre-job configuration
         Configuration configuration = getConf();
-
-        // load custom configurations for the job
-        configuration.addResource("job/merge-by-offset.xml");
-
         Job job = new Job(configuration, JOB_NAME);
         job.setJarByClass(getClass());
 
@@ -50,15 +42,15 @@ public class MergeByOffsetJob extends Configured implements Tool {
         FileOutputFormat.setOutputPath(job, outputDir);
 
         // input format
-        job.setInputFormatClass(SequenceFileInputFormat.class);
+        job.setInputFormatClass(MGFInputFormat.class);
 
         // output format
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         // set mapper, reducer and partitioner
-        job.setMapperClass(MZNarrowBinMapper.class);
-        job.setReducerClass(SpectrumMergeReducer.class);
-        job.setPartitionerClass(BinPartitioner.class);
+        job.setMapperClass(MajorPeakMapper.class);
+        job.setReducerClass(MajorPeakReducer.class);
+        job.setPartitionerClass(MajorPeakPartitioner.class);
 
         // set output class
         job.setMapOutputKeyClass(Text.class);
@@ -77,8 +69,9 @@ public class MergeByOffsetJob extends Configured implements Tool {
         return completion ? 0 : 1;
     }
 
+
     public static void main(String[] args) throws Exception {
-        int exitCode = ToolRunner.run(new MergeByOffsetJob(), args);
-        System.exit(exitCode);
+        int exitcode = ToolRunner.run(new MajorPeakJob(), args);
+        System.exit(exitcode);
     }
 }
