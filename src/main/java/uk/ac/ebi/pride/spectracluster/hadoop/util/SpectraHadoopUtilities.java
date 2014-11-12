@@ -1,4 +1,4 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.util;
+package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import com.lordjoe.utilities.IProgressHandler;
 import org.apache.hadoop.conf.Configuration;

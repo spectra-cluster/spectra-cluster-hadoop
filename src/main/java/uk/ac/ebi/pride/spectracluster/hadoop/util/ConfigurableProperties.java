@@ -1,4 +1,4 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.util;
+package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.NumberUtilities;

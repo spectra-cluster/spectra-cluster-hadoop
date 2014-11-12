@@ -1,4 +1,4 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.keys;
+package uk.ac.ebi.pride.spectracluster.hadoop.keys;
 
 /**
  * Implemented by an object with knowledge about its own partition

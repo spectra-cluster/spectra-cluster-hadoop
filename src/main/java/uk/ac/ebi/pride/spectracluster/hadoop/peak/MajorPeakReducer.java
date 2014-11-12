@@ -1,11 +1,11 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.peak;
+package uk.ac.ebi.pride.spectracluster.hadoop.peak;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import review.uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
-import review.uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
-import review.uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopDefaults;
-import review.uk.ac.ebi.pride.spectracluster.hadoop.util.SpectraHadoopUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
+import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopDefaults;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.SpectraHadoopUtilities;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.engine.IncrementalClusteringEngineFactory;

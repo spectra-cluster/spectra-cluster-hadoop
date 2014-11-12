@@ -1,33 +1,35 @@
-package review.uk.ac.ebi.pride.spectracluster.hadoop.keys;
+package uk.ac.ebi.pride.spectracluster.hadoop.keys;
 
 
 import java.io.Serializable;
 
 /**
- * Key represents bin number and precursor mz
+ * key represents charge peak and precursor mz
  *
  * @author Steve Lewis
  * @author Rui Wang
+ * @version $Id$
+ *
  */
-public class BinMZKey implements Comparable<BinMZKey>, IPartitionable, Serializable {
+public class PeakMZKey implements Comparable<PeakMZKey>, IPartitionable, Serializable {
 
-    private final int bin;
+    private final double peakMZ;
     private final double precursorMZ;
-    private final String binKey;
+    private final String peakMZKey;
     private final String precursorMZKey;
 
-    public BinMZKey(final int pBin, final double pPrecursorMZ) {
-        bin = pBin;
+    public PeakMZKey(final double pPeakMZ, final double pPrecursorMZ) {
+        peakMZ = pPeakMZ;
         precursorMZ = pPrecursorMZ;
-        binKey = String.format("%06d", getBin());
+        peakMZKey = KeyUtilities.mzToKey(getPeakMZ());
         precursorMZKey = KeyUtilities.mzToKey(getPrecursorMZ());
     }
 
-    public BinMZKey(String str) {
-        String[] split = str.split(":");
-        bin = Integer.parseInt(split[0]);
+    public PeakMZKey(String str) {
+        final String[] split = str.split(":");
+        peakMZ = KeyUtilities.keyToMZ(split[0]);
         precursorMZ = KeyUtilities.keyToMZ(split[1]);
-        binKey = String.format("%06d", getBin());
+        peakMZKey = KeyUtilities.mzToKey(getPeakMZ());
         precursorMZKey = KeyUtilities.mzToKey(getPrecursorMZ());
     }
 
@@ -36,8 +38,8 @@ public class BinMZKey implements Comparable<BinMZKey>, IPartitionable, Serializa
      *
      * @return
      */
-    public int getBin() {
-        return bin;
+    public double getPeakMZ() {
+        return peakMZ;
     }
 
     /**
@@ -51,9 +53,8 @@ public class BinMZKey implements Comparable<BinMZKey>, IPartitionable, Serializa
 
     @Override
     public String toString() {
-        return binKey + ":" + precursorMZKey;
+        return peakMZKey + ":" + precursorMZKey;
     }
-
 
     @Override
     public boolean equals(final Object o) {
@@ -73,7 +74,7 @@ public class BinMZKey implements Comparable<BinMZKey>, IPartitionable, Serializa
      * @return
      */
     @Override
-    public int compareTo(final BinMZKey o) {
+    public int compareTo(final PeakMZKey o) {
         return toString().compareTo(o.toString());
     }
 
@@ -83,6 +84,6 @@ public class BinMZKey implements Comparable<BinMZKey>, IPartitionable, Serializa
      * @return
      */
     public int getPartitionHash() {
-        return Math.abs(binKey.hashCode());
+        return Math.abs(peakMZKey.hashCode());
     }
 }
