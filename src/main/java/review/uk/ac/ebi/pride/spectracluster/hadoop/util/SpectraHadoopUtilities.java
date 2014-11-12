@@ -196,7 +196,6 @@ public class SpectraHadoopUtilities {
     public static Path getAttempPath(final Reducer.Context ctxt, final FileSystem pFs, Path basePath, String baseName) {
         final TaskAttemptID taskAttemptID = ctxt.getTaskAttemptID();
         String str = taskAttemptID.toString();
-        //noinspection UnnecessaryLocalVariable,UnusedDeclaration,UnusedAssignment,MismatchedReadAndWriteOfArray
         String[] parts = str.split(Character.toString(SEPARATOR));
 
         // part 4 is attampt number

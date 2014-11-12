@@ -1,7 +1,0 @@
-<Filters>
-    <SpectrumFilter minimumLength="16"/>
-    <SpectrumFilter withPrecursors="true"/>
-    <SpectrumFilter identified="true"/>
-	<!-- This says ONLY YEAST DO NOT USE FOR REAL EXPORT -->
-    <SpectrumFilter taxonomy="4932"/>
-</Filters>

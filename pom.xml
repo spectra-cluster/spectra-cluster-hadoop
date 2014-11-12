@@ -3,10 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ebi.pride.spectracluster</groupId>
     <artifactId>spectra-cluster-hadoop</artifactId>
-    <packaging>jar</packaging>
     <name>spectra-cluster-hadoop</name>
     <description>Spectra Clustering using Hadoop</description>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <licenses>
         <license>
@@ -39,16 +38,6 @@
             <organization>European Bioinformatics Institute</organization>
             <organizationUrl>http://ebi.ac.uk/pride</organizationUrl>
         </developer>
-         <developer>
-            <id>acsordas</id>
-            <email>acsordas@ebi.ac.uk</email>
-            <name>Attila Csordas</name>
-            <organization>European Bioinformatics Institute</organization>
-            <organizationUrl>http://www.ebi.ac.uk/</organizationUrl>
-            <roles>
-                <role>Bioinformatician</role>
-            </roles>
-        </developer>
    </developers>
 
     <organization>
@@ -59,27 +48,7 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>0.1.44-1</version>
-        </dependency>
 
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-             <groupId>com.salesforce</groupId>
-             <artifactId>phoenix</artifactId>
-             <version>2.0.2</version>
-         </dependency>
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.2.2</version>
-        </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.spectracluster</groupId>
             <artifactId>concurrenttools</artifactId>
@@ -95,71 +64,7 @@
             <artifactId>spectra-cluster-quality</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis-ext</artifactId>
-            <version>1.3.04</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>2.5.6</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase</artifactId>
-            <version>0.94.12</version>
-        </dependency>
 
-        <!-- Maybe SL4J is happier with this-->
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.9.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-nop</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-nop</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
      </dependencies>
 
     <build>
@@ -169,11 +74,12 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <plugins>
 
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
@@ -190,11 +96,6 @@
                         <include>**/*Tests.java</include>
                         <include>**/*Test.java</include>
                     </includes>
-                    <excludes>
-                        <exclude>**/Abstract*.java</exclude>
-                        <!-- skipped due to original tests were not working before the code review -->
-                        <exclude>**/PhoenixTests.java</exclude>
-                    </excludes>
                     <junitArtifactName>junit:junit</junitArtifactName>
                 </configuration>
             </plugin>
@@ -240,7 +141,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <!--NOTE: you must have this version number, otherwise, the build will not be able to find Validator-->
                 <version>2.4</version>
                 <configuration>
                     <excludes>
@@ -249,67 +149,42 @@
                     </excludes>
                     <archive>
                         <manifest>
-                            <mainClass>uk.ac.ebi.pride.spectracluster.hadoop.ClusterLauncher</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib</classpathPrefix>
                             <useUniqueVersions>false</useUniqueVersions>
                         </manifest>
+                        <manifestEntries>
+                            <Class-Path>./conf/</Class-Path>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
 
+            <!--assembly to zip-->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>assembly</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
             </plugin>
         </plugins>
     </build>
 
 
     <repositories>
-        <repository>
-            <id>apache release</id>
-            <url>https://repository.apache.org/content/repositories/releases/</url>
-        </repository>
-        <repository>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>apache.snapshots</id>
-            <url>http://repository.apache.org/snapshots/</url>
-        </repository>
-        <repository>
-            <id>informatics.systemsbiology.net</id>
-            <name>informatics</name>
-            <url>http://informatics.systemsbiology.net/artifactory/releases</url>
-        </repository>
-        <repository>
-            <id>mandubian-mvn</id>
-            <url>http://mandubian-mvn.googlecode.com/svn/trunk/mandubian-mvn/repository</url>
-        </repository>
-        <repository>
-            <!-- Central Repository -->
-            <id>central</id>
-            <url>http://repo1.maven.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
         <repository> <!-- EBI repo -->
             <id>nexus-ebi-repo</id>
             <name>The EBI internal repository</name>
@@ -330,17 +205,5 @@
             <snapshots>
             </snapshots>
         </repository>
-        <repository>
-            <id>phoenix-github</id>
-            <name>Phoenix Github Maven</name>
-            <url>https://raw.github.com/forcedotcom/phoenix/maven-artifacts/releases</url>
-            <snapshots>
-              <enabled>true</enabled>
-            </snapshots>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-          </repository>
-
     </repositories>
 </project>

@@ -1,9 +1,8 @@
 package review.uk.ac.ebi.pride.spectracluster.hadoop.keys;
 
 /**
- * uk.ac.ebi.pride.spectracluster.keys.IPartitionable
+ * Implemented by an object with knowledge about its own partition
  * User: Steve
- * implemented by an object with knowledge about its own partition
  * Date: 9/2/2014
  */
 public interface IPartitionable {

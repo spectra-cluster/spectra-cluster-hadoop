@@ -45,13 +45,7 @@ public class MZKey implements Comparable<MZKey>, Serializable, IPartitionable {
 
     @Override
     public boolean equals(final Object o) {
-        if (o == null)
-            return false;
-
-        if (getClass() != o.getClass())
-            return false;
-
-        return toString().equals(o.toString());
+        return o != null && getClass() == o.getClass() && toString().equals(o.toString());
     }
 
     @Override
@@ -65,8 +59,7 @@ public class MZKey implements Comparable<MZKey>, Serializable, IPartitionable {
      * @return
      */
     public int getPartitionHash() {
-        int ret = (int) (getPrecursorMZ() * MZIntensityUtilities.MZ_RESOLUTION + 0.5);
-        return ret;
+        return (int) (getPrecursorMZ() * MZIntensityUtilities.MZ_RESOLUTION + 0.5);
     }
 
 
