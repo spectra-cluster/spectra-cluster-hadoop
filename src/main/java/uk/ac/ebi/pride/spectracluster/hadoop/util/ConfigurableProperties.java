@@ -40,11 +40,11 @@ public class ConfigurableProperties {
         Defaults.setSimilarityThreshold(application.getDoubleParameter(SIMILARITY_THRESHOLD_PROPERTY, Defaults.DEFAULT_SIMILARITY_THRESHOLD));
 
         // hadoop related properties
-        HadoopDefaults.setSameClusterMergeMZWindowSize(application.getDoubleParameter(SPECTRUM_MERGE_WINDOW_PROPERTY, HadoopDefaults.DEFAULT_SAME_CLUSTER_MERGE_WINDOW));
-        HadoopDefaults.setMajorPeakMZWindowSize(application.getDoubleParameter(MAJOR_PEAK_WINDOW_PROPERTY, HadoopDefaults.DEFAULT_MAJOR_PEAK_MZ_WINDOW));
-        HadoopDefaults.setSpectrumMergeMZWindowSize(application.getDoubleParameter(SPECTRUM_MERGE_WINDOW_PROPERTY, HadoopDefaults.DEFAULT_SPECTRUM_MERGE_WINDOW));
+        ClusterHadoopDefaults.setSameClusterMergeMZWindowSize(application.getDoubleParameter(SPECTRUM_MERGE_WINDOW_PROPERTY, ClusterHadoopDefaults.DEFAULT_SAME_CLUSTER_MERGE_WINDOW));
+        ClusterHadoopDefaults.setMajorPeakMZWindowSize(application.getDoubleParameter(MAJOR_PEAK_WINDOW_PROPERTY, ClusterHadoopDefaults.DEFAULT_MAJOR_PEAK_MZ_WINDOW));
+        ClusterHadoopDefaults.setSpectrumMergeMZWindowSize(application.getDoubleParameter(SPECTRUM_MERGE_WINDOW_PROPERTY, ClusterHadoopDefaults.DEFAULT_SPECTRUM_MERGE_WINDOW));
 
-        HadoopDefaults.setOutputPath(application.getParameter(OUTPUT_PATH_PROPERTY, HadoopDefaults.DEFAULT_OUTPUT_PATH));
+        ClusterHadoopDefaults.setOutputPath(application.getParameter(OUTPUT_PATH_PROPERTY, ClusterHadoopDefaults.DEFAULT_OUTPUT_PATH));
     }
 
 
@@ -60,10 +60,10 @@ public class ConfigurableProperties {
             out.append("similarityMZRange=").append(NumberUtilities.formatDouble(Defaults.getSimilarityMZRange(), 3)).append("\n");
             out.append("similarityThreshold=").append(NumberUtilities.formatDouble(Defaults.getSimilarityThreshold(), 3)).append("\n");
             out.append("retainThreshold=").append(NumberUtilities.formatDouble(Defaults.getRetainThreshold(), 3)).append("\n");
-            out.append("sameClusterMergeMZWindowSize=").append(NumberUtilities.formatDouble(HadoopDefaults.getSameClusterMergeMZWindowSize(), 3)).append("\n");
-            out.append("majorPeakMZWindowSize=").append(NumberUtilities.formatDouble(HadoopDefaults.getMajorPeakMZWindowSize(), 3)).append("\n");
-            out.append("spectrumMergeMZWindowSize=").append(NumberUtilities.formatDouble(HadoopDefaults.getSpectrumMergeMZWindowSize(), 3)).append("\n");
-            out.append("outputPath=").append(HadoopDefaults.getOutputPath()).append("\n");
+            out.append("sameClusterMergeMZWindowSize=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getSameClusterMergeMZWindowSize(), 3)).append("\n");
+            out.append("majorPeakMZWindowSize=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getMajorPeakMZWindowSize(), 3)).append("\n");
+            out.append("spectrumMergeMZWindowSize=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getSpectrumMergeMZWindowSize(), 3)).append("\n");
+            out.append("outputPath=").append(ClusterHadoopDefaults.getOutputPath()).append("\n");
         } catch (IOException e) {
             throw new RuntimeException(e);
 

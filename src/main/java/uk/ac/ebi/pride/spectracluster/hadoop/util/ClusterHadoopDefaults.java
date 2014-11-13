@@ -6,10 +6,12 @@ import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
 
 /**
+ *
  * @author Steve Lewis
+ * @author Rui Wang
  * @version $Id$
  */
-public final class HadoopDefaults {
+public final class ClusterHadoopDefaults {
 
     // value can be set using uk.ac.ebi.pride.spectracluster.hadoop.MajorPeakReducer.MajorPeakWindow
     public static final double DEFAULT_MAJOR_PEAK_MZ_WINDOW = 2.0; // major peak sliding window is this
@@ -20,6 +22,8 @@ public final class HadoopDefaults {
 
     public static final String DEFAULT_OUTPUT_PATH = "ConsolidatedClusters";
 
+    public static final String DEFAULT_BINNING_RESOURCE = "pride-binning.tsv";
+
     private static String gOutputPath = DEFAULT_OUTPUT_PATH;
 
     private static double spectrumMergeMZWindowSize = DEFAULT_SPECTRUM_MERGE_WINDOW;
@@ -28,33 +32,8 @@ public final class HadoopDefaults {
 
     private static double sameClusterMergeMZWindowSize = DEFAULT_SAME_CLUSTER_MERGE_WINDOW;
 
-    public static double getSpectrumMergeMZWindowSize() {
-        return spectrumMergeMZWindowSize;
-    }
+    private static String binningResource = DEFAULT_BINNING_RESOURCE;
 
-    public static double getMajorPeakMZWindowSize() {
-        return majorPeakMZWindowSize;
-    }
-
-    public static double getSameClusterMergeMZWindowSize() {
-        return sameClusterMergeMZWindowSize;
-    }
-
-    public static void setOutputPath(String gOutputPath) {
-        HadoopDefaults.gOutputPath = gOutputPath;
-    }
-
-    public static void setSpectrumMergeMZWindowSize(double spectrumMergeMZWindowSize) {
-        HadoopDefaults.spectrumMergeMZWindowSize = spectrumMergeMZWindowSize;
-    }
-
-    public static void setMajorPeakMZWindowSize(double majorPeakMZWindowSize) {
-        HadoopDefaults.majorPeakMZWindowSize = majorPeakMZWindowSize;
-    }
-
-    public static void setSameClusterMergeMZWindowSize(double sameClusterMergeMZWindowSize) {
-        HadoopDefaults.sameClusterMergeMZWindowSize = sameClusterMergeMZWindowSize;
-    }
 
     /**
      * binning sizes
@@ -73,7 +52,6 @@ public final class HadoopDefaults {
             NARRROW_BIN_OVERLAP);
 
 
-    @SuppressWarnings("UnusedDeclaration")
     private static final IWideBinner WIDE_MZ_BINNER = new SizedWideBinner(
             MZIntensityUtilities.HIGHEST_USABLE_MZ,
             WIDE_BIN_WIDTH,
@@ -83,13 +61,48 @@ public final class HadoopDefaults {
 
     public static final IWideBinner DEFAULT_WIDE_MZ_BINNER = NARROW_MZ_BINNER;
 
-    public static final HadoopDefaults INSTANCE = new HadoopDefaults();
+
+    private ClusterHadoopDefaults() {
+    }
 
 
-    private HadoopDefaults() {
+    public static double getSpectrumMergeMZWindowSize() {
+        return spectrumMergeMZWindowSize;
+    }
+
+    public static double getMajorPeakMZWindowSize() {
+        return majorPeakMZWindowSize;
+    }
+
+    public static double getSameClusterMergeMZWindowSize() {
+        return sameClusterMergeMZWindowSize;
+    }
+
+    public static String getBinningResource() {
+        return binningResource;
+    }
+
+    public static void setBinningResource(String binningResource) {
+        ClusterHadoopDefaults.binningResource = binningResource;
     }
 
     public static String getOutputPath() {
         return gOutputPath;
+    }
+
+    public static void setOutputPath(String gOutputPath) {
+        ClusterHadoopDefaults.gOutputPath = gOutputPath;
+    }
+
+    public static void setSpectrumMergeMZWindowSize(double spectrumMergeMZWindowSize) {
+        ClusterHadoopDefaults.spectrumMergeMZWindowSize = spectrumMergeMZWindowSize;
+    }
+
+    public static void setMajorPeakMZWindowSize(double majorPeakMZWindowSize) {
+        ClusterHadoopDefaults.majorPeakMZWindowSize = majorPeakMZWindowSize;
+    }
+
+    public static void setSameClusterMergeMZWindowSize(double sameClusterMergeMZWindowSize) {
+        ClusterHadoopDefaults.sameClusterMergeMZWindowSize = sameClusterMergeMZWindowSize;
     }
 }
