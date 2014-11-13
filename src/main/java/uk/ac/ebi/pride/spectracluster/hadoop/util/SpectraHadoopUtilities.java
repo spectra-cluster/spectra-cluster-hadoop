@@ -12,6 +12,8 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.cluster.SpectralCluster;
+import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
+import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
@@ -108,37 +110,37 @@ public class SpectraHadoopUtilities {
         context.getCounter("Partition", counterName).increment(1);
     }
 
-//    /**
-//     * track how balanced is partitioning
-//     *
-//     * @param context !null context
-//     * @param mzKey   !null key
-//     *
-//     * todo: remove this method?
-//     */
-//    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, PeakMZKey mzKey) {
-//        //noinspection ConstantIfStatement
-//        if (true)
-//            return;  // not now
-//        int hash = mzKey.getPartitionHash() % HadoopUtilities.DEFAULT_TEST_NUMBER_REDUCERS;
-//        incrementPartitionCounter(context, "Peak", hash);
-//    }
-//
-//    /**
-//     * track how balanced is partitioning
-//     *
-//     * @param context !null context
-//     * @param mzKey   !null key
-//     *
-//     * todo: remove this method?
-//     */
-//    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, BinMZKey mzKey) {
-//        //noinspection ConstantIfStatement
-//        if (true)
-//            return;  // not now
-//        int hash = mzKey.getPartitionHash() % HadoopUtilities.DEFAULT_TEST_NUMBER_REDUCERS;
-//        incrementPartitionCounter(context, "Bin", hash);
-//    }
+    /**
+     * track how balanced is partitioning
+     *
+     * @param context !null context
+     * @param mzKey   !null key
+     *
+     * todo: remove this method?
+     */
+    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, PeakMZKey mzKey) {
+        //noinspection ConstantIfStatement
+        if (true)
+            return;  // not now
+        int hash = mzKey.getPartitionHash() % context.getNumReduceTasks();
+        incrementPartitionCounter(context, "Peak", hash);
+    }
+
+    /**
+     * track how balanced is partitioning
+     *
+     * @param context !null context
+     * @param mzKey   !null key
+     *
+     * todo: remove this method?
+     */
+    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, BinMZKey mzKey) {
+        //noinspection ConstantIfStatement
+        if (true)
+            return;  // not now
+        int hash = mzKey.getPartitionHash() % context.getNumReduceTasks();
+        incrementPartitionCounter(context, "Bin", hash);
+    }
 
     /**
      * build a reader for  a local sequence file

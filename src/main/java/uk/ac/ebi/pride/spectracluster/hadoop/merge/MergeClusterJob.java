@@ -16,19 +16,17 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
 
 /**
  *
- *
  * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
  */
-public class MergeByOffsetJob extends Configured implements Tool {
-
-    public static final String JOB_NAME = "Merge Cluster By Offset";
+public class MergeClusterJob extends Configured implements Tool {
 
     @Override
     public int run(String[] args) throws Exception {
-        if (args.length != 3) {
-            System.err.printf("Usage: %s <input directory> <output directory> <counter file path>\n", getClass().getSimpleName());
+        if (args.length != 5) {
+            System.err.printf("Usage: %s [generic options] <input directory> <output directory> <job name> <job configuration file> <counter file path>\n",
+                    getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
         }
@@ -37,9 +35,9 @@ public class MergeByOffsetJob extends Configured implements Tool {
         Configuration configuration = getConf();
 
         // load custom configurations for the job
-        configuration.addResource("job/merge-by-offset.xml");
+        configuration.addResource(args[3]);
 
-        Job job = new Job(configuration, JOB_NAME);
+        Job job = new Job(configuration, args[2]);
         job.setJarByClass(getClass());
 
         // configure input and output path
@@ -70,7 +68,7 @@ public class MergeByOffsetJob extends Configured implements Tool {
 
         if (completion) {
             // output counters for the next job
-            String counterFileName = args[2];
+            String counterFileName = args[4];
             HadoopUtilities.saveCounters(fileSystem, counterFileName, job);
         }
 
@@ -78,7 +76,7 @@ public class MergeByOffsetJob extends Configured implements Tool {
     }
 
     public static void main(String[] args) throws Exception {
-        int exitCode = ToolRunner.run(new MergeByOffsetJob(), args);
+        int exitCode = ToolRunner.run(new MergeClusterJob(), args);
         System.exit(exitCode);
     }
 }

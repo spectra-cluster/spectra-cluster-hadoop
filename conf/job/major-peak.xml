@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!--
+    Overwrite hadoop configurations for major peak
+-->
+
+<configuration>
+
+    <property>
+        <name>mapred.reduce.tasks</name>
+        <value>300</value>
+        <description>The number of reducers used for the job</description>
+    </property>
+
+</configuration>

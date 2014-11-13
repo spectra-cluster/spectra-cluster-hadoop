@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!--
-    Overwrite hadoop configurations for MergeByOffsetJob
+    Overwrite hadoop configurations for merge cluster
 -->
 
 <configuration>
@@ -9,7 +9,7 @@
     <property>
         <name>offsetBins</name>
         <value>true</value>
-        <description></description>
+        <description>whether to apply an offset to the binner</description>
     </property>
 
     <property>
