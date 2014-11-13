@@ -32,7 +32,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
         String label = key.toString();
         String originalContent = value.toString();
 
-        if (label == null || originalContent == null || label.length() == 0 || originalContent.length() == 0)
+        if (label.length() == 0 || originalContent.length() == 0)
             return;
 
         // read the original content as MGF

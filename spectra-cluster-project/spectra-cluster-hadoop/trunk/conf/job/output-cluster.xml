@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<!--
+    Overwrite hadoop configurations for merge cluster
+-->
+
+<configuration>
+
+    <property>
+        <name>mapred.reduce.tasks</name>
+        <value>120</value>
+        <description>The number of reducers used for the job</description>
+    </property>
+
+    <property>
+        <name>mapred.compress.map.output</name>
+        <value>true</value>
+        <description>Whether to compress mapper's output</description>
+    </property>
+
+    <property>
+        <name>mapred.map.output.compression.codec</name>
+        <value>org.apache.hadoop.io.compress.BZip2Codec</value>
+        <description>Compress codec for mapper's output, using BZip since it supports splitting</description>
+    </property>
+
+    <property>
+        <name>mapred.output.compression.type</name>
+        <value>BLOCK</value>
+        <description>Compress type for mapper's output, change from RECORD to BLOCK to make it more efficient</description>
+    </property>
+</configuration>
