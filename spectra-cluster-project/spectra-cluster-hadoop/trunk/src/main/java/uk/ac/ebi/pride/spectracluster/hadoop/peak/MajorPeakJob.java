@@ -11,7 +11,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.systemsbiology.hadoop.MGFInputFormat;
+import uk.ac.ebi.pride.spectracluster.hadoop.io.MGFInputFormat;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
 
 /**

@@ -6,8 +6,10 @@ import java.io.InputStream;
  * Abstracts the notion of the object holding parameters
  *
  * @author Steve Lewis
+ *
+ * todo: to be reviewed
  */
-public interface IParameterHolder extends org.systemsbiology.hadoop.IStreamOpener {
+public interface IParameterHolder extends IStreamOpener {
     /**
      * for testing this has no data
      */

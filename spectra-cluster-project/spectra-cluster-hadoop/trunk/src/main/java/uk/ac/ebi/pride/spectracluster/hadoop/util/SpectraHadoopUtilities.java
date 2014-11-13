@@ -1,21 +1,18 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
-import com.lordjoe.utilities.IProgressHandler;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.*;
-import org.systemsbiology.hadoop.DefaultParameterHolder;
-import org.systemsbiology.hadoop.HadoopUtilities;
-import org.systemsbiology.hadoop.JobSizeEnum;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.cluster.SpectralCluster;
 import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
-import uk.ac.ebi.pride.spectracluster.keys.BinMZKey;
-import uk.ac.ebi.pride.spectracluster.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
@@ -24,12 +21,12 @@ import java.io.*;
 import java.util.*;
 
 /**
- * uk.ac.ebi.pride.spectracluster.hadoop.SpectraHadoopUtilities
- * User: Steve
- * Date: 8/13/13
+ *
  * static general purpose routines for handling hadoopy things
  *
- * todo: review this class
+ * @author Steve Lewis
+ *
+ * todo: review this class, may be merge HadoopUtilities and SpectraHadoopUtilities
  */
 public class SpectraHadoopUtilities {
 
@@ -49,23 +46,23 @@ public class SpectraHadoopUtilities {
         }
     }
 
-    public static Properties readParamsProperties(Configuration conf, String altName) {
-        Properties paramProps = new Properties();
-        String params = conf.get(DefaultParameterHolder.PARAMS_KEY);
-        params = params.replace("\\", "/");
-        if (params == null) {
-            conf.set(DefaultParameterHolder.PARAMS_KEY, altName);
-        } else {
-            paramProps = SpectraHadoopUtilities.readParams(new Path(params), conf);
-            String property = paramProps.getProperty(HadoopUtilities.JOB_SIZE_PROPERTY);
-            if(property == null)
-                property = JobSizeEnum.Medium.toString();
-            HadoopUtilities.setProperty(HadoopUtilities.JOB_SIZE_PROPERTY, property);
-
-        }
-
-        return paramProps;
-    }
+//    public static Properties readParamsProperties(Configuration conf, String altName) {
+//        Properties paramProps = new Properties();
+//        String params = conf.get(DefaultParameterHolder.PARAMS_KEY);
+//        params = params.replace("\\", "/");
+//        if (params == null) {
+//            conf.set(DefaultParameterHolder.PARAMS_KEY, altName);
+//        } else {
+//            paramProps = SpectraHadoopUtilities.readParams(new Path(params), conf);
+//            String property = paramProps.getProperty(HadoopUtilities.JOB_SIZE_PROPERTY);
+//            if(property == null)
+//                property = JobSizeEnum.Medium.toString();
+//            HadoopUtilities.setProperty(HadoopUtilities.JOB_SIZE_PROPERTY, property);
+//
+//        }
+//
+//        return paramProps;
+//    }
 
 
     /**
@@ -111,34 +108,37 @@ public class SpectraHadoopUtilities {
         context.getCounter("Partition", counterName).increment(1);
     }
 
-    /**
-     * track how balanced is partitioning
-     *
-     * @param context !null context
-     * @param mzKey   !null key
-     */
-    @SuppressWarnings("UnusedDeclaration")
-    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, PeakMZKey mzKey) {
-        //noinspection ConstantIfStatement
-        if (true)
-            return;  // not now
-        int hash = mzKey.getPartitionHash() % HadoopUtilities.DEFAULT_TEST_NUMBER_REDUCERS;
-        incrementPartitionCounter(context, "Peak", hash);
-    }
-
-    /**
-     * track how balanced is partitioning
-     *
-     * @param context !null context
-     * @param mzKey   !null key
-     */
-    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, BinMZKey mzKey) {
-        //noinspection ConstantIfStatement
-        if (true)
-            return;  // not now
-        int hash = mzKey.getPartitionHash() % HadoopUtilities.DEFAULT_TEST_NUMBER_REDUCERS;
-        incrementPartitionCounter(context, "Bin", hash);
-    }
+//    /**
+//     * track how balanced is partitioning
+//     *
+//     * @param context !null context
+//     * @param mzKey   !null key
+//     *
+//     * todo: remove this method?
+//     */
+//    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, PeakMZKey mzKey) {
+//        //noinspection ConstantIfStatement
+//        if (true)
+//            return;  // not now
+//        int hash = mzKey.getPartitionHash() % HadoopUtilities.DEFAULT_TEST_NUMBER_REDUCERS;
+//        incrementPartitionCounter(context, "Peak", hash);
+//    }
+//
+//    /**
+//     * track how balanced is partitioning
+//     *
+//     * @param context !null context
+//     * @param mzKey   !null key
+//     *
+//     * todo: remove this method?
+//     */
+//    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, BinMZKey mzKey) {
+//        //noinspection ConstantIfStatement
+//        if (true)
+//            return;  // not now
+//        int hash = mzKey.getPartitionHash() % HadoopUtilities.DEFAULT_TEST_NUMBER_REDUCERS;
+//        incrementPartitionCounter(context, "Bin", hash);
+//    }
 
     /**
      * build a reader for  a local sequence file
@@ -341,39 +341,39 @@ public class SpectraHadoopUtilities {
      * @param pContext
      * @return
      */
-    @SuppressWarnings("UnusedDeclaration")
-    public static IProgressHandler buildProgressCounter(final String pGroup, final String pName, final TaskInputOutputContext pContext) {
-        return new CounterProgressHandler(pGroup, pName, pContext);
-    }
-
-    private static class CounterProgressHandler implements IProgressHandler {
-        private final String group;
-        private final String name;
-        private final TaskInputOutputContext context;
-
-        private CounterProgressHandler(final String pGroup, final String pName, final TaskInputOutputContext pContext) {
-            group = pGroup;
-            name = pName;
-            context = pContext;
-        }
-
-        /**
-         * progress is incremented - what this does or means is unclear
-         *
-         * @param increment amount to increment
-         */
-        @Override
-        public void incrementProgress(final int increment) {
-            final Counter counter = context.getCounter(group, name);
-            counter.increment(increment);
-        }
-
-        /**
-         * set progress to 0
-         */
-        @Override
-        public void resetProgress() {
-            throw new UnsupportedOperationException("Cannot reset a counter");
-        }
-    }
+//    @SuppressWarnings("UnusedDeclaration")
+//    public static IProgressHandler buildProgressCounter(final String pGroup, final String pName, final TaskInputOutputContext pContext) {
+//        return new CounterProgressHandler(pGroup, pName, pContext);
+//    }
+//
+//    private static class CounterProgressHandler implements IProgressHandler {
+//        private final String group;
+//        private final String name;
+//        private final TaskInputOutputContext context;
+//
+//        private CounterProgressHandler(final String pGroup, final String pName, final TaskInputOutputContext pContext) {
+//            group = pGroup;
+//            name = pName;
+//            context = pContext;
+//        }
+//
+//        /**
+//         * progress is incremented - what this does or means is unclear
+//         *
+//         * @param increment amount to increment
+//         */
+//        @Override
+//        public void incrementProgress(final int increment) {
+//            final Counter counter = context.getCounter(group, name);
+//            counter.increment(increment);
+//        }
+//
+//        /**
+//         * set progress to 0
+//         */
+//        @Override
+//        public void resetProgress() {
+//            throw new UnsupportedOperationException("Cannot reset a counter");
+//        }
+//    }
 }

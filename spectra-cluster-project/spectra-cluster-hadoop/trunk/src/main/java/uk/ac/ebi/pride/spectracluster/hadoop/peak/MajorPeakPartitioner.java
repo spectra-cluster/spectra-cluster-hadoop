@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.spectracluster.hadoop.peak;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
-import uk.ac.ebi.pride.spectracluster.keys.PeakMZKey;
+import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 
 /**
  * A partitioner which guarantees that given a key representing a PeakMZ that
@@ -20,7 +20,6 @@ public class MajorPeakPartitioner extends Partitioner<Text, Text> {
 
         // the partition hash uses only the first two elements charge and peak
         int hash = realKey.getPartitionHash();
-
         return hash % numberOfReducers;
     }
 
