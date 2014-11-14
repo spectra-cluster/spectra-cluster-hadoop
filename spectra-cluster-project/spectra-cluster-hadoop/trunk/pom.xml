@@ -45,19 +45,23 @@
         <url>http://www.ebi.ac.uk</url>
     </organization>
 
-
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spectra-cluster.version>1.0.5-SNAPSHOT</spectra-cluster.version>
+        <hadoop-core.version>0.20.2</hadoop-core.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>uk.ac.ebi.pride.spectracluster</groupId>
             <artifactId>spectra-cluster</artifactId>
-            <version>1.0.5-SNAPSHOT</version>
+            <version>${spectra-cluster.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
-            <version>0.20.2</version>
+            <version>${hadoop-core.version}</version>
         </dependency>
      </dependencies>
 

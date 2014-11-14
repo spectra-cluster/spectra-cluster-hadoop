@@ -22,7 +22,7 @@ public final class ClusterHadoopDefaults {
 
     public static final String DEFAULT_OUTPUT_PATH = "ConsolidatedClusters";
 
-    public static final String DEFAULT_BINNING_RESOURCE = "pride-binning.tsv";
+    public static final String DEFAULT_BINNING_RESOURCE = "/pride-binning.tsv";
 
     private static String gOutputPath = DEFAULT_OUTPUT_PATH;
 

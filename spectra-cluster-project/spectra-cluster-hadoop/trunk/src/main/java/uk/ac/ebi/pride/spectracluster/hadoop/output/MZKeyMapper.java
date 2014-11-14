@@ -11,6 +11,7 @@ import java.io.LineNumberReader;
 import java.io.StringReader;
 
 /**
+ * Mapper that simply read clusters and pass them on using their precursor m/z as the key
  *
  * @author Steve Lewis
  * @author Rui Wang
