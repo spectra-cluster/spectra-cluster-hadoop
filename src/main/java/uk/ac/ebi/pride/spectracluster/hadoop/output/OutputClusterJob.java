@@ -4,12 +4,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
@@ -51,7 +52,7 @@ public class OutputClusterJob extends Configured implements Tool {
         job.setInputFormatClass(SequenceFileInputFormat.class);
 
         // output format
-        job.setOutputFormatClass(TextOutputFormat.class);
+        job.setOutputFormatClass(NullOutputFormat.class);
 
         // set mapper, reducer and partitioner
         job.setMapperClass(MZKeyMapper.class);
@@ -61,8 +62,8 @@ public class OutputClusterJob extends Configured implements Tool {
         // set output class
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputKeyClass(NullWritable.class);
+        job.setOutputValueClass(NullWritable.class);
 
         boolean completion = job.waitForCompletion(true);
 

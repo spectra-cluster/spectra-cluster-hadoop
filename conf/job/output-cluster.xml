@@ -3,8 +3,13 @@
 <!--
     Overwrite hadoop configurations for merge cluster
 -->
-
 <configuration>
+
+    <property>
+        <name>clustering.file.prefix</name>
+        <value>clusteringBin</value>
+        <description>prefix for the final output of each clustering file</description>
+    </property>
 
     <property>
         <name>mapred.reduce.tasks</name>
@@ -29,4 +34,11 @@
         <value>BLOCK</value>
         <description>Compress type for mapper's output, change from RECORD to BLOCK to make it more efficient</description>
     </property>
+
+    <property>
+        <name>mapred.tasks.speculative.execution</name>
+        <value>false</value>
+        <description>Turn off the speculative execution to avoid running the same reduce tasks multiple times</description>
+    </property>
+
 </configuration>
