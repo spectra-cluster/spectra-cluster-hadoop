@@ -13,6 +13,12 @@
     </property>
 
     <property>
+        <name>mapred.child.java.opts</name>
+        <value>-Xmx2600m</value>
+        <description>Memory assigned to each task node JVM</description>
+    </property>
+
+    <property>
         <name>mapred.compress.map.output</name>
         <value>true</value>
         <description>Whether to compress mapper's output</description>
