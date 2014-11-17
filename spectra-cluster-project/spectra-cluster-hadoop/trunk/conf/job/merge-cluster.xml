@@ -7,8 +7,8 @@
 <configuration>
 
     <property>
-        <name>offsetBins</name>
-        <value>true</value>
+        <name>pride.cluster.offset.bins</name>
+        <value>false</value>
         <description>whether to apply an offset to the binner</description>
     </property>
 

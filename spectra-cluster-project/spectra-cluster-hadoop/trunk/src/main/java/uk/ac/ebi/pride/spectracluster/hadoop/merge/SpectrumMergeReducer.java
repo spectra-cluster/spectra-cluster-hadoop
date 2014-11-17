@@ -37,7 +37,7 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
         super.setup(context);
 
         //todo: why do we need this?
-        boolean offsetBins = context.getConfiguration().getBoolean("offsetBins", false);
+        boolean offsetBins = context.getConfiguration().getBoolean("pride.cluster.offset.bins", false);
         if (offsetBins) {
             IWideBinner offSetHalf = (IWideBinner) getBinner().offSetHalf();
             setBinner(offSetHalf);

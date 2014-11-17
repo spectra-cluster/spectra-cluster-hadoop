@@ -1,50 +1,55 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
+import org.apache.hadoop.conf.Configuration;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.NumberUtilities;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 
 /**
  *
- * Note: Rui has moved all the properties used into this class
+ * NOTE: although this class has not been used at the moment, this can be useful if we want to
+ * play with different configurations.
  *
+ * To enable these configurations, change the related job xml configuration file.
+ *
+ * For example, if you want to change LARGE_BINNING_REGION_PROPERTY to 3, you can add the following xml elements
+ *
+ * <property>
+ *  <name>pride.cluster.large.binning.region</name>
+ *  <value>3</value>
+ * </property>
+ *
+ * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
  */
 public class ConfigurableProperties {
 
-    public static final String LARGE_BINNING_REGION_PROPERTY = "uk.ac.ebi.pride.spectracluster.similarity.FrankEtAlDotProduct.LargeBinningRegion";
-    public static final String NUMBER_COMPARED_PEAKS_PROPERTY = "uk.ac.ebi.pride.spectracluster.similarity.FrankEtAlDotProduct.NumberComparedPeaks";
-    public static final String SIMILARITY_MZ_RANGE_PROPERTY = "uk.ac.ebi.pride.spectracluster.similarity.FrankEtAlDotProduct.SimilarityMZRange";
-    public static final String RETAIN_THRESHOLD_PROPERTY = "uk.ac.ebi.pride.spectracluster.similarity.FrankEtAlDotProduct.RetainThreshold";
-    public static final String SIMILARITY_THRESHOLD_PROPERTY = "uk.ac.ebi.pride.spectracluster.similarity.FrankEtAlDotProduct.SimilarityThreshold";
-    public static final String STABLE_CLUSTER_SIZE_PROPERTY = "uk.ac.ebi.pride.spectracluster.util.ClusterUtilities.StableClusterSize";
-    public static final String SEMI_STABLE_CLUSTER_SIZE_PROPERTY = "uk.ac.ebi.pride.spectracluster.util.ClusterUtilities.SemiStableClusterSize";
-    public static final String SPECTRUM_MERGE_WINDOW_PROPERTY = "uk.ac.ebi.pride.spectracluster.hadoop.SameClustererMerger.SpectrumMergeWindow";
-    public static final String MAJOR_PEAK_WINDOW_PROPERTY = "uk.ac.ebi.pride.spectracluster.hadoop.MajorPeakReducer.MajorPeakWindow";
-    public static final String OUTPUT_PATH_PROPERTY = "uk.ac.ebi.pride.spectracluster.hadoop.OutputPath";
+    public static final String LARGE_BINNING_REGION_PROPERTY = "pride.cluster.large.binning.region";
+    public static final String NUMBER_COMPARED_PEAKS_PROPERTY = "pride.cluster.number.compared.peaks";
+    public static final String SIMILARITY_MZ_RANGE_PROPERTY = "pride.cluster.similarity.mz.range";
+    public static final String RETAIN_THRESHOLD_PROPERTY = "pride.cluster.retain.threshold";
+    public static final String SIMILARITY_THRESHOLD_PROPERTY = "pride.cluster.similarity.threshold";
+    public static final String SPECTRUM_MERGE_WINDOW_PROPERTY = "pride.cluster.spectrum.merge.window";
+    public static final String MAJOR_PEAK_WINDOW_PROPERTY = "pride.cluster.major.peak.window";
 
 
     /**
      * this method and the one below
      *
-     * @param application source of parameters
+     * @param configuration source of parameters
      */
-    public static void configureAnalysisParameters(@Nonnull IParameterHolder application) {
-        Defaults.setLargeBinningRegion(application.getIntParameter(LARGE_BINNING_REGION_PROPERTY, Defaults.DEFAULT_LARGE_BINNING_REGION));
-        Defaults.setNumberComparedPeaks(application.getIntParameter(NUMBER_COMPARED_PEAKS_PROPERTY, Defaults.DEFAULT_NUMBER_COMPARED_PEAKS));
-        Defaults.setSimilarityMZRange(application.getDoubleParameter(SIMILARITY_MZ_RANGE_PROPERTY, Defaults.DEFAULT_MZ_RANGE));
-        Defaults.setRetainThreshold(application.getDoubleParameter(RETAIN_THRESHOLD_PROPERTY, Defaults.DEFAULT_RETAIN_THRESHOLD));
-        Defaults.setSimilarityThreshold(application.getDoubleParameter(SIMILARITY_THRESHOLD_PROPERTY, Defaults.DEFAULT_SIMILARITY_THRESHOLD));
+    public static void configureAnalysisParameters(Configuration configuration) {
+        Defaults.setLargeBinningRegion(configuration.getInt(LARGE_BINNING_REGION_PROPERTY, Defaults.DEFAULT_LARGE_BINNING_REGION));
+        Defaults.setNumberComparedPeaks(configuration.getInt(NUMBER_COMPARED_PEAKS_PROPERTY, Defaults.DEFAULT_NUMBER_COMPARED_PEAKS));
+        Defaults.setSimilarityMZRange(configuration.getFloat(SIMILARITY_MZ_RANGE_PROPERTY, new Float(Defaults.DEFAULT_MZ_RANGE)));
+        Defaults.setRetainThreshold(configuration.getFloat(RETAIN_THRESHOLD_PROPERTY, new Float(Defaults.DEFAULT_RETAIN_THRESHOLD)));
+        Defaults.setSimilarityThreshold(configuration.getFloat(SIMILARITY_THRESHOLD_PROPERTY, new Float(Defaults.DEFAULT_SIMILARITY_THRESHOLD)));
 
         // hadoop related properties
-        ClusterHadoopDefaults.setSameClusterMergeMZWindowSize(application.getDoubleParameter(SPECTRUM_MERGE_WINDOW_PROPERTY, ClusterHadoopDefaults.DEFAULT_SAME_CLUSTER_MERGE_WINDOW));
-        ClusterHadoopDefaults.setMajorPeakMZWindowSize(application.getDoubleParameter(MAJOR_PEAK_WINDOW_PROPERTY, ClusterHadoopDefaults.DEFAULT_MAJOR_PEAK_MZ_WINDOW));
-        ClusterHadoopDefaults.setSpectrumMergeMZWindowSize(application.getDoubleParameter(SPECTRUM_MERGE_WINDOW_PROPERTY, ClusterHadoopDefaults.DEFAULT_SPECTRUM_MERGE_WINDOW));
-
-        ClusterHadoopDefaults.setOutputPath(application.getParameter(OUTPUT_PATH_PROPERTY, ClusterHadoopDefaults.DEFAULT_OUTPUT_PATH));
+        ClusterHadoopDefaults.setMajorPeakMZWindowSize(configuration.getFloat(MAJOR_PEAK_WINDOW_PROPERTY, new Float(ClusterHadoopDefaults.DEFAULT_MAJOR_PEAK_MZ_WINDOW)));
+        ClusterHadoopDefaults.setSpectrumMergeMZWindowSize(configuration.getFloat(SPECTRUM_MERGE_WINDOW_PROPERTY, new Float(ClusterHadoopDefaults.DEFAULT_SPECTRUM_MERGE_WINDOW)));
     }
 
 
@@ -53,17 +58,15 @@ public class ConfigurableProperties {
      *
      * @param out output
      */
-    public static void appendAnalysisParameters(@Nonnull Appendable out) {
+    public static void appendAnalysisParameters(Appendable out) {
         try {
-            out.append("largeBinningRegion=").append(String.valueOf(Defaults.getLargeBinningRegion())).append("\n");
-            out.append("numberComparedPeaks=").append(String.valueOf(Defaults.getNumberComparedPeaks())).append("\n");
-            out.append("similarityMZRange=").append(NumberUtilities.formatDouble(Defaults.getSimilarityMZRange(), 3)).append("\n");
-            out.append("similarityThreshold=").append(NumberUtilities.formatDouble(Defaults.getSimilarityThreshold(), 3)).append("\n");
-            out.append("retainThreshold=").append(NumberUtilities.formatDouble(Defaults.getRetainThreshold(), 3)).append("\n");
-            out.append("sameClusterMergeMZWindowSize=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getSameClusterMergeMZWindowSize(), 3)).append("\n");
-            out.append("majorPeakMZWindowSize=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getMajorPeakMZWindowSize(), 3)).append("\n");
-            out.append("spectrumMergeMZWindowSize=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getSpectrumMergeMZWindowSize(), 3)).append("\n");
-            out.append("outputPath=").append(ClusterHadoopDefaults.getOutputPath()).append("\n");
+            out.append(LARGE_BINNING_REGION_PROPERTY).append("=").append(String.valueOf(Defaults.getLargeBinningRegion())).append("\n");
+            out.append(NUMBER_COMPARED_PEAKS_PROPERTY).append("=").append(String.valueOf(Defaults.getNumberComparedPeaks())).append("\n");
+            out.append(SIMILARITY_MZ_RANGE_PROPERTY).append("=").append(NumberUtilities.formatDouble(Defaults.getSimilarityMZRange(), 3)).append("\n");
+            out.append(SIMILARITY_THRESHOLD_PROPERTY).append("=").append(NumberUtilities.formatDouble(Defaults.getSimilarityThreshold(), 3)).append("\n");
+            out.append(RETAIN_THRESHOLD_PROPERTY).append("=").append(NumberUtilities.formatDouble(Defaults.getRetainThreshold(), 3)).append("\n");
+            out.append(MAJOR_PEAK_WINDOW_PROPERTY).append("=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getMajorPeakMZWindowSize(), 3)).append("\n");
+            out.append(SPECTRUM_MERGE_WINDOW_PROPERTY).append("=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getSpectrumMergeMZWindowSize(), 3)).append("\n");
         } catch (IOException e) {
             throw new RuntimeException(e);
 

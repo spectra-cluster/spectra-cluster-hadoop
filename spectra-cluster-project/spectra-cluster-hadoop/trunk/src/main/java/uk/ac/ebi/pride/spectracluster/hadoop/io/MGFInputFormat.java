@@ -29,18 +29,18 @@ import java.io.IOException;
  */
 public class MGFInputFormat extends FileInputFormat<Text, Text> {
 
-    private String m_Extension = "mgf";
+    private String FILE_EXTENSION = "mgf";
 
     public MGFInputFormat() {
 
     }
 
     public String getExtension() {
-        return m_Extension;
+        return FILE_EXTENSION;
     }
 
     public void setExtension(final String pExtension) {
-        m_Extension = pExtension;
+        FILE_EXTENSION = pExtension;
     }
 
 
