@@ -13,6 +13,8 @@ import uk.ac.ebi.pride.spectracluster.io.DotClusterClusterAppender;
 import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
 
 import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Reducer to write clusters to the final .clustering file output format
@@ -28,6 +30,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
     private MZKey currentKey;
     private DotClusterClusterAppender clusterAppender = new DotClusterClusterAppender();
     private PrintWriter currentFileWriter;
+    private Set<String> currentClusteredSpectraIds = new HashSet<String>();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -43,6 +46,8 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
         MZKey currKey = getCurrentKey();
         if (currKey == null || currKey.getAsInt() != mzKey.getAsInt()) {
             updateFileAppender(context, mzKey);
+            currentKey = mzKey;
+            currentClusteredSpectraIds.clear();
         }
 
         for (Text value : values) {
@@ -51,25 +56,32 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
             LineNumberReader rdr = new LineNumberReader((new StringReader(content)));
             ICluster cluster = ParserUtilities.readSpectralCluster(rdr, null);
 
-            // write cluster
-            getClusterAppender().appendCluster(getCurrentFileWriter(), cluster);
+            String combinedSpectraId = cluster.getSpectralId();
+            if (!currentClusteredSpectraIds.contains(combinedSpectraId)) {
+                // record the combined spectra id
+                currentClusteredSpectraIds.add(combinedSpectraId);
+
+                // write cluster
+                getClusterAppender().appendCluster(getCurrentFileWriter(), cluster);
+            }
         }
     }
 
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
         updateFileAppender(context, null);
+        currentClusteredSpectraIds.clear();
         super.cleanup(context);
     }
 
     private void updateFileAppender(Context context, MZKey mzKey) {
         if (getCurrentFileWriter() != null) {
             getCurrentFileWriter().close();
+            setCurrentFileWriter(null);
         }
 
         // set the new key
-        currentKey = mzKey;
-        if (currentKey == null)
+        if (mzKey == null)
             return;
 
         // create a new print writer to write to a different file
