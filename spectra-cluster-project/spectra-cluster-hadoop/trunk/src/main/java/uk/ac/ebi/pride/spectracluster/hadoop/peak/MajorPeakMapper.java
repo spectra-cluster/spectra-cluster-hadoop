@@ -4,7 +4,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.SpectraHadoopUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
 import uk.ac.ebi.pride.spectracluster.io.MGFSpectrumAppender;
 import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
 import uk.ac.ebi.pride.spectracluster.normalizer.IIntensityNormalizer;
@@ -44,7 +44,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
         if (precursorMz < MZIntensityUtilities.HIGHEST_USABLE_MZ) {
             // increment dalton bin counter
-            SpectraHadoopUtilities.incrementDaltonCounters(precursorMz, context);
+            CounterUtilities.incrementDaltonCounters(precursorMz, context);
 
             // normalise all spectrum
             ISpectrum normaliseSpectrum = normaliseSpectrum(spectrum);

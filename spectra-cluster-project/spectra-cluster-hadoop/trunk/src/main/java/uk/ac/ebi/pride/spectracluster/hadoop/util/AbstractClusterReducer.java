@@ -30,9 +30,8 @@ public abstract class AbstractClusterReducer extends Reducer<Text, Text, Text, T
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
 
-        //todo: leave out all the configuration stuff, as they are using the default anyway
-        //todo: if we are not going to use the configuration, we can remove this method in the future
-//        ConfigurableProperties.configureAnalysisParameters(getApplication());
+        // read and customize configuration, default will be used if not provided
+        ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
     }
 
     @Override

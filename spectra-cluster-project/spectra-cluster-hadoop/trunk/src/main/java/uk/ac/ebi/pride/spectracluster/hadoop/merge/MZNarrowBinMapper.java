@@ -5,7 +5,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.SpectraHadoopUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
 import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 
@@ -28,7 +28,6 @@ public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
 
-        //todo: why do we need this?
         boolean offsetBins = context.getConfiguration().getBoolean("pride.cluster.offset.bins", false);
         if (offsetBins) {
             IWideBinner offSetHalf = (IWideBinner) getBinner().offSetHalf();
@@ -55,7 +54,7 @@ public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
 
                 // increment partition counter
                 // todo: to remove?
-                SpectraHadoopUtilities.incrementPartitionCounter(context, binMZKey);
+                CounterUtilities.incrementPartitionCounter(context, binMZKey);
 
                 String binMZKeyString = binMZKey.toString();
                 context.write(new Text(binMZKeyString), value);

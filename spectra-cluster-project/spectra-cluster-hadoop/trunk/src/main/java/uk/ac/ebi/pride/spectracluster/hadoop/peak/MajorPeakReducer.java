@@ -6,6 +6,7 @@ import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
@@ -32,6 +33,14 @@ public class MajorPeakReducer extends AbstractClusterReducer {
     private final Set<String> writtenSpectra = new HashSet<String>();
     //todo: why do we need last written spectra?
     private final Set<String> lastWrittenSpectra = new HashSet<String>();
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+        super.setup(context);
+
+        // read and customize configuration, default will be used if not provided
+        ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
+    }
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
