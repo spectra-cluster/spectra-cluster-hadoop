@@ -30,7 +30,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
     private MZKey currentKey;
     private DotClusterClusterAppender clusterAppender = new DotClusterClusterAppender();
     private PrintWriter currentFileWriter;
-    private Set<String> currentClusteredSpectraIds = new HashSet<String>();
+    private final Set<String> currentClusteredSpectraIds = new HashSet<String>();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
