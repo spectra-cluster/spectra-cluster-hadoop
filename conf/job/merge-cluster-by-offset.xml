@@ -7,7 +7,7 @@
 <configuration>
 
     <property>
-        <name>offsetBins</name>
+        <name>pride.cluster.offset.bins</name>
         <value>true</value>
         <description>Indicates whether to shift the bins by a offset</description>
     </property>

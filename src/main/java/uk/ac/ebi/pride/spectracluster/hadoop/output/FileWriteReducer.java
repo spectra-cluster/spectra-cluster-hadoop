@@ -46,7 +46,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
         MZKey currKey = getCurrentKey();
         if (currKey == null || currKey.getAsInt() != mzKey.getAsInt()) {
             updateFileAppender(context, mzKey);
-            currentKey = mzKey;
+            setCurrentKey(mzKey);
             currentClusteredSpectraIds.clear();
         }
 
