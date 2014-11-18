@@ -19,7 +19,7 @@ import java.io.IOException;
  */
 public class BinPartitioner extends Partitioner<Text, Text> {
     private APrioriBinning prePartitioning;
-    private final IWideBinner binner = ClusterHadoopDefaults.DEFAULT_WIDE_MZ_BINNER;
+    private final IWideBinner binner = ClusterHadoopDefaults.getBinner();
     private final String binningResource = ClusterHadoopDefaults.getBinningResource();
 
     @Override

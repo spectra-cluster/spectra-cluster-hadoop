@@ -22,7 +22,7 @@ import java.io.StringReader;
  */
 public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
 
-    private IWideBinner binner = ClusterHadoopDefaults.DEFAULT_WIDE_MZ_BINNER;
+    private IWideBinner binner = ClusterHadoopDefaults.getBinner();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
