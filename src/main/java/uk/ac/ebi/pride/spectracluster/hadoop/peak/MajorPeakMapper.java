@@ -20,6 +20,9 @@ import java.io.StringReader;
 import java.util.List;
 
 /**
+ * Mapper that gets the highest peaks of a spectrum and then send corresponding copies of spectra
+ * along with the highest peak to the reducer
+ *
  * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
@@ -37,8 +40,6 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
         // read the original content as MGF
         ISpectrum spectrum = parseSpectrumFromString(originalContent);
-
-        // todo: do we need to check whether spectrum is null ?
 
         float precursorMz = spectrum.getPrecursorMz();
 
