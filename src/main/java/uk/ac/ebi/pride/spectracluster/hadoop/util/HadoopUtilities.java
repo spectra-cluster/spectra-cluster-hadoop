@@ -17,6 +17,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Utility methods for Hadoop related things
+ *
+ * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
  */

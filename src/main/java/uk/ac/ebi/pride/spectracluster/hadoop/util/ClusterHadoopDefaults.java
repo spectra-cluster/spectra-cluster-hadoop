@@ -6,6 +6,8 @@ import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
 
 /**
+ * Default configurations for running clustering on Hadoop cluster
+ *
  *
  * @author Steve Lewis
  * @author Rui Wang
