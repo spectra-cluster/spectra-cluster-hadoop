@@ -21,27 +21,26 @@ public final class ClusterHadoopDefaults {
 
     public static final String DEFAULT_BINNING_RESOURCE = "/pride-binning.tsv";
 
-    private static double spectrumMergeMZWindowSize = DEFAULT_SPECTRUM_MERGE_WINDOW;
-
-    private static double majorPeakMZWindowSize = DEFAULT_MAJOR_PEAK_MZ_WINDOW;
-
-    private static String binningResource = DEFAULT_BINNING_RESOURCE;
-
     /**
      * binning sizes
      */
     private static final double NARRROW_BIN_WIDTH = 0.6; // 0.15; //0.005; // 0.3;
     private static final double NARRROW_BIN_OVERLAP = 0.15; // 0.03; //0.002; // 0.1;
 
-    private static final IWideBinner NARROW_MZ_BINNER = new SizedWideBinner(
+    public static final IWideBinner DEFAULT_WIDE_MZ_BINNER = new SizedWideBinner(
             MZIntensityUtilities.HIGHEST_USABLE_MZ,
             NARRROW_BIN_WIDTH,
             MZIntensityUtilities.LOWEST_USABLE_MZ,
             NARRROW_BIN_OVERLAP);
 
 
-    public static final IWideBinner DEFAULT_WIDE_MZ_BINNER = NARROW_MZ_BINNER;
+    private static double spectrumMergeMZWindowSize = DEFAULT_SPECTRUM_MERGE_WINDOW;
 
+    private static double majorPeakMZWindowSize = DEFAULT_MAJOR_PEAK_MZ_WINDOW;
+
+    private static String binningResource = DEFAULT_BINNING_RESOURCE;
+
+    private static IWideBinner binner = DEFAULT_WIDE_MZ_BINNER;
 
     private ClusterHadoopDefaults() {
     }
@@ -56,6 +55,14 @@ public final class ClusterHadoopDefaults {
 
     public static String getBinningResource() {
         return binningResource;
+    }
+
+    public static IWideBinner getBinner() {
+        return binner;
+    }
+
+    public static void setBinner(IWideBinner binner) {
+        ClusterHadoopDefaults.binner = binner;
     }
 
     public static void setBinningResource(String binningResource) {

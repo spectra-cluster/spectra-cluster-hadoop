@@ -29,7 +29,7 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
     private double spectrumMergeWindowSize = ClusterHadoopDefaults.getSpectrumMergeMZWindowSize();
     private final Set<String> writtenSpectrumIdPerBin = new HashSet<String>();
     private final Set<String> seenSpectrumIdPerBin = new HashSet<String>();
-    private IWideBinner binner = ClusterHadoopDefaults.DEFAULT_WIDE_MZ_BINNER;
+    private IWideBinner binner = ClusterHadoopDefaults.getBinner();
     private int currentBin;
 
     @Override
