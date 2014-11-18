@@ -8,8 +8,7 @@ import java.io.IOException;
 
 /**
  *
- * NOTE: although this class has not been used at the moment, this can be useful if we want to
- * play with different configurations.
+ * Varies configurations for running the clustering
  *
  * To enable these configurations, change the related job xml configuration file.
  *
@@ -26,7 +25,6 @@ import java.io.IOException;
  */
 public class ConfigurableProperties {
 
-    public static final String LARGE_BINNING_REGION_PROPERTY = "pride.cluster.large.binning.region";
     public static final String NUMBER_COMPARED_PEAKS_PROPERTY = "pride.cluster.number.compared.peaks";
     public static final String SIMILARITY_MZ_RANGE_PROPERTY = "pride.cluster.similarity.mz.range";
     public static final String RETAIN_THRESHOLD_PROPERTY = "pride.cluster.retain.threshold";
@@ -41,7 +39,6 @@ public class ConfigurableProperties {
      * @param configuration source of parameters
      */
     public static void configureAnalysisParameters(Configuration configuration) {
-        Defaults.setLargeBinningRegion(configuration.getInt(LARGE_BINNING_REGION_PROPERTY, Defaults.DEFAULT_LARGE_BINNING_REGION));
         Defaults.setNumberComparedPeaks(configuration.getInt(NUMBER_COMPARED_PEAKS_PROPERTY, Defaults.DEFAULT_NUMBER_COMPARED_PEAKS));
         Defaults.setSimilarityMZRange(configuration.getFloat(SIMILARITY_MZ_RANGE_PROPERTY, new Float(Defaults.DEFAULT_MZ_RANGE)));
         Defaults.setRetainThreshold(configuration.getFloat(RETAIN_THRESHOLD_PROPERTY, new Float(Defaults.DEFAULT_RETAIN_THRESHOLD)));
@@ -60,7 +57,6 @@ public class ConfigurableProperties {
      */
     public static void appendAnalysisParameters(Appendable out) {
         try {
-            out.append(LARGE_BINNING_REGION_PROPERTY).append("=").append(String.valueOf(Defaults.getLargeBinningRegion())).append("\n");
             out.append(NUMBER_COMPARED_PEAKS_PROPERTY).append("=").append(String.valueOf(Defaults.getNumberComparedPeaks())).append("\n");
             out.append(SIMILARITY_MZ_RANGE_PROPERTY).append("=").append(NumberUtilities.formatDouble(Defaults.getSimilarityMZRange(), 3)).append("\n");
             out.append(SIMILARITY_THRESHOLD_PROPERTY).append("=").append(NumberUtilities.formatDouble(Defaults.getSimilarityThreshold(), 3)).append("\n");
