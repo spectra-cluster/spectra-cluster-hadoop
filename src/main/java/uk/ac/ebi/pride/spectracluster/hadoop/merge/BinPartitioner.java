@@ -42,9 +42,8 @@ public class BinPartitioner extends Partitioner<Text, Text> {
 
     private APrioriBinning getPrePartitioning(int numberReducers) {
         if (prePartitioning == null || prePartitioning.getNumberOfBins() != numberReducers) {
-            APrioriBinning prioriBinning = null;
             try {
-                prioriBinning = new APrioriBinning(binningResource, numberReducers, binner);
+                APrioriBinning prioriBinning = new APrioriBinning(binningResource, numberReducers, binner);
                 setPrePartitioning(prioriBinning);
             } catch (IOException e) {
                 throw new IllegalStateException(e);

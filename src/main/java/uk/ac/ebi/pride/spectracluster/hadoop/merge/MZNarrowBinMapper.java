@@ -53,14 +53,12 @@ public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
                 BinMZKey binMZKey = new BinMZKey(bin, precursorMz);
 
                 // increment partition counter
-                // todo: to remove?
                 CounterUtilities.incrementPartitionCounter(context, binMZKey);
 
                 String binMZKeyString = binMZKey.toString();
                 context.write(new Text(binMZKeyString), value);
             }
         }
-
     }
 
     public IWideBinner getBinner() {
