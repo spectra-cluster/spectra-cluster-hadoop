@@ -3,6 +3,8 @@ package uk.ac.ebi.pride.spectracluster.hadoop.keys;
 import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
 
 /**
+ * Utility class for making keys
+ *
  * @author Rui Wang
  * @version $Id$
  */

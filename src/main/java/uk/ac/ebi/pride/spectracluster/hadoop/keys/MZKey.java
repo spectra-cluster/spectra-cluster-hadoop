@@ -29,7 +29,6 @@ public class MZKey implements Comparable<MZKey>, Serializable, IPartitionable {
         precursorMZKey = KeyUtilities.mzToKey(getPrecursorMZ());
     }
 
-
     public double getPrecursorMZ() {
         return precursorMZ;
     }
