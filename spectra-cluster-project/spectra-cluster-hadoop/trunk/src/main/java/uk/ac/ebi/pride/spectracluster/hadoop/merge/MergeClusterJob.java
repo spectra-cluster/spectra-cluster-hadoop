@@ -15,6 +15,7 @@ import org.apache.hadoop.util.ToolRunner;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
 
 /**
+ * Hadoop job to merge clusters
  *
  * @author Steve Lewis
  * @author Rui Wang

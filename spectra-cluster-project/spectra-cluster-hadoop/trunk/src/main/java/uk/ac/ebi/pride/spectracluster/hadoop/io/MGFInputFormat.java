@@ -24,38 +24,19 @@ import java.io.IOException;
  *
  * @author Steve Lewis
  * @author Rui Wang
- *
- * todo: to be reviewed
+ *         <p/>
  */
 public class MGFInputFormat extends FileInputFormat<Text, Text> {
 
-    private String FILE_EXTENSION = "mgf";
-
-    public MGFInputFormat() {
-
-    }
-
-    public String getExtension() {
-        return FILE_EXTENSION;
-    }
-
-    public void setExtension(final String pExtension) {
-        FILE_EXTENSION = pExtension;
-    }
-
-
     @Override
-    public RecordReader<Text, Text> createRecordReader(InputSplit split,
-                                                       TaskAttemptContext context) {
+    public RecordReader<Text, Text> createRecordReader(InputSplit split, TaskAttemptContext context) {
         return new MGFFileReader();
     }
 
     @Override
     protected boolean isSplitable(JobContext context, Path file) {
         final String lcName = file.getName().toLowerCase();
-        if (lcName.endsWith("gz"))
-            return false;
-        return true;
+        return !lcName.endsWith("gz");
     }
 
     /**
@@ -67,11 +48,11 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
     public class MGFFileReader extends RecordReader<Text, Text> {
 
         private CompressionCodecFactory compressionCodecs = null;
-        private long m_Start;
-        private long m_End;
+        private long start;
+        private long end;
         private long current;
-        private LineReader m_Input;
-        FSDataInputStream m_RealFile;
+        private LineReader input;
+        private FSDataInputStream realFile;
         private Text key = null;
         private Text value = null;
         private Text buffer = new Text();
@@ -80,36 +61,35 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
                                TaskAttemptContext context) throws IOException {
             FileSplit split = (FileSplit) genericSplit;
             Configuration job = context.getConfiguration();
-            m_Start = split.getStart();
-            m_End = m_Start + split.getLength();
+            start = split.getStart();
+            end = start + split.getLength();
             final Path file = split.getPath();
             compressionCodecs = new CompressionCodecFactory(job);
             boolean skipFirstLine = false;
             final CompressionCodec codec = compressionCodecs.getCodec(file);
 
-            // open the file and seek to the m_Start of the split
+            // open the file and seek to the start of the split
             FileSystem fs = file.getFileSystem(job);
-            // open the file and seek to the m_Start of the split
-            m_RealFile = fs.open(split.getPath());
+            // open the file and seek to the start of the split
+            realFile = fs.open(split.getPath());
             if (codec != null) {
-                CompressionInputStream inputStream = codec.createInputStream(m_RealFile);
-                m_Input = new LineReader( inputStream );
-                m_End = Long.MAX_VALUE;
-            }
-            else {
-                if (m_Start != 0) {
+                CompressionInputStream inputStream = codec.createInputStream(realFile);
+                input = new LineReader(inputStream);
+                end = Long.MAX_VALUE;
+            } else {
+                if (start != 0) {
                     skipFirstLine = true;
-                    --m_Start;
-                    m_RealFile.seek(m_Start);
+                    --start;
+                    realFile.seek(start);
                 }
-                m_Input = new LineReader( m_RealFile);
+                input = new LineReader(realFile);
             }
             // not at the beginning so go to first line
-            if (skipFirstLine) {  // skip first line and re-establish "m_Start".
-                m_Start += m_Input.readLine(buffer) ;
+            if (skipFirstLine) {  // skip first line and re-establish "start".
+                start += input.readLine(buffer);
             }
 
-            current = m_Start;
+            current = start;
             if (key == null) {
                 key = new Text();
             }
@@ -122,28 +102,26 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
         }
 
         /**
-         * look for a <scan tag then read until it closes
+         * look for a scan tag then read until it closes
          *
          * @return true if there is data
          * @throws java.io.IOException
          */
-        public boolean nextKeyValue() throws IOException
-
-
-        {
+        public boolean nextKeyValue() throws IOException {
             int newSize = 0;
-            while (current < m_Start) {
-                newSize = m_Input.readLine(buffer);
+            while (current < start) {
+                newSize = input.readLine(buffer);
                 // we are done
                 if (newSize == 0) {
                     key = null;
                     value = null;
                     return false;
                 }
-                current = m_RealFile.getPos();
+                current = realFile.getPos();
             }
+
             StringBuilder sb = new StringBuilder();
-            newSize = m_Input.readLine(buffer);
+            newSize = input.readLine(buffer);
             String str = null;
             while (newSize > 0) {
                 str = buffer.toString();
@@ -151,22 +129,23 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
                 if ("BEGIN IONS".equals(str)) {
                     break;
                 }
-                current = m_RealFile.getPos();
+                current = realFile.getPos();
                 // we are done
-                if (current > m_End) {
+                if (current > end) {
                     key = null;
                     value = null;
                     return false;
 
                 }
-                newSize = m_Input.readLine(buffer);
+                newSize = input.readLine(buffer);
             }
+
             if (newSize == 0) {
                 key = null;
                 value = null;
                 return false;
-
             }
+
             while (newSize > 0) {
                 str = buffer.toString();
                 sb.append(str);
@@ -174,7 +153,7 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
                 if ("END IONS".equals(str)) {
                     break;
                 }
-                newSize = m_Input.readLine(buffer);
+                newSize = input.readLine(buffer);
             }
 
             String s = sb.toString();
@@ -184,8 +163,7 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
                 key = null;
                 value = null;
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         }
@@ -205,15 +183,15 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
          * Get the progress within the split
          */
         public float getProgress() {
-            long totalBytes = m_End - m_Start;
-            long totalHandled = current - m_Start;
+            long totalBytes = end - start;
+            long totalHandled = current - start;
             return ((float) totalHandled) / totalBytes;
         }
 
 
         public synchronized void close() throws IOException {
-            if (m_Input != null) {
-                m_Input.close();
+            if (input != null) {
+                input.close();
             }
         }
     }
