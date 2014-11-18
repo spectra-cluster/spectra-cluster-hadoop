@@ -31,7 +31,6 @@ public class MajorPeakReducer extends AbstractClusterReducer {
     private double majorPeak;
     private final double majorPeakWindowSize = ClusterHadoopDefaults.getMajorPeakMZWindowSize();
     private final Set<String> writtenSpectra = new HashSet<String>();
-    //todo: why do we need last written spectra?
     private final Set<String> lastWrittenSpectra = new HashSet<String>();
 
     @Override
@@ -55,9 +54,7 @@ public class MajorPeakReducer extends AbstractClusterReducer {
         for (Text val : values) {
             // convert spectra to clusters
             final ISpectrum match = parseSpectrumFromString(val.toString());
-            //todo: why do we need the following commented out line
-//            if (match == null)
-//                continue; // not sure why this happens but nothing seems like the thing to do
+
             final ICluster cluster = ClusterUtilities.asCluster(match);
 
             // incrementally cluster
