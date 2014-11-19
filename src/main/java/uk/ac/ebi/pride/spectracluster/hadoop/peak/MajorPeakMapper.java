@@ -29,17 +29,20 @@ import java.util.List;
  */
 public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
+    /**
+     * Reuse output text objects to avoid create many short lived objects
+     */
+    private Text keyOutputText = new Text();
+    private Text valueOutputText = new Text();
+
     @Override
     protected void map(Writable key, Text value, Context context) throws IOException, InterruptedException {
         // check the validity of the input
-        String label = key.toString();
-        String originalContent = value.toString();
-
-        if (label.length() == 0 || originalContent.length() == 0)
+        if (key.toString().length() == 0 || value.toString().length() == 0)
             return;
 
         // read the original content as MGF
-        ISpectrum spectrum = parseSpectrumFromString(originalContent);
+        ISpectrum spectrum = parseSpectrumFromString(value.toString());
 
         float precursorMz = spectrum.getPrecursorMz();
 
@@ -56,7 +59,9 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
                 PeakMZKey mzKey = new PeakMZKey(peakMz, precursorMz);
 
                 final String keyStr = mzKey.toString();
-                context.write(new Text(keyStr), new Text(spectrumString));
+                keyOutputText.set(keyStr);
+                valueOutputText.set(spectrumString);
+                context.write(keyOutputText, valueOutputText);
             }
         }
     }

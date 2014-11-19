@@ -19,21 +19,26 @@ import java.io.StringReader;
  */
 public class MZKeyMapper extends Mapper<Text, Text, Text, Text> {
 
+    /**
+     * Reuse output text objects to avoid create many short lived objects
+     */
+    private Text keyOutputText = new Text();
+    private Text valueOutputText = new Text();
+
     @Override
     protected void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-        String label = key.toString();
-        String text = value.toString();
-
-        if (label.length() == 0 || text.length() == 0)
+        if (key.toString().length() == 0 || value.toString().length() == 0)
             return;
 
-        LineNumberReader rdr = new LineNumberReader((new StringReader(text)));
+        LineNumberReader rdr = new LineNumberReader((new StringReader(value.toString())));
         ICluster[] clusters = ParserUtilities.readSpectralCluster(rdr);
 
         for (ICluster cluster : clusters) {
             MZKey mzkey = new MZKey(cluster.getPrecursorMz());
-            String keyStr = mzkey.toString();
-            context.write(new Text(keyStr), new Text(text));
+
+            keyOutputText.set(mzkey.toString());
+            valueOutputText.set(value.toString());
+            context.write(keyOutputText, valueOutputText);
         }
     }
 }
