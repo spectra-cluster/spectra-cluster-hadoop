@@ -15,6 +15,7 @@ import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
 import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Reducer to write clusters to the final .clustering file output format
@@ -55,6 +56,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
             String content = value.toString();
             LineNumberReader rdr = new LineNumberReader((new StringReader(content)));
             ICluster cluster = ParserUtilities.readSpectralCluster(rdr, null);
+            cluster.setId(UUID.randomUUID().toString());
 
             String combinedSpectraId = cluster.getSpectralId();
             if (!currentClusteredSpectraIds.contains(combinedSpectraId)) {

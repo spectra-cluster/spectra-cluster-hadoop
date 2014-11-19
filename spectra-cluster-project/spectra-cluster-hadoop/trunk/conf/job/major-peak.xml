@@ -6,18 +6,21 @@
 
 <configuration>
 
+    <!-- The number of reducer tasks -->
     <property>
         <name>mapred.reduce.tasks</name>
         <value>300</value>
         <description>The number of reducers used for the job</description>
     </property>
 
+    <!-- JVM memory allocation -->
     <property>
         <name>mapred.child.java.opts</name>
         <value>-Xmx2600m</value>
         <description>Memory assigned to each task node JVM</description>
     </property>
 
+    <!-- mapper compressions -->
     <property>
         <name>mapred.compress.map.output</name>
         <value>true</value>
@@ -34,6 +37,32 @@
         <name>mapred.output.compression.type</name>
         <value>BLOCK</value>
         <description>Compress type for mapper's output, change from RECORD to BLOCK to make it more efficient</description>
+    </property>
+
+    <!-- profiler -->
+    <!-- not recommended for computational intensive tasks -->
+    <property>
+        <name>mapred.task.profile</name>
+        <value>false</value>
+        <description>Whether to enable the JVM build-in profiler</description>
+    </property>
+
+    <property>
+        <name>mapred.task.profile.params</name>
+        <value>-agentlib:hprof=cpu=samples,heap=sites,interval=20,depth=6,force=n,thread=n,verbose=n,file=%s</value>
+        <description>Profiler configuration parameters</description>
+    </property>
+
+    <property>
+        <name>mapred.task.profile.maps</name>
+        <value>0</value>
+        <description>the mapper tasks to be profiled</description>
+    </property>
+
+    <property>
+        <name>mapred.task.profile.reduces</name>
+        <value>0</value>
+        <description>the reducer tasks to be profiled</description>
     </property>
 
 </configuration>
