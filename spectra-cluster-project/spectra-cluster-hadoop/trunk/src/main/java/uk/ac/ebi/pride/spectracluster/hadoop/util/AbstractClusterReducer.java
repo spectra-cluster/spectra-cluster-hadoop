@@ -25,6 +25,12 @@ public abstract class AbstractClusterReducer extends Reducer<Text, Text, Text, T
     private IIncrementalClusteringEngine engine;
     private double clusterRetainThreshold = Defaults.getRetainThreshold();
 
+    /**
+     * Reuse output text objects to avoid create many short lived objects
+     */
+    private Text keyOutputText = new Text();
+    private Text valueOutputText = new Text();
+
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -83,7 +89,10 @@ public abstract class AbstractClusterReducer extends Reducer<Text, Text, Text, T
 
         String clusterText = convertClusterToString(cluster);
 
-        context.write(new Text(key.toString()), new Text(clusterText));
+        keyOutputText.set(key.toString());
+        valueOutputText.set(clusterText);
+
+        context.write(keyOutputText, valueOutputText);
     }
 
     /**
