@@ -21,7 +21,8 @@ MERGE_COUNTER_FILE="${ROOT_DIR}/merge.counter"
 OUTPUT_COUNTER_FILE="${ROOT_DIR}/output.counter"
 
 # General hadoop configuration
-HADOOP_CONF=conf/hadoop/hadoop-cluster.xml
+HADOOP_CONF=conf/hadoop/hadoop-prod-cluster.xml
+#HADOOP_CONF=conf/hadoop/hadoop-dev-cluster.xml
 #HADOOP_CONF=conf/hadoop/hadoop-local.xml
 
 # build library jars for hadoop job to move jars into distributed cache
