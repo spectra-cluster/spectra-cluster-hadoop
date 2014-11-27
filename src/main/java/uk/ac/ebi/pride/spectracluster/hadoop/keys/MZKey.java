@@ -3,8 +3,6 @@ package uk.ac.ebi.pride.spectracluster.hadoop.keys;
 
 import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
 
-import java.io.Serializable;
-
 /**
  * key object using  mz
  *
@@ -14,7 +12,7 @@ import java.io.Serializable;
  *
  * <p/>
  */
-public class MZKey implements Comparable<MZKey>, Serializable, IPartitionable {
+public class MZKey implements IKeyable<MZKey> {
 
     private final double precursorMZ;
     private final String precursorMZKey;

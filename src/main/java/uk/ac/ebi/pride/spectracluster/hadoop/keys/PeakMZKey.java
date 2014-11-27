@@ -1,8 +1,6 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.keys;
 
 
-import java.io.Serializable;
-
 /**
  * key represents charge peak and precursor mz
  *
@@ -11,7 +9,7 @@ import java.io.Serializable;
  * @version $Id$
  *
  */
-public class PeakMZKey implements Comparable<PeakMZKey>, IPartitionable, Serializable {
+public class PeakMZKey implements IKeyable<PeakMZKey> {
 
     private final double peakMZ;
     private final double precursorMZ;

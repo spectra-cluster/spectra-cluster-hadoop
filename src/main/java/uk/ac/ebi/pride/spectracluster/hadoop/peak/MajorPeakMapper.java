@@ -35,6 +35,11 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
     private Text keyOutputText = new Text();
     private Text valueOutputText = new Text();
 
+    /**
+     * Reuse normalizer
+     */
+    private IIntensityNormalizer intensityNormalizer = Defaults.getDefaultIntensityNormalizer();
+
     @Override
     protected void map(Writable key, Text value, Context context) throws IOException, InterruptedException {
         // check the validity of the input
@@ -101,7 +106,6 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
      * @return normalised spectrum
      */
     private ISpectrum normaliseSpectrum(ISpectrum originalSpectrum) {
-        IIntensityNormalizer intensityNormalizer = Defaults.getDefaultIntensityNormalizer();
         List<IPeak> normalizedPeaks = intensityNormalizer.normalizePeaks(originalSpectrum.getPeaks());
         return new Spectrum(originalSpectrum, normalizedPeaks);
     }

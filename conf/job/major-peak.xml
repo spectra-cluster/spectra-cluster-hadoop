@@ -39,6 +39,26 @@
         <description>Compress type for mapper's output, change from RECORD to BLOCK to make it more efficient</description>
     </property>
 
+    <!-- map-reduce task timeout -->
+    <property>
+        <name>mapred.task.timeout</name>
+        <value>1500000</value>
+        <description>The number of milliseconds before a task will be terminated if it neither reads an input, writes an output, nor updates its status string</description>
+    </property>
+
+    <!-- mapper buffer -->
+    <property>
+        <name>io.sort.mb</name>
+        <value>600</value>
+        <description>Each mapper task has a circular memory that it writes the output to</description>
+    </property>
+
+    <property>
+        <name>io.sort.factor</name>
+        <value>100</value>
+        <description>This property controls the maximum number of streams to merge at once, the default is 10</description>
+    </property>
+
     <!-- profiler -->
     <!-- not recommended for computational intensive tasks -->
     <property>

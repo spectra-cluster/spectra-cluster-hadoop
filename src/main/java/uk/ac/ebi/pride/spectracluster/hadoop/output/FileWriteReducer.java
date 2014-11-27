@@ -78,6 +78,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
 
     private void updateFileAppender(Context context, MZKey mzKey) {
         if (getCurrentFileWriter() != null) {
+            getCurrentFileWriter().flush();
             getCurrentFileWriter().close();
             setCurrentFileWriter(null);
         }

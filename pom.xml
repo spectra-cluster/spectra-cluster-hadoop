@@ -47,8 +47,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spectra-cluster.version>1.0.5-SNAPSHOT</spectra-cluster.version>
+        <spectra-cluster.version>1.0.6-SNAPSHOT</spectra-cluster.version>
         <hadoop-core.version>0.20.2</hadoop-core.version>
+        <junit.version>4.11</junit.version>
     </properties>
 
     <dependencies>
@@ -62,6 +63,13 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
             <version>${hadoop-core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
      </dependencies>
 
