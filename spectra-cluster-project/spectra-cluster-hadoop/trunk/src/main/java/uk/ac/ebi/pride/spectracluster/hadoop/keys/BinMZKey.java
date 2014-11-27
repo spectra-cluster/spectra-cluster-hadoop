@@ -1,15 +1,13 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.keys;
 
 
-import java.io.Serializable;
-
 /**
  * Key represents bin number and precursor mz
  *
  * @author Steve Lewis
  * @author Rui Wang
  */
-public class BinMZKey implements Comparable<BinMZKey>, IPartitionable, Serializable {
+public class BinMZKey implements IKeyable<BinMZKey> {
 
     private final int bin;
     private final double precursorMZ;

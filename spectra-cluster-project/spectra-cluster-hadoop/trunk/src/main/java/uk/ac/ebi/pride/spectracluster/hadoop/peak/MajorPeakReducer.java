@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.spectracluster.hadoop.peak;
 
 import org.apache.hadoop.io.Text;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
-import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
@@ -15,9 +14,6 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Reducer to cluster spectra share the same major peaks
@@ -30,8 +26,6 @@ public class MajorPeakReducer extends AbstractClusterReducer {
 
     private double majorPeak;
     private final double majorPeakWindowSize = ClusterHadoopDefaults.getMajorPeakMZWindowSize();
-    private final Set<String> writtenSpectra = new HashSet<String>();
-    private final Set<String> lastWrittenSpectra = new HashSet<String>();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -99,32 +93,6 @@ public class MajorPeakReducer extends AbstractClusterReducer {
             setEngine(getEngineFactory().getIncrementalClusteringEngine((float) majorPeakWindowSize));
             setMajorPeak(((PeakMZKey)peakMZKey).getPeakMZ());
         }
-    }
-
-    /**
-     * this version of writeCluster does all the real work
-     */
-    protected void writeOneVettedCluster(final Context context, final ICluster cluster) throws IOException, InterruptedException {
-        List<ISpectrum> clusteredSpectra = cluster.getClusteredSpectra();
-
-        if (clusteredSpectra.size() == 1) {
-            String id = clusteredSpectra.get(0).getId();
-            if (writtenSpectra.contains(id) || lastWrittenSpectra.contains(id))
-                return; // already written
-            writtenSpectra.add(id);
-        }
-
-        super.writeOneVettedCluster(context, cluster);
-    }
-
-
-    @Override
-    public void setEngine(IIncrementalClusteringEngine clusterEngine) {
-        super.setEngine(clusterEngine);
-
-        lastWrittenSpectra.clear();
-        lastWrittenSpectra.addAll(writtenSpectra); // keep one set
-        writtenSpectra.clear(); // ready for next set
     }
 
     public double getMajorPeak() {

@@ -5,7 +5,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
 import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 
@@ -23,6 +22,12 @@ import java.io.StringReader;
 public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
 
     private IWideBinner binner = ClusterHadoopDefaults.getBinner();
+
+    /**
+     * Output object reuse
+     */
+    private Text keyOutputText = new Text();
+    private Text valueOutputText = new Text();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -53,10 +58,11 @@ public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
                 BinMZKey binMZKey = new BinMZKey(bin, precursorMz);
 
                 // increment partition counter
-                CounterUtilities.incrementPartitionCounter(context, binMZKey);
+//                CounterUtilities.incrementPartitionCounter(context, binMZKey);
 
-                String binMZKeyString = binMZKey.toString();
-                context.write(new Text(binMZKeyString), value);
+                keyOutputText.set(binMZKey.toString());
+                valueOutputText.set(value.toString());
+                context.write(keyOutputText, valueOutputText);
             }
         }
     }

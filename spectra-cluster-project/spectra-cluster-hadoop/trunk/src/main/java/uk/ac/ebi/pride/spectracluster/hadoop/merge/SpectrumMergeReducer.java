@@ -36,7 +36,6 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
 
-        //todo: why do we need this?
         boolean offsetBins = context.getConfiguration().getBoolean("pride.cluster.offset.bins", false);
         if (offsetBins) {
             IWideBinner offSetHalf = (IWideBinner) getBinner().offSetHalf();
@@ -59,16 +58,12 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
             LineNumberReader rdr = new LineNumberReader((new StringReader(val)));
             ICluster cluster = ParserUtilities.readSpectralCluster(rdr, null);
 
-            List<ISpectrum> clusteredSpectra = cluster.getClusteredSpectra();
-
             // ignore single spectrum cluster which have been seen before
-            if (clusteredSpectra.size() == 1 && seenSpectrumIdPerBin.contains(clusteredSpectra.get(0).getId())) {
+            if (cluster.getClusteredSpectraCount() == 1 && seenSpectrumIdPerBin.contains(cluster.getClusteredSpectra().get(0).getId())) {
                 continue;
             }
 
-            for (ISpectrum spectrum : clusteredSpectra) {
-                seenSpectrumIdPerBin.add(spectrum.getId());
-            }
+            seenSpectrumIdPerBin.addAll(cluster.getSpectralIds());
 
             Collection<ICluster> removedClusters = getEngine().addClusterIncremental(cluster);
             if (!removedClusters.isEmpty()) {
@@ -85,8 +80,7 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
         }
 
         if (binMZKey != null) {
-            double windowSize = getSpectrumMergeWindowSize();
-            setEngine(getEngineFactory().getIncrementalClusteringEngine((float) windowSize));
+            setEngine(getEngineFactory().getIncrementalClusteringEngine((float) getSpectrumMergeWindowSize()));
             setCurrentBin(((BinMZKey) binMZKey).getBin());
         }
     }
@@ -96,24 +90,9 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
         /**
          * is a duplicate  so ignore
          */
-        if (!trackDuplicates(context, cluster))
-            return;
+        trackDuplicates(context, cluster);
 
-        trackOutsideBin(context, cluster);
-
-        super.writeOneVettedCluster(context, cluster);
-    }
-
-
-    /**
-     * todo: is this really useful? Need to re-evaluate after a proper run
-     *
-     * @param context
-     * @param cluster
-     */
-    private void trackOutsideBin(Context context, ICluster cluster) {
         float precursorMz = cluster.getPrecursorMz();
-
         IWideBinner binner = getBinner();
         int bin = binner.asBin(precursorMz);
 
@@ -123,7 +102,10 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
             String offString = bin > getCurrentBin() ? "above" : "below";
             Counter counter = context.getCounter("OutsideBin", offString);
             counter.increment(1);
+            return;
         }
+
+        super.writeOneVettedCluster(context, cluster);
     }
 
     /**
@@ -133,23 +115,19 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
      * @param cluster
      * @return
      */
-    private boolean trackDuplicates(Context context, ICluster cluster) {
+    private void trackDuplicates(Context context, ICluster cluster) {
 
         /**
          * this entire section is here to track duplicates and stop writing single spectra when
          * they are already clustered
          */
         int clusteredSpectraCount = cluster.getClusteredSpectraCount();
-        if (clusteredSpectraCount == 0)
-            return false; // empty don't bother
-
         List<ISpectrum> clusteredSpectra = cluster.getClusteredSpectra();
         if (clusteredSpectraCount == 1) {
             ISpectrum onlySpectrum = clusteredSpectra.get(0);
             if (writtenSpectrumIdPerBin.contains(onlySpectrum.getId())) {
                 Counter counter = context.getCounter("Duplicates", "attempt_single");
                 counter.increment(1);
-                return false; // already written
             }
         } else {
             for (ISpectrum spc : clusteredSpectra) {
@@ -165,8 +143,6 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
                 }
             }
         }
-
-        return true;
     }
 
     public IWideBinner getBinner() {

@@ -1,7 +1,5 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -40,7 +38,7 @@ public class CounterUtilities {
      * @param context !null context
      * @param hash    retucer assuming  HadoopUtilities.DEFAULT_NUMBER_REDUCERS is right
      */
-    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, String prefix, int hash) {
+    public static void incrementPartitionCounter(Mapper.Context context, String prefix, int hash) {
         String counterName = prefix + String.format("%05d", hash).trim();
         context.getCounter("Partition", counterName).increment(1);
     }
@@ -52,7 +50,7 @@ public class CounterUtilities {
      * @param context !null context
      * @param hash    retucer assuming  HadoopUtilities.DEFAULT_NUMBER_REDUCERS is right
      */
-    public static void incrementPartitionCounter(Reducer<? extends Writable, Text, Text, Text>.Context context, String prefix, int hash) {
+    public static void incrementPartitionCounter(Reducer.Context context, String prefix, int hash) {
         String counterName = prefix + String.format("%05d", hash).trim();
         context.getCounter("Partition", counterName).increment(1);
     }
@@ -63,7 +61,7 @@ public class CounterUtilities {
      * @param context !null context
      * @param mzKey   !null key
      */
-    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, PeakMZKey mzKey) {
+    public static void incrementPartitionCounter(Mapper.Context context, PeakMZKey mzKey) {
         int hash = mzKey.getPartitionHash() % context.getNumReduceTasks();
         incrementPartitionCounter(context, "Peak", hash);
     }
@@ -74,7 +72,7 @@ public class CounterUtilities {
      * @param context !null context
      * @param mzKey   !null key
      */
-    public static void incrementPartitionCounter(Mapper<? extends Writable, Text, Text, Text>.Context context, BinMZKey mzKey) {
+    public static void incrementPartitionCounter(Mapper.Context context, BinMZKey mzKey) {
         int hash = mzKey.getPartitionHash() % context.getNumReduceTasks();
         incrementPartitionCounter(context, "Bin", hash);
     }

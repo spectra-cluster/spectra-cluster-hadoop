@@ -14,7 +14,9 @@ import java.util.*;
  * @author Rui Wang
  * @version $Id$
  */
-public class MarkedNumberUtilities {
+public final class MarkedNumberUtilities {
+
+    private MarkedNumberUtilities(){}
 
     /**
      * return a list with values adjusted to sum to 1
@@ -91,7 +93,7 @@ public class MarkedNumberUtilities {
      * @param <T>   type
      * @return
      */
-    private static <T> List<MarkedNumber<T>> normalize(@Nonnull List<MarkedNumber<T>> items) {
+    public static <T> List<MarkedNumber<T>> normalize(@Nonnull List<MarkedNumber<T>> items) {
         double total = total(items);
         if (total == 1)
             return items;
