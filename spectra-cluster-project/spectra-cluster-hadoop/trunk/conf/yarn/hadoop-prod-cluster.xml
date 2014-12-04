@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<!--
+    Distributed mode configuration for Hadoop
+
+    You can test this configuration xml using the command below:
+    hadoop fs -conf conf/hadoop/hadoop-prod-cluster.xml -ls .
+-->
+
+<configuration>
+
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>hadoop-login.ebi.ac.uk</value>
+    </property>
+
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+
+    <property>
+        <name>fs.default.name</name>
+        <value>hdfs://hadoop-master-01.ebi.ac.uk:8020</value>
+    </property>
+
+    <property>
+        <name>hadoop.job.ugi</name>
+        <value>rwang,rwang</value>
+    </property>
+</configuration>

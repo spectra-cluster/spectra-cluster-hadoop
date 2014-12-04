@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+
+<!--
+    Overwrite hadoop configurations for merge cluster by offset
+-->
+
+<configuration>
+
+    <property>
+        <name>pride.cluster.offset.bins</name>
+        <value>true</value>
+        <description>Indicates whether to shift the bins by a offset</description>
+    </property>
+
+    <!-- data node JVM settings -->
+    <property>
+        <name>mapred.child.java.opts</name>
+        <value>-Xmx2600m</value>
+        <description>Memory assigned to each task node JVM</description>
+    </property>
+
+    <!-- number of reduce tasks -->
+    <property>
+        <name>mapred.reduce.tasks</name>
+        <value>300</value>
+        <description>The number of reducers used for the job</description>
+    </property>
+
+    <!-- mapper compression -->
+    <property>
+        <name>mapred.compress.map.output</name>
+        <value>true</value>
+        <description>Whether to compress mapper's output</description>
+    </property>
+
+    <property>
+        <name>mapred.map.output.compression.codec</name>
+        <value>org.apache.hadoop.io.compress.BZip2Codec</value>
+        <description>Compress codec for mapper's output, using BZip since it supports splitting</description>
+    </property>
+
+    <property>
+        <name>mapred.output.compression.type</name>
+        <value>BLOCK</value>
+        <description>Compress type for mapper's output, change from RECORD to BLOCK to make it more efficient</description>
+    </property>
+
+    <!-- map-reduce task timeout -->
+    <property>
+        <name>mapred.task.timeout</name>
+        <value>1500000</value>
+        <description>The number of milliseconds before a task will be terminated if it neither reads an input, writes an output, nor updates its status string</description>
+    </property>
+
+    <!-- mapper buffer -->
+    <property>
+        <name>io.sort.mb</name>
+        <value>600</value>
+        <description>Each mapper task has a circular memory that it writes the output to</description>
+    </property>
+
+    <property>
+        <name>io.sort.factor</name>
+        <value>100</value>
+        <description>This property controls the maximum number of streams to merge at once, the default is 10</description>
+    </property>
+
+    <!-- profiler -->
+    <!-- not recommended for computational intensive tasks -->
+    <property>
+        <name>mapred.task.profile</name>
+        <value>false</value>
+        <description>Whether to enable the JVM build-in profiler</description>
+    </property>
+
+    <property>
+        <name>mapred.task.profile.params</name>
+        <value>-agentlib:hprof=cpu=samples,heap=sites,interval=20,depth=6,force=n,thread=n,verbose=n,file=%s</value>
+        <description>Profiler configuration parameters</description>
+    </property>
+
+    <property>
+        <name>mapred.task.profile.maps</name>
+        <value>0</value>
+        <description>the mapper tasks to be profiled</description>
+    </property>
+
+    <property>
+        <name>mapred.task.profile.reduces</name>
+        <value>0</value>
+        <description>the reducer tasks to be profiled</description>
+    </property>
+</configuration>

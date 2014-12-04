@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<!--
+    Pseudo distributed mode configuration for Hadoop
+
+    You can test this configuration xml using the command below:
+    hadoop fs -conf conf/hadoop/hadoop-localhost.xml -ls .
+
+    NOTE: this is fully tested yet
+-->
+
+<configuration>
+    <property>
+        <name>fs.default.name</name>
+        <value>hdfs://localhost/</value>
+    </property>
+
+    <property>
+        <name>mapred.job.tracker</name>
+        <value>localhost:8021</value>
+    </property>
+</configuration>
