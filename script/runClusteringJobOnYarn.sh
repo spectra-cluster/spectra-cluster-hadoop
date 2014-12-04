@@ -26,12 +26,12 @@ MERGE_COUNTER_FILE="${ROOT_DIR}/merge.counter"
 OUTPUT_COUNTER_FILE="${ROOT_DIR}/output.counter"
 
 # General hadoop configuration
-HADOOP_CONF=conf/hadoop/hadoop-prod-cluster.xml
-#HADOOP_CONF=conf/hadoop/hadoop-dev-cluster.xml
-#HADOOP_CONF=conf/hadoop/hadoop-local.xml
+HADOOP_CONF=conf/yarn/hadoop-prod-cluster.xml
+#HADOOP_CONF=conf/yarn/hadoop-dev-cluster.xml
+#HADOOP_CONF=conf/yarn/hadoop-local.xml
 
 # Path to configuration files for each job
-JOB_CONF=conf/job
+JOB_CONF=conf/job-yarn
 
 # build library jars for hadoop job to move jars into distributed cache
 # this is hadoop way of adding dependencies to a cluster
@@ -68,16 +68,16 @@ function check_exit_code() {
 build_library_jars
 
 # remove the intermediate directories if they exists
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_OFFSET_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_DIR}
 
 # remove existing counter files
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_OFFSET_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_COUNTER_FILE}
 
 # execute the major peak job
 hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${INPUT_DIR} ${MAJOR_PEAK_DIR} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE}
