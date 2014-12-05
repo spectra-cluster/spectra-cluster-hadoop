@@ -25,11 +25,6 @@ MERGE_BY_OFFSET_COUNTER_FILE="${ROOT_DIR}/merge_by_offset.counter"
 MERGE_COUNTER_FILE="${ROOT_DIR}/merge.counter"
 OUTPUT_COUNTER_FILE="${ROOT_DIR}/output.counter"
 
-# General hadoop configuration
-HADOOP_CONF=conf/yarn/hadoop-prod-cluster.xml
-#HADOOP_CONF=conf/yarn/hadoop-dev-cluster.xml
-#HADOOP_CONF=conf/yarn/hadoop-local.xml
-
 # Path to configuration files for each job
 JOB_CONF=conf/job-yarn
 
@@ -68,37 +63,37 @@ function check_exit_code() {
 build_library_jars
 
 # remove the intermediate directories if they exists
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_DIR}
+hadoop fs -rm -r ${MAJOR_PEAK_DIR}
+hadoop fs -rm -r ${MERGE_BY_OFFSET_DIR}
+hadoop fs -rm -r ${MERGE_DIR}
+hadoop fs -rm -r ${OUTPUT_DIR}
 
 # remove existing counter files
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_COUNTER_FILE}
+hadoop fs -rm -r ${MAJOR_PEAK_COUNTER_FILE}
+hadoop fs -rm -r ${MERGE_BY_OFFSET_COUNTER_FILE}
+hadoop fs -rm -r ${MERGE_COUNTER_FILE}
+hadoop fs -rm -r ${OUTPUT_COUNTER_FILE}
 
 # execute the major peak job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${INPUT_DIR} ${MAJOR_PEAK_DIR} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} ${INPUT_DIR} ${MAJOR_PEAK_DIR} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE}
 
 # check exit code of the major peak job
 check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
 
 # execute merge cluster by offset job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${MAJOR_PEAK_DIR} ${MERGE_BY_OFFSET_DIR} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} ${MAJOR_PEAK_DIR} ${MERGE_BY_OFFSET_DIR} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE}
 
 # check exit code for merge cluster by offset job
 check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
 
 # execute merge job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${MERGE_BY_OFFSET_DIR} ${MERGE_DIR} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} ${MERGE_BY_OFFSET_DIR} ${MERGE_DIR} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE}
 
 # check exit code for merge cluster job
 check_exit_code $? "Failed to finish the merge cluster job" "The merge cluster job has finished successfully"
 
 # execute output job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.output.OutputClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${MERGE_DIR} ${OUTPUT_DIR} "OUTPUT_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/output-cluster.xml" ${OUTPUT_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.output.OutputClusterJob -libjars ${LIB_JARS} ${MERGE_DIR} ${OUTPUT_DIR} "OUTPUT_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/output-cluster.xml" ${OUTPUT_COUNTER_FILE}
 
 # check exit code for the output job
 check_exit_code $? "Failed to finish the output cluster job" "The output cluster job has finished successfully"
