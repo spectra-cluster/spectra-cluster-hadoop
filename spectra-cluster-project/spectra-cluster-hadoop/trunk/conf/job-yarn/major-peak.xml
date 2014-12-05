@@ -8,7 +8,7 @@
 
     <!-- The number of reducer tasks -->
     <property>
-        <name>mapreduce.tasktracker.reduce.tasks.maximum</name>
+        <name>mapreduce.job.reduces</name>
         <value>300</value>
         <description>The number of reducers used for the job</description>
     </property>
