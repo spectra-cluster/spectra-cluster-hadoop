@@ -38,7 +38,8 @@ public class MergeClusterJob extends Configured implements Tool {
         // load custom configurations for the job
         configuration.addResource(args[3]);
 
-        Job job = new Job(configuration, args[2]);
+        Job job = Job.getInstance(configuration);
+        job.setJobName(args[2]);
         job.setJarByClass(getClass());
 
         // configure input and output path
