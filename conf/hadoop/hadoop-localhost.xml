@@ -6,7 +6,7 @@
     You can test this configuration xml using the command below:
     hadoop fs -conf conf/hadoop/hadoop-localhost.xml -ls .
 
-    NOTE: this is fully tested yet
+    NOTE: this is not fully tested yet
 -->
 
 <configuration>
