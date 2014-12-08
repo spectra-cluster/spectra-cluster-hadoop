@@ -37,6 +37,8 @@ public class MajorPeakReducer extends AbstractClusterReducer {
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+        int numOfValues = 0;
+
         PeakMZKey peakMZKey = new PeakMZKey(key.toString());
 
         // if we are in a different bin - different peak
@@ -46,6 +48,13 @@ public class MajorPeakReducer extends AbstractClusterReducer {
 
         // iterate and cluster all the spectra
         for (Text val : values) {
+            // increment number of values
+            ++numOfValues;
+
+            // report progress to avoid timeout
+            if ((numOfValues % 50) == 0)
+                context.progress();
+
             // convert spectra to clusters
             final ISpectrum match = parseSpectrumFromString(val.toString());
 
