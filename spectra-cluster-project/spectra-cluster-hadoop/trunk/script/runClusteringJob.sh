@@ -31,7 +31,8 @@ HADOOP_CONF=conf/hadoop/hadoop-prod-cluster.xml
 #HADOOP_CONF=conf/hadoop/hadoop-local.xml
 
 # Path to configuration files for each job
-JOB_CONF=conf/job
+# NOTE: conf is on the classpath, so there is not need for specific the full path
+JOB_CONF=job
 
 # build library jars for hadoop job to move jars into distributed cache
 # this is hadoop way of adding dependencies to a cluster
