@@ -45,6 +45,8 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+        int numOfValues = 0;
+
         BinMZKey binMZKey = new BinMZKey(key.toString());
 
         if (binMZKey.getBin() != getCurrentBin() || getEngine() == null) {
@@ -52,6 +54,13 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
         }
 
         for (Text value : values) {
+            // increment number of values
+            ++numOfValues;
+
+            // report progress to avoid timeout
+            if ((numOfValues % 50) == 0)
+                context.progress();
+
             String val = value.toString();
 
             // parse cluster

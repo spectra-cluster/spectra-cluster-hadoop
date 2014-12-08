@@ -53,7 +53,7 @@
     <!-- map-reduce task timeout -->
     <property>
         <name>mapred.task.timeout</name>
-        <value>1500000</value>
+        <value>0</value>
         <description>The number of milliseconds before a task will be terminated if it neither reads an input, writes an output, nor updates its status string</description>
     </property>
 

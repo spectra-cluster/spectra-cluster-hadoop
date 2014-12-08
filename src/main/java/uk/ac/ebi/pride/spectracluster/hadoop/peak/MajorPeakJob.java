@@ -36,7 +36,7 @@ public class MajorPeakJob extends Configured implements Tool {
         // load custom configurations for the job
         configuration.addResource(args[3]);
 
-        Job job = Job.getInstance(configuration);
+        Job job = new Job(configuration);
         job.setJobName(args[2]);
         job.setJarByClass(getClass());
 
