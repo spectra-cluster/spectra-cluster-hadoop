@@ -5,10 +5,23 @@
 -->
 <configuration>
 
+    <!-- job related custom properties -->
     <property>
         <name>clustering.file.prefix</name>
         <value>clusteringBin</value>
         <description>prefix for the final output of each clustering file</description>
+    </property>
+
+    <property>
+        <name>mini.number.spectra</name>
+        <value>2</value>
+        <description>filter cluster output to have minimum number of spectra</description>
+    </property>
+
+    <property>
+        <name>remove.empty.peaks</name>
+        <value>true</value>
+        <description>whether to remove empty peaks in consensus spectrum</description>
     </property>
 
     <!-- data node JVM settings -->
