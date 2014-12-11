@@ -5,6 +5,12 @@ import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
 import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
+import uk.ac.ebi.pride.spectracluster.util.function.Functions;
+import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
+import uk.ac.ebi.pride.spectracluster.util.function.cluster.RemoveClusterEmptyPeakFunction;
+import uk.ac.ebi.pride.spectracluster.util.predicate.IPredicate;
+import uk.ac.ebi.pride.spectracluster.util.predicate.Predicates;
+import uk.ac.ebi.pride.spectracluster.util.predicate.cluster.ClusterSizePredicate;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -25,6 +31,35 @@ public class MZKeyMapper extends Mapper<Text, Text, Text, Text> {
     private Text keyOutputText = new Text();
     private Text valueOutputText = new Text();
 
+    /**
+     * Filter used to remove unqualified spectra
+     */
+    private IFunction<ICluster, ICluster> filter;
+
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+        super.setup(context);
+
+        // create predicate for minimum number of spectra
+        String miniNumOfSpectra = context.getConfiguration().get("mini.number.spectra", "");
+        IPredicate<ICluster> miniNumOfSpectraPredicate = Predicates.alwaysTrue();
+        if (miniNumOfSpectra != null) {
+            miniNumOfSpectraPredicate = new ClusterSizePredicate(Integer.parseInt(miniNumOfSpectra));
+        }
+
+        // create function to filter empty peaks from consensus spectrum
+        String removeEmptyPeaks = context.getConfiguration().get("remove.empty.peaks", "");
+        IFunction<ICluster, ICluster> removeClusterEmptyPeaksFunction = Functions.nothing();
+        if (removeEmptyPeaks != null && "true".equalsIgnoreCase(removeEmptyPeaks)) {
+            removeClusterEmptyPeaksFunction = new RemoveClusterEmptyPeakFunction();
+        }
+
+        // combine predicate and function together
+        IFunction<ICluster, ICluster> clusterFilter = Functions.condition(removeClusterEmptyPeaksFunction, miniNumOfSpectraPredicate);
+        setFilter(clusterFilter);
+    }
+
     @Override
     protected void map(Text key, Text value, Context context) throws IOException, InterruptedException {
         if (key.toString().length() == 0 || value.toString().length() == 0)
@@ -34,11 +69,24 @@ public class MZKeyMapper extends Mapper<Text, Text, Text, Text> {
         ICluster[] clusters = ParserUtilities.readSpectralCluster(rdr);
 
         for (ICluster cluster : clusters) {
-            MZKey mzkey = new MZKey(cluster.getPrecursorMz());
+            // filter cluster
+            ICluster filteredCluster = getFilter().apply(cluster);
 
-            keyOutputText.set(mzkey.toString());
-            valueOutputText.set(value.toString());
-            context.write(keyOutputText, valueOutputText);
+            if (filteredCluster != null) {
+                MZKey mzkey = new MZKey(cluster.getPrecursorMz());
+
+                keyOutputText.set(mzkey.toString());
+                valueOutputText.set(value.toString());
+                context.write(keyOutputText, valueOutputText);
+            }
         }
+    }
+
+    public IFunction<ICluster, ICluster> getFilter() {
+        return filter;
+    }
+
+    public void setFilter(IFunction<ICluster, ICluster> filter) {
+        this.filter = filter;
     }
 }
