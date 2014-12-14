@@ -7,13 +7,11 @@ import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
-import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.StringReader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -61,11 +59,9 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
             if ((numOfValues % 50) == 0)
                 context.progress();
 
-            String val = value.toString();
-
             // parse cluster
-            LineNumberReader rdr = new LineNumberReader((new StringReader(val)));
-            ICluster cluster = ParserUtilities.readSpectralCluster(rdr, null);
+            String val = value.toString();
+            ICluster cluster = IOUtilities.parseClusterFromCGFString(val);
 
             // ignore single spectrum cluster which have been seen before
             if (cluster.getClusteredSpectraCount() == 1 && seenSpectrumIdPerBin.contains(cluster.getClusteredSpectra().get(0).getId())) {

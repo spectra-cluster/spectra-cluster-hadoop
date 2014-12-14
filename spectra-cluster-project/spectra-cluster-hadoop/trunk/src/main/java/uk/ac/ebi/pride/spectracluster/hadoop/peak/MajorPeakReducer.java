@@ -6,13 +6,11 @@ import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
-import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.StringReader;
 import java.util.Collection;
 
 /**
@@ -56,7 +54,7 @@ public class MajorPeakReducer extends AbstractClusterReducer {
                 context.progress();
 
             // convert spectra to clusters
-            final ISpectrum match = parseSpectrumFromString(val.toString());
+            final ISpectrum match = IOUtilities.parseSpectrumFromMGFString(val.toString());
 
             final ICluster cluster = ClusterUtilities.asCluster(match);
 
@@ -65,22 +63,6 @@ public class MajorPeakReducer extends AbstractClusterReducer {
 
             // output clusters
             writeClusters(context, removedClusters);
-        }
-    }
-
-    /**
-     * Parse a given string into a spectrum
-     *
-     * @param originalContent given string content
-     * @return parsed spectrum
-     */
-    private ISpectrum parseSpectrumFromString(String originalContent) {
-        LineNumberReader reader = new LineNumberReader(new StringReader(originalContent));
-
-        try {
-            return ParserUtilities.readMGFScan(reader);
-        } catch (Exception e) {
-            throw new IllegalStateException("Error while parsing spectrum", e);
         }
     }
 

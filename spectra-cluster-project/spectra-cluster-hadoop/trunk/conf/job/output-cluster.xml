@@ -57,8 +57,15 @@
         <description>Compress type for mapper's output, change from RECORD to BLOCK to make it more efficient</description>
     </property>
 
+    <!-- change speculative execution -->
+    <!--<property>-->
+        <!--<name>mapred.map.tasks.speculative.execution</name>-->
+        <!--<value>false</value>-->
+        <!--<description>Turn off the speculative execution to avoid running the same map tasks multiple times</description>-->
+    <!--</property>-->
+
     <property>
-        <name>mapred.tasks.speculative.execution</name>
+        <name>mapred.reduce.tasks.speculative.execution</name>
         <value>false</value>
         <description>Turn off the speculative execution to avoid running the same reduce tasks multiple times</description>
     </property>

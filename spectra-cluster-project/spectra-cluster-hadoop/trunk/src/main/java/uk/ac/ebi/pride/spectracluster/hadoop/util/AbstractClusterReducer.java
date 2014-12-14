@@ -8,7 +8,6 @@ import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.engine.IncrementalClusteringEngineFactory;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.IKeyable;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
-import uk.ac.ebi.pride.spectracluster.io.CGFClusterAppender;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
@@ -102,7 +101,7 @@ public abstract class AbstractClusterReducer extends Reducer<Text, Text, Text, T
 
         IKeyable key = makeClusterOutputKey(cluster);
 
-        String clusterText = convertClusterToString(cluster);
+        String clusterText = IOUtilities.convertClusterToCGFString(cluster);
 
         keyOutputText.set(key.toString());
         valueOutputText.set(clusterText);
@@ -124,15 +123,6 @@ public abstract class AbstractClusterReducer extends Reducer<Text, Text, Text, T
         return new MZKey(cluster.getPrecursorMz());
     }
 
-    /**
-     * convert a cluster to string for output
-     */
-    protected String convertClusterToString(ICluster cluster) {
-        StringBuilder sb = new StringBuilder();
-        CGFClusterAppender clusterAppender = CGFClusterAppender.INSTANCE;
-        clusterAppender.appendCluster(sb, cluster);
-        return sb.toString();
-    }
 
     public IIncrementalClusteringEngine getEngine() {
         return engine;

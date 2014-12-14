@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# input options
+# input options (required)
 ROOT_DIR=$1
-# optional job prefix
+# job prefix (optional)
 JOB_PREFIX=""
 if [ "$2" != "" ]; then
     JOB_PREFIX="_$2"
