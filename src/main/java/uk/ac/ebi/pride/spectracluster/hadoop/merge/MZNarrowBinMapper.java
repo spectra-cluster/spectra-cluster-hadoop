@@ -5,12 +5,10 @@ import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
-import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.StringReader;
 
 /**
  * Mapper using narrow bins
@@ -47,8 +45,7 @@ public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
         IWideBinner binner = getBinner();
 
         // parse cluster
-        LineNumberReader rdr = new LineNumberReader((new StringReader(text)));
-        ICluster[] clusters = ParserUtilities.readSpectralCluster(rdr);
+        ICluster[] clusters = IOUtilities.parseClustersFromCGFString(text);
 
         for (ICluster cluster : clusters) {
             float precursorMz = cluster.getPrecursorMz();

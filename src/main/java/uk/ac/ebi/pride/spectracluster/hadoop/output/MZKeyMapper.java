@@ -4,7 +4,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
-import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.util.function.Functions;
 import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.cluster.RemoveClusterEmptyPeakFunction;
@@ -13,8 +13,7 @@ import uk.ac.ebi.pride.spectracluster.util.predicate.Predicates;
 import uk.ac.ebi.pride.spectracluster.util.predicate.cluster.ClusterSizePredicate;
 
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.StringReader;
+import java.util.UUID;
 
 /**
  * Mapper that simply read clusters and pass them on using their precursor m/z as the key
@@ -65,18 +64,21 @@ public class MZKeyMapper extends Mapper<Text, Text, Text, Text> {
         if (key.toString().length() == 0 || value.toString().length() == 0)
             return;
 
-        LineNumberReader rdr = new LineNumberReader((new StringReader(value.toString())));
-        ICluster[] clusters = ParserUtilities.readSpectralCluster(rdr);
+        ICluster[] clusters = IOUtilities.parseClustersFromCGFString(value.toString());
 
         for (ICluster cluster : clusters) {
             // filter cluster
             ICluster filteredCluster = getFilter().apply(cluster);
 
             if (filteredCluster != null) {
+                // add UUID as the unique id
+                filteredCluster.setId(UUID.randomUUID().toString());
+
                 MZKey mzkey = new MZKey(cluster.getPrecursorMz());
 
                 keyOutputText.set(mzkey.toString());
-                valueOutputText.set(value.toString());
+                String filteredClusterString = IOUtilities.convertClusterToCGFString(filteredCluster);
+                valueOutputText.set(filteredClusterString);
                 context.write(keyOutputText, valueOutputText);
             }
         }

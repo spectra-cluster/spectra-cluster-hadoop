@@ -9,13 +9,12 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.io.DotClusterClusterAppender;
-import uk.ac.ebi.pride.spectracluster.io.ParserUtilities;
 
 import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Reducer to write clusters to the final .clustering file output format
@@ -29,7 +28,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
 
     private String clusteringFilePrefix;
     private MZKey currentKey;
-    private DotClusterClusterAppender clusterAppender = new DotClusterClusterAppender();
+    private DotClusterClusterAppender clusterAppender = DotClusterClusterAppender.INSTANCE;
     private PrintWriter currentFileWriter;
     private final Set<String> currentClusteredSpectraIds = new HashSet<String>();
 
@@ -54,9 +53,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
         for (Text value : values) {
             // parse cluster
             String content = value.toString();
-            LineNumberReader rdr = new LineNumberReader((new StringReader(content)));
-            ICluster cluster = ParserUtilities.readSpectralCluster(rdr, null);
-            cluster.setId(UUID.randomUUID().toString());
+            ICluster cluster = IOUtilities.parseClusterFromCGFString(content);
 
             String combinedSpectraId = cluster.getSpectralId();
             if (!currentClusteredSpectraIds.contains(combinedSpectraId)) {
