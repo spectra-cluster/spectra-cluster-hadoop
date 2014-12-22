@@ -2,28 +2,46 @@
 
 # input options (required)
 ROOT_DIR=$1
+
+# make sure the parameter was set
+if [ -z "$ROOT_DIR" ]; then
+    echo "Usage: $0 [main directory] [job prefix = ''] [output folder = main directory]"
+    echo "  [main directory]      Path on Hadoop to use as a working directory. The sub-"
+    echo "                        directory 'spectra' will be used as input directory"
+    echo "  [job prefix]          (optional) A prefix to add to the Hadoop job names."
+    echo "  [output folder]       (optional) If this option is set, the results are"
+    echo "                        written to this folder instead of the [main directory]"
+    exit 1
+fi
+
 # job prefix (optional)
 JOB_PREFIX=""
 if [ "$2" != "" ]; then
     JOB_PREFIX="_$2"
 fi
 
+OUTPUT_ROOT="$ROOT_DIR"
+
+if [ -n "$3" ]; then
+    OUTPUT_ROOT="$3"
+fi
+
 # inferred input directory and output directory
 # here we assume that there is a spectra directory which contains all the spectra and
 # the final results will be outputted to clustering_results folder
 INPUT_DIR="${ROOT_DIR}/spectra"
-OUTPUT_DIR="${ROOT_DIR}/clustering_results"
+OUTPUT_DIR="${OUTPUT_ROOT}/clustering_results"
 
 # intermediate directorys for storing intermediate results from different steps
-MAJOR_PEAK_DIR="${ROOT_DIR}/major_peak"
-MERGE_BY_OFFSET_DIR="${ROOT_DIR}/merge_by_offset"
-MERGE_DIR="${ROOT_DIR}/merge"
+MAJOR_PEAK_DIR="${OUTPUT_ROOT}/major_peak"
+MERGE_BY_OFFSET_DIR="${OUTPUT_ROOT}/merge_by_offset"
+MERGE_DIR="${OUTPUT_ROOT}/merge"
 
 # counter files, used by each job to store the numbers in counters
-MAJOR_PEAK_COUNTER_FILE="${ROOT_DIR}/major_peak.counter"
-MERGE_BY_OFFSET_COUNTER_FILE="${ROOT_DIR}/merge_by_offset.counter"
-MERGE_COUNTER_FILE="${ROOT_DIR}/merge.counter"
-OUTPUT_COUNTER_FILE="${ROOT_DIR}/output.counter"
+MAJOR_PEAK_COUNTER_FILE="${OUTPUT_ROOT}/major_peak.counter"
+MERGE_BY_OFFSET_COUNTER_FILE="${OUTPUT_ROOT}/merge_by_offset.counter"
+MERGE_COUNTER_FILE="${OUTPUT_ROOT}/merge.counter"
+OUTPUT_COUNTER_FILE="${OUTPUT_ROOT}/output.counter"
 
 # General hadoop configuration
 HADOOP_CONF=conf/hadoop/hadoop-prod-cluster.xml
