@@ -50,26 +50,33 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
         private CompressionCodecFactory compressionCodecs = null;
         private long start;
         private long end;
-        private long current;
+        private long pos;
         private LineReader input;
         private FSDataInputStream realFile;
-        private Text key = null;
-        private Text value = null;
+        private Text key = new Text();
+        private Text value = new Text();
         private Text buffer = new Text();
+        private Text endLine = new Text("\n");
+        private Text startSpectrum = new Text("BEGIN IONS");
+        private Text endSpectrum = new Text("END IONS");
 
         public void initialize(InputSplit genericSplit,
                                TaskAttemptContext context) throws IOException {
             FileSplit split = (FileSplit) genericSplit;
-            Configuration job = context.getConfiguration();
+            Configuration configuration = context.getConfiguration();
+
+            // get start and end location
             start = split.getStart();
             end = start + split.getLength();
+
+            //
             final Path file = split.getPath();
-            compressionCodecs = new CompressionCodecFactory(job);
+            compressionCodecs = new CompressionCodecFactory(configuration);
             boolean skipFirstLine = false;
             final CompressionCodec codec = compressionCodecs.getCodec(file);
 
             // open the file and seek to the start of the split
-            FileSystem fs = file.getFileSystem(job);
+            FileSystem fs = file.getFileSystem(configuration);
             // open the file and seek to the start of the split
             realFile = fs.open(split.getPath());
             if (codec != null) {
@@ -89,16 +96,10 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
                 start += input.readLine(buffer);
             }
 
-            current = start;
-            if (key == null) {
-                key = new Text();
-            }
             key.set(split.getPath().getName());
-            if (value == null) {
-                value = new Text();
-            }
+            value.clear();
 
-            current = 0;
+            pos = 0;
         }
 
         /**
@@ -109,7 +110,7 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
          */
         public boolean nextKeyValue() throws IOException {
             int newSize = 0;
-            while (current < start) {
+            while (pos < start) {
                 newSize = input.readLine(buffer);
                 // we are done
                 if (newSize == 0) {
@@ -117,25 +118,13 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
                     value = null;
                     return false;
                 }
-                current = realFile.getPos();
+                pos = realFile.getPos();
             }
 
-            StringBuilder sb = new StringBuilder();
             newSize = input.readLine(buffer);
-            String str = null;
             while (newSize > 0) {
-                str = buffer.toString();
-
-                if ("BEGIN IONS".equals(str)) {
+                if (startSpectrum.equals(buffer)) {
                     break;
-                }
-                current = realFile.getPos();
-                // we are done
-                if (current > end) {
-                    key = null;
-                    value = null;
-                    return false;
-
                 }
                 newSize = input.readLine(buffer);
             }
@@ -146,20 +135,17 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
                 return false;
             }
 
+            value.clear();
             while (newSize > 0) {
-                str = buffer.toString();
-                sb.append(str);
-                sb.append("\n");
-                if ("END IONS".equals(str)) {
+                value.append(buffer.getBytes(), 0, buffer.getLength());
+                value.append(endLine.getBytes(), 0, endLine.getLength());
+                if (endSpectrum.equals(buffer)) {
                     break;
                 }
                 newSize = input.readLine(buffer);
             }
 
-            String s = sb.toString();
-            value.set(s);
-
-            if (sb.length() == 0) {
+            if (newSize == 0) {
                 key = null;
                 value = null;
                 return false;
@@ -184,7 +170,7 @@ public class MGFInputFormat extends FileInputFormat<Text, Text> {
          */
         public float getProgress() {
             long totalBytes = end - start;
-            long totalHandled = current - start;
+            long totalHandled = pos - start;
             return ((float) totalHandled) / totalBytes;
         }
 
