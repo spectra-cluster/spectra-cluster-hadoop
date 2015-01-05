@@ -28,7 +28,8 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
 
     private String clusteringFilePrefix;
     private MZKey currentKey;
-    private DotClusterClusterAppender clusterAppender = DotClusterClusterAppender.INSTANCE;
+    // TODO: this includes the spectra in the .clustering files...
+    private DotClusterClusterAppender clusterAppender = DotClusterClusterAppender.PEAK_INSTANCE;
     private PrintWriter currentFileWriter;
     private final Set<String> currentClusteredSpectraIds = new HashSet<String>();
 
@@ -37,6 +38,16 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
         super.setup(context);
         String prefix = context.getConfiguration().get("clustering.file.prefix", "");
         setClusteringFilePrefix(prefix);
+
+        String includeSpectraString = context.getConfiguration().get("clustering.file.include.spectra", "");
+        boolean includeSpectra = (includeSpectraString == null) ? false : Boolean.parseBoolean(includeSpectraString);
+
+        if (includeSpectra) {
+            setClusterAppender(DotClusterClusterAppender.PEAK_INSTANCE);
+        }
+        else {
+            setClusterAppender(DotClusterClusterAppender.INSTANCE);
+        }
     }
 
     @Override
