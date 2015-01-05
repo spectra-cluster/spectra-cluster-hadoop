@@ -42,5 +42,14 @@
             <outputDirectory>/</outputDirectory>
             <filtered>true</filtered>
         </fileSet>
+
+        <!-- include an empty log directory for logging purpose -->
+        <fileSet>
+            <outputDirectory>/log</outputDirectory>
+            <directory>${project.basedir}/src/assembly</directory>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+        </fileSet>
     </fileSets>
 </assembly>

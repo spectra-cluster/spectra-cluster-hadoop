@@ -63,7 +63,6 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
             <version>${hadoop-core.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
