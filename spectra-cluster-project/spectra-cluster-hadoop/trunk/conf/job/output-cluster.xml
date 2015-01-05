@@ -19,6 +19,12 @@
     </property>
 
     <property>
+        <name>clustering.file.include.spectra</name>
+        <value>false</value>
+        <description>if set to "true" the spectra are included in the .clustering file</description>
+    </property>
+
+    <property>
         <name>remove.empty.peaks</name>
         <value>true</value>
         <description>whether to remove empty peaks in consensus spectrum</description>
