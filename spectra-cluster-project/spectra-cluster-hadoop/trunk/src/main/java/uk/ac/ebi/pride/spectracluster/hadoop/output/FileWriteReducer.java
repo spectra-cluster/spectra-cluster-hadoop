@@ -41,13 +41,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
 
         String includeSpectraString = context.getConfiguration().get("clustering.file.include.spectra", "");
         boolean includeSpectra = (includeSpectraString == null) ? false : Boolean.parseBoolean(includeSpectraString);
-
-        if (includeSpectra) {
-            setClusterAppender(DotClusterClusterAppender.PEAK_INSTANCE);
-        }
-        else {
-            setClusterAppender(DotClusterClusterAppender.INSTANCE);
-        }
+        setClusterAppender(includeSpectra? DotClusterClusterAppender.PEAK_INSTANCE : DotClusterClusterAppender.INSTANCE);
     }
 
     @Override
