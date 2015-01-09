@@ -39,6 +39,13 @@
         <description>Compress type for mapper's output, change from RECORD to BLOCK to make it more efficient</description>
     </property>
 
+    <!-- reducer slow start -->
+    <property>
+        <name>mapred.reduce.slowstart.completed.maps</name>
+        <value>0.9</value>
+        <description>customize when reducers startup. A value of 1.00 will wait for all the mappers to finish. A value of 0.0 will start the reducers right away.</description>
+    </property>
+
     <!-- map-reduce task timeout -->
     <property>
         <name>mapred.task.timeout</name>
