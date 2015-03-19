@@ -9,7 +9,7 @@ The main aim of the spectra-cluster library is to provide an open-source library
 
 # Getting started
 
-### Installtion
+### Installation
 ### Running the library
 
 # Getting help
