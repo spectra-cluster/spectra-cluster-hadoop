@@ -1,14 +1,31 @@
 # spectra-cluster-hadoop
 
 # Introduction
-This is
+spectra-cluster-hadoop is a MS spectrum clustering pipeline on [Apache Hadoop](http://hadoop.apache.org/) platform.
+The pipeline consists of four [MapReduce](https://hadoop.apache.org/docs/r1.2.1/mapred_tutorial.html) jobs:
+
+1. Initial clustering job using highest peak clustering, assuming clustered spectra will share at least one of their most intense 6 peaks.
+2. Merge clusters according to their precursor m/z windows.
+3. Merge clusters again with a larger precursor m/z window.
+4. Output clusters into clustering result files.
 
 # Getting started
 
 ### Installation
+You will need to have [Maven](http://maven.apache.org/) installed in order to build spectra-cluster-hadoop.
 
+```bash
+$ mvn clean package
+```
+After the build, you should find spectra-cluster-hadoop-X.X.X.zip in the target folder.
 
 ### Running the library
+
+Unzip the release of the library under a dedicated folder and execute the following command.
+
+```bash
+$ ./runClusteringJob.sh [main directory on HDFS] [job prefix] [output folder on HDFS]
+```
 
 # Getting help
 If you have questions or need additional help, please contact the PRIDE help desk at the EBI.
