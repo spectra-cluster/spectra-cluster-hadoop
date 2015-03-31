@@ -46,7 +46,7 @@ public class NativeOutputClusterJob extends Configured implements Tool {
 
         // configure input and output path
         FileInputFormat.addInputPath(job, new Path(args[4]));
-            chan
+
         Path outputDir = new Path(args[3]);
         FileSystem fileSystem = outputDir.getFileSystem(configuration);
         FileOutputFormat.setOutputPath(job, outputDir);
