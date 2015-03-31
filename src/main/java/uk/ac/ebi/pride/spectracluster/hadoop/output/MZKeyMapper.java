@@ -13,7 +13,6 @@ import uk.ac.ebi.pride.spectracluster.util.predicate.Predicates;
 import uk.ac.ebi.pride.spectracluster.util.predicate.cluster.ClusterSizePredicate;
 
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * Mapper that simply read clusters and pass them on using their precursor m/z as the key
@@ -71,9 +70,6 @@ public class MZKeyMapper extends Mapper<Text, Text, Text, Text> {
             ICluster filteredCluster = getFilter().apply(cluster);
 
             if (filteredCluster != null) {
-                // add UUID as the unique id
-                filteredCluster.setId(UUID.randomUUID().toString());
-
                 MZKey mzkey = new MZKey(cluster.getPrecursorMz());
 
                 keyOutputText.set(mzkey.toString());
