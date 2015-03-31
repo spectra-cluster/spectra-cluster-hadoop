@@ -33,12 +33,16 @@ INPUT_DIR="${ROOT_DIR}/spectra"
 OUTPUT_DIR="${OUTPUT_ROOT}/clustering_results"
 
 # intermediate directorys for storing intermediate results from different steps
+SPECTRUM_TO_CLUSTER_DIR="${OUTPUT_ROOT}/spectrum_to_cluster"
 MAJOR_PEAK_DIR="${OUTPUT_ROOT}/major_peak"
+MERGE_BY_ID_DIR="${OUTPUT_ROOT}/merge_by_id"
 MERGE_BY_OFFSET_DIR="${OUTPUT_ROOT}/merge_by_offset"
 MERGE_DIR="${OUTPUT_ROOT}/merge"
 
 # counter files, used by each job to store the numbers in counters
+SPECTRUM_TO_CLUSTER_COUNTER_FILE="${OUTPUT_ROOT}/spectrum_to_cluster.counter"
 MAJOR_PEAK_COUNTER_FILE="${OUTPUT_ROOT}/major_peak.counter"
+MERGE_BY_ID_COUNTER_FILE="${OUTPUT_ROOT}/merge_by_id.counter"
 MERGE_BY_OFFSET_COUNTER_FILE="${OUTPUT_ROOT}/merge_by_offset.counter"
 MERGE_COUNTER_FILE="${OUTPUT_ROOT}/merge.counter"
 OUTPUT_COUNTER_FILE="${OUTPUT_ROOT}/output.counter"
@@ -87,37 +91,53 @@ function check_exit_code() {
 build_library_jars
 
 # remove the intermediate directories if they exists
+hadoop fs -conf ${HADOOP_CONF} -rmr ${SPECTRUM_TO_CLUSTER_DIR}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_ID_DIR}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_OFFSET_DIR}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_DIR}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_DIR}
 
 # remove existing counter files
+hadoop fs -conf ${HADOOP_CONF} -rmr ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_ID_COUNTER_FILE}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_OFFSET_COUNTER_FILE}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_COUNTER_FILE}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_COUNTER_FILE}
 
+# execute the spectrum to cluster job
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.spectrum.SpectrumToClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "SPECTRUM_TO_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/spectrum-to-cluster.xml" ${SPECTRUM_TO_CLUSTER_COUNTER_FILE} ${SPECTRUM_TO_CLUSTER_DIR} ${INPUT_DIR}
+
+# check exit code of the spectrum to cluster job
+check_exit_code $? "Failed to finish the spectrum to cluster job" "The spectrum to cluster job has finished successfully"
+
 # execute the major peak job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${INPUT_DIR} ${MAJOR_PEAK_DIR} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR}
 
 # check exit code of the major peak job
 check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
 
+# execute the merge cluster by id
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterByIDJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_BY_ID${JOB_PREFIX}" "${JOB_CONF}/merge-by-id.xml" ${MERGE_BY_ID_COUNTER_FILE} ${MERGE_BY_ID_DIR} ${MAJOR_PEAK_DIR}
+
+# check exit code of the merge by cluster id job
+check_exit_code $? "Failed to finish the merge by cluster id job" "The merge by cluster id job has finished successfully"
+
 # execute merge cluster by offset job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${MAJOR_PEAK_DIR} ${MERGE_BY_OFFSET_DIR} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${MERGE_BY_OFFSET_DIR} ${MERGE_BY_ID_DIR}
 
 # check exit code for merge cluster by offset job
 check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
 
 # execute merge job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${MERGE_BY_OFFSET_DIR} ${MERGE_DIR} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${MERGE_DIR} ${MERGE_BY_OFFSET_DIR}
 
 # check exit code for merge cluster job
 check_exit_code $? "Failed to finish the merge cluster job" "The merge cluster job has finished successfully"
 
 # execute output job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.output.OutputClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} ${MERGE_DIR} ${OUTPUT_DIR} "OUTPUT_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/output-cluster.xml" ${OUTPUT_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.output.OutputClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "OUTPUT_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/output-cluster.xml" ${OUTPUT_COUNTER_FILE} ${OUTPUT_DIR} ${MERGE_DIR}
 
 # check exit code for the output job
 check_exit_code $? "Failed to finish the output cluster job" "The output cluster job has finished successfully"

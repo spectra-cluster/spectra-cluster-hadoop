@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.spectra;
+package uk.ac.ebi.pride.spectracluster.hadoop.spectrum;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -22,7 +22,7 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
  * @author Rui Wang
  * @version $Id$
  */
-public class SpectraToClusterJob extends Configured implements Tool {
+public class SpectrumToClusterJob extends Configured implements Tool {
 
     @Override
     public int run(String[] args) throws Exception {
@@ -55,7 +55,7 @@ public class SpectraToClusterJob extends Configured implements Tool {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         // set mapper, reducer and partitioner
-        job.setMapperClass(SpectraToClusterMapper.class);
+        job.setMapperClass(SpectrumToClusterMapper.class);
 
         // set number of reducer to zero
         job.setNumReduceTasks(0);
@@ -78,7 +78,7 @@ public class SpectraToClusterJob extends Configured implements Tool {
     }
 
     public static void main(String[] args) throws Exception {
-        int exitcode = ToolRunner.run(new SpectraToClusterJob(), args);
+        int exitcode = ToolRunner.run(new SpectrumToClusterJob(), args);
         System.exit(exitcode);
     }
 }

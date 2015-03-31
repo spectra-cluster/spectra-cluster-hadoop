@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.spectra;
+package uk.ac.ebi.pride.spectracluster.hadoop.spectrum;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -30,7 +30,7 @@ import java.util.UUID;
  * @author Rui Wang
  * @version $Id$
  */
-public class SpectraToClusterMapper extends Mapper<Writable, Text, Text, Text> {
+public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> {
 
     /**
      * Reuse output text objects to avoid create many short lived objects
