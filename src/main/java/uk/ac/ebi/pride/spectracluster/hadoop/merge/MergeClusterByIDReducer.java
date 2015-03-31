@@ -1,10 +1,8 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.peak;
+package uk.ac.ebi.pride.spectracluster.hadoop.merge;
 
 import org.apache.hadoop.io.Text;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
-import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractIncrementalClusterReducer;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
@@ -14,16 +12,14 @@ import java.io.IOException;
 import java.util.Collection;
 
 /**
- * Reducer to cluster spectra share the same major peaks
+ * MergeClusterByIDReducer clusters using ClusteringEngine
  *
- * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
  */
-public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
+public class MergeClusterByIDReducer extends AbstractClusterReducer {
 
-    private double majorPeak;
-    private final double majorPeakWindowSize = ClusterHadoopDefaults.getMajorPeakMZWindowSize();
+    public static final int NUMBER_OF_CLUSTER_ITERATIONS = 3;
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -37,12 +33,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         int numOfValues = 0;
 
-        PeakMZKey peakMZKey = new PeakMZKey(key.toString());
-
-        // if we are in a different bin - different peak
-        if (peakMZKey.getPeakMZ() != getMajorPeak()) {
-            updateEngine(context, peakMZKey);
-        }
+        updateEngine(context, key.toString());
 
         // iterate and cluster all the spectra
         for (Text val : values) {
@@ -58,18 +49,22 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
 
             final ICluster cluster = ClusterUtilities.asCluster(match);
 
-            // incrementally cluster
-            final Collection<ICluster> removedClusters = getEngine().addClusterIncremental(cluster);
+            // add to be clustered
+            getEngine().addClusters(cluster);
+        }
 
-            // output clusters
-            writeClusters(context, removedClusters);
+        // clustering
+        for (int i = 0; i < NUMBER_OF_CLUSTER_ITERATIONS; i++) {
+            boolean changed = getEngine().processClusters();
+            if (!changed)
+                break;
         }
     }
 
     /**
      * Update the current engine when the major peak m/z value changes
      */
-    protected <T> void updateEngine(Context context, T peakMZKey) throws IOException, InterruptedException {
+    protected <T> void updateEngine(Context context, T id) throws IOException, InterruptedException {
 
         // if the current cluster engine is not null, write out all the existing clusters
         if (getEngine() != null) {
@@ -78,20 +73,11 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
         }
 
         // set new cluster engine and new major peak
-        if (peakMZKey != null) {
+        if (id != null) {
             // if not at end make a new engine
-            setEngine(getEngineFactory().getIncrementalClusteringEngine((float) majorPeakWindowSize));
-            setMajorPeak(((PeakMZKey) peakMZKey).getPeakMZ());
+            setEngine(getEngineFactory().buildInstance());
         } else {
             setEngine(null);
         }
-    }
-
-    public double getMajorPeak() {
-        return majorPeak;
-    }
-
-    public void setMajorPeak(double majorPeak) {
-        this.majorPeak = majorPeak;
     }
 }

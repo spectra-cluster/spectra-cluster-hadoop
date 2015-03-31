@@ -5,7 +5,7 @@ import org.apache.hadoop.mapreduce.Counter;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractClusterReducer;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractIncrementalClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
@@ -22,7 +22,7 @@ import java.util.Set;
  * @author Rui Wang
  * @version $Id$
  */
-public class SpectrumMergeReducer extends AbstractClusterReducer {
+public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
 
     private double spectrumMergeWindowSize = ClusterHadoopDefaults.getSpectrumMergeMZWindowSize();
     private final Set<String> writtenSpectrumIdPerBin = new HashSet<String>();
@@ -81,17 +81,18 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
         if (getEngine() != null) {
             Collection<ICluster> clusters = getEngine().getClusters();
             writeClusters(context, clusters);
-            setEngine(null);
         }
 
         if (binMZKey != null) {
             setEngine(getEngineFactory().getIncrementalClusteringEngine((float) getSpectrumMergeWindowSize()));
             setCurrentBin(((BinMZKey) binMZKey).getBin());
+        } else {
+            setEngine(null);
         }
     }
 
     @Override
-    protected void writeOneVettedCluster(Context context, ICluster cluster) throws IOException, InterruptedException {
+    protected void writeVettedCluster(Context context, ICluster cluster) throws IOException, InterruptedException {
         /**
          * is a duplicate  so ignore
          */
@@ -110,7 +111,7 @@ public class SpectrumMergeReducer extends AbstractClusterReducer {
             return;
         }
 
-        super.writeOneVettedCluster(context, cluster);
+        super.writeVettedCluster(context, cluster);
     }
 
     /**
