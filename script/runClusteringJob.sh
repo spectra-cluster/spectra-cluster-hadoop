@@ -115,7 +115,7 @@ hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.
 check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
 
 # execute merge cluster by offset job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${MAJOR_PEAK_DIR} ${MERGE_BY_ID_DIR}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${MERGE_BY_OFFSET_DIR} ${MAJOR_PEAK_DIR}
 
 # check exit code for merge cluster by offset job
 check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
