@@ -25,8 +25,8 @@ public class MergeClusterJob extends Configured implements Tool {
 
     @Override
     public int run(String[] args) throws Exception {
-        if (args.length != 5) {
-            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <output directory> <input directory> \n",
+        if (args.length < 5) {
+            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <output directory> <input directory> [multiple cluster result directory]\n",
                     getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
@@ -44,6 +44,11 @@ public class MergeClusterJob extends Configured implements Tool {
 
         // configure input and output path
         FileInputFormat.addInputPath(job, new Path(args[4]));
+        if (args.length > 5) {
+            for (int i = 5; i < args.length; i++) {
+                FileInputFormat.addInputPath(job, new Path(args[i]));
+            }
+        }
 
         Path outputDir = new Path(args[3]);
         FileSystem fileSystem = outputDir.getFileSystem(configuration);
