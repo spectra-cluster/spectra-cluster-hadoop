@@ -1,8 +1,6 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
-import uk.ac.ebi.pride.spectracluster.hadoop.keys.IKeyable;
-import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -36,7 +34,7 @@ public abstract class FilterSingleSpectrumClusterReducer extends ClusterWritable
         super.cleanup(context);
     }
 
-    protected void writeVettedCluster(final Context context, final ICluster cluster) throws IOException, InterruptedException {
+    protected void writeOneCluster(final Context context, final ICluster cluster) throws IOException, InterruptedException {
         Set<String> spectralIds = cluster.getSpectralIds();
 
         if (spectralIds.size() == 1) {
@@ -46,16 +44,7 @@ public abstract class FilterSingleSpectrumClusterReducer extends ClusterWritable
         }
         writtenSpectra.addAll(spectralIds);
 
-        super.writeCluster(context, cluster);
-    }
-
-    /**
-     * Default cluster output key is MZKey, this key is used for the reducer output
-     * @param cluster   intput cluster
-     * @return  output key
-     */
-    protected IKeyable makeClusterOutputKey(ICluster cluster) {
-        return new MZKey(cluster.getPrecursorMz());
+        super.writeOneCluster(context, cluster);
     }
 
     protected void updateCache() {

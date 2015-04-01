@@ -36,13 +36,13 @@ public abstract class ClusterWritableReducer extends Reducer<Text, Text, Text, T
      * Write a single cluster
      */
     protected void writeCluster(final Context context, final ICluster cluster) throws IOException, InterruptedException {
-        writeVettedCluster(context, cluster);
+        writeOneCluster(context, cluster);
     }
 
     /**
      * Write a single vetted cluster
      */
-    protected void writeVettedCluster(final Context context, final ICluster cluster) throws IOException, InterruptedException {
+    protected void writeOneCluster(final Context context, final ICluster cluster) throws IOException, InterruptedException {
         IKeyable key = makeClusterOutputKey(cluster);
 
         String clusterText = IOUtilities.convertClusterToCGFString(cluster);

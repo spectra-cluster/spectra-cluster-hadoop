@@ -92,7 +92,7 @@ public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
     }
 
     @Override
-    protected void writeVettedCluster(Context context, ICluster cluster) throws IOException, InterruptedException {
+    protected void writeOneCluster(Context context, ICluster cluster) throws IOException, InterruptedException {
         /**
          * is a duplicate  so ignore
          */
@@ -111,7 +111,7 @@ public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
             return;
         }
 
-        super.writeVettedCluster(context, cluster);
+        super.writeOneCluster(context, cluster);
     }
 
     /**
