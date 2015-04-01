@@ -7,6 +7,9 @@ import uk.ac.ebi.pride.spectracluster.util.IDefaultingFactory;
 import java.io.IOException;
 
 /**
+ *
+ * AbstractClusterReducer using classic clustering engine instead of incremental clustering engine
+ *
  * @author Rui Wang
  * @version $Id$
  */

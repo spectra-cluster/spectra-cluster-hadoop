@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ * AbstractIncrementalClusterReducer clusters using incremental clustering engine.
+ *
  * @author Rui Wang
  * @version $Id$
  */
