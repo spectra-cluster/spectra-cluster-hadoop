@@ -46,11 +46,14 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
         // get consensus spectrum
         ISpectrum consensusSpectrum = cluster.getConsensusSpectrum();
         for (int peakMz : consensusSpectrum.asMajorPeakMZs(Defaults.getMajorPeakCount())) {
-            PeakMZKey mzKey = new PeakMZKey(peakMz, precursorMz);
+            // only forward none zero peaks
+            if (peakMz > 0) {
+                PeakMZKey mzKey = new PeakMZKey(peakMz, precursorMz);
 
-            keyOutputText.set(mzKey.toString());
-            valueOutputText.set(value.toString());
-            context.write(keyOutputText, valueOutputText);
+                keyOutputText.set(mzKey.toString());
+                valueOutputText.set(value.toString());
+                context.write(keyOutputText, valueOutputText);
+            }
         }
     }
 }
