@@ -5,8 +5,6 @@ import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
-import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
-import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -44,10 +42,8 @@ public class MergeClusterByIDReducer extends AbstractClusterReducer {
             if ((numOfValues % 50) == 0)
                 context.progress();
 
-            // convert spectra to clusters
-            final ISpectrum match = IOUtilities.parseSpectrumFromMGFString(val.toString());
-
-            final ICluster cluster = ClusterUtilities.asCluster(match);
+            // convert clusters
+            final ICluster cluster = IOUtilities.parseClusterFromCGFString(val.toString());
 
             // add to be clustered
             getEngine().addClusters(cluster);

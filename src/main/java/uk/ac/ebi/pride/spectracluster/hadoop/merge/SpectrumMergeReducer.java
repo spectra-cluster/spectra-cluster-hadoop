@@ -60,8 +60,7 @@ public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
                 context.progress();
 
             // parse cluster
-            String val = value.toString();
-            ICluster cluster = IOUtilities.parseClusterFromCGFString(val);
+            ICluster cluster = IOUtilities.parseClusterFromCGFString(value.toString());
 
             // ignore single spectrum cluster which have been seen before
             if (cluster.getClusteredSpectraCount() == 1 && seenSpectrumIdPerBin.contains(cluster.getClusteredSpectra().get(0).getId())) {
