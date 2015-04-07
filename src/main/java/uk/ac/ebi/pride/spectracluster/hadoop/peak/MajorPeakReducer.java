@@ -7,8 +7,6 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractIncrementalClusterRedu
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
-import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
-import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -53,10 +51,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
             if ((numOfValues % 50) == 0)
                 context.progress();
 
-            // convert spectra to clusters
-            final ISpectrum match = IOUtilities.parseSpectrumFromMGFString(val.toString());
-
-            final ICluster cluster = ClusterUtilities.asCluster(match);
+            final ICluster cluster = IOUtilities.parseClusterFromCGFString(val.toString());
 
             // incrementally cluster
             final Collection<ICluster> removedClusters = getEngine().addClusterIncremental(cluster);
