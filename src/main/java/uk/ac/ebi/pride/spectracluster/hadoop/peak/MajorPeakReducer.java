@@ -55,6 +55,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
 
             // incrementally cluster
             final Collection<ICluster> removedClusters = getEngine().addClusterIncremental(cluster);
+
             // output clusters
             writeClusters(context, removedClusters);
         }
