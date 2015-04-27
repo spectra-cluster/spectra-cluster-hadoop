@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.peak;
+package uk.ac.ebi.pride.spectracluster.hadoop.merge;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -15,27 +15,23 @@ import org.apache.hadoop.util.ToolRunner;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
 
 /**
+ * MergeClusterByIDJob simply merge clusters if they share the same cluster id
  *
- * MajorPeakJob performs incremental clustering on clusters that share the same peaks with high intensities
- *
- * NOTE: this job can take in multiple input directories, this is mainly used for
- * loading previous clustering results
- *
- * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
  */
-public class MajorPeakJob extends Configured implements Tool {
+public class MergeClusterByIDJob extends Configured implements Tool {
 
     @Override
     public int run(String[] args) throws Exception {
-        if (args.length < 5) {
-            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <output directory> <input directory> [multiple cluster result directory]\n",
+        if (args.length != 5) {
+            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <output directory> <input directory>\n",
                     getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
         }
 
+        // pre-job configuration
         Configuration configuration = getConf();
 
         // load custom configurations for the job
@@ -47,11 +43,6 @@ public class MajorPeakJob extends Configured implements Tool {
 
         // configure input and output path
         FileInputFormat.addInputPath(job, new Path(args[4]));
-        if (args.length > 5) {
-            for (int i = 5; i < args.length; i++) {
-                FileInputFormat.addInputPath(job, new Path(args[i]));
-            }
-        }
 
         Path outputDir = new Path(args[3]);
         FileSystem fileSystem = outputDir.getFileSystem(configuration);
@@ -59,13 +50,14 @@ public class MajorPeakJob extends Configured implements Tool {
 
         // input format
         job.setInputFormatClass(SequenceFileInputFormat.class);
+
         // output format
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         // set mapper, reducer and partitioner
-        job.setMapperClass(MajorPeakMapper.class);
-        job.setReducerClass(MajorPeakReducer.class);
-        job.setPartitionerClass(MajorPeakPartitioner.class);
+        job.setMapperClass(MergeClusterByIDMapper.class);
+        job.setReducerClass(MergeClusterByIDReducer.class);
+        job.setPartitionerClass(MergeClusterByIDPartitioner.class);
 
         // set output class
         job.setMapOutputKeyClass(Text.class);
@@ -84,9 +76,8 @@ public class MajorPeakJob extends Configured implements Tool {
         return completion ? 0 : 1;
     }
 
-
     public static void main(String[] args) throws Exception {
-        int exitcode = ToolRunner.run(new MajorPeakJob(), args);
-        System.exit(exitcode);
+        int exitCode = ToolRunner.run(new MergeClusterJob(), args);
+        System.exit(exitCode);
     }
 }

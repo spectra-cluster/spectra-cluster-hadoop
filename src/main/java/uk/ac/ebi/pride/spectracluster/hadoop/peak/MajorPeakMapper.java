@@ -3,18 +3,14 @@ package uk.ac.ebi.pride.spectracluster.hadoop.peak;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper;
+import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
-import uk.ac.ebi.pride.spectracluster.normalizer.IIntensityNormalizer;
-import uk.ac.ebi.pride.spectracluster.spectrum.IPeak;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
-import uk.ac.ebi.pride.spectracluster.spectrum.Spectrum;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
-import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Mapper that gets the highest peaks of a spectrum and then send corresponding copies of spectra
@@ -32,51 +28,32 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
     private Text keyOutputText = new Text();
     private Text valueOutputText = new Text();
 
-    /**
-     * Reuse normalizer
-     */
-    private IIntensityNormalizer intensityNormalizer = Defaults.getDefaultIntensityNormalizer();
-
     @Override
     protected void map(Writable key, Text value, Context context) throws IOException, InterruptedException {
         // check the validity of the input
         if (key.toString().length() == 0 || value.toString().length() == 0)
             return;
 
-        // read the original content as MGF
-        ISpectrum spectrum = IOUtilities.parseSpectrumFromMGFString(value.toString());
+        // read the original content as cluster
+        ICluster cluster = IOUtilities.parseClusterFromCGFString(value.toString());
 
-        float precursorMz = spectrum.getPrecursorMz();
+        // precursor m/z
+        float precursorMz = cluster.getPrecursorMz();
 
-        if (precursorMz < MZIntensityUtilities.HIGHEST_USABLE_MZ) {
-            // increment dalton bin counter
-            CounterUtilities.incrementDaltonCounters(precursorMz, context);
+        // increment dalton bin counter
+        CounterUtilities.incrementDaltonCounters(precursorMz, context);
 
-            // normalise all spectrum
-            ISpectrum normaliseSpectrum = normaliseSpectrum(spectrum);
-
-            String spectrumString = IOUtilities.convertSpectrumToMGFString(normaliseSpectrum);
-
-            for (int peakMz : normaliseSpectrum.asMajorPeakMZs(Defaults.getMajorPeakCount())) {
+        // get consensus spectrum
+        ISpectrum consensusSpectrum = cluster.getConsensusSpectrum();
+        for (int peakMz : consensusSpectrum.asMajorPeakMZs(Defaults.getMajorPeakCount())) {
+            // only forward none zero peaks
+            if (peakMz > 0) {
                 PeakMZKey mzKey = new PeakMZKey(peakMz, precursorMz);
 
-                final String keyStr = mzKey.toString();
-                keyOutputText.set(keyStr);
-                valueOutputText.set(spectrumString);
+                keyOutputText.set(mzKey.toString());
+                valueOutputText.set(value.toString());
                 context.write(keyOutputText, valueOutputText);
             }
         }
-    }
-
-
-    /**
-     * Normalise all the peaks within a spectrum
-     *
-     * @param originalSpectrum original input spectrum
-     * @return normalised spectrum
-     */
-    private ISpectrum normaliseSpectrum(ISpectrum originalSpectrum) {
-        List<IPeak> normalizedPeaks = intensityNormalizer.normalizePeaks(originalSpectrum.getPeaks());
-        return new Spectrum(originalSpectrum, normalizedPeaks);
     }
 }

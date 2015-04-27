@@ -28,7 +28,7 @@ public class NativeOutputClusterJob extends Configured implements Tool {
     @Override
     public int run(String[] args) throws Exception {
         if (args.length != 5) {
-            System.err.printf("Usage: %s [generic options] <input directory> <output directory> <job name> <job configuration file> <counter file path>\n",
+            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <output directory> <input directory>\n",
                     getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
@@ -38,16 +38,16 @@ public class NativeOutputClusterJob extends Configured implements Tool {
         Configuration configuration = getConf();
 
         // load custom configurations for the job
-        configuration.addResource(args[3]);
+        configuration.addResource(args[1]);
 
         Job job = new Job(configuration);
-        job.setJobName(args[2]);
+        job.setJobName(args[0]);
         job.setJarByClass(getClass());
 
         // configure input and output path
-        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileInputFormat.addInputPath(job, new Path(args[4]));
 
-        Path outputDir = new Path(args[1]);
+        Path outputDir = new Path(args[3]);
         FileSystem fileSystem = outputDir.getFileSystem(configuration);
         FileOutputFormat.setOutputPath(job, outputDir);
 
@@ -72,7 +72,7 @@ public class NativeOutputClusterJob extends Configured implements Tool {
 
         if (completion) {
             // output counters for the next job
-            String counterFileName = args[4];
+            String counterFileName = args[2];
             HadoopUtilities.saveCounters(fileSystem, counterFileName, job);
         }
 
