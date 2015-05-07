@@ -5,7 +5,6 @@ import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractIncrementalClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 
 import java.io.IOException;
@@ -22,14 +21,6 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
 
     private double majorPeak;
     private final double majorPeakWindowSize = ClusterHadoopDefaults.getMajorPeakMZWindowSize();
-
-    @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
-        super.setup(context);
-
-        // read and customize configuration, default will be used if not provided
-        ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
-    }
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {

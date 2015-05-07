@@ -3,7 +3,6 @@ package uk.ac.ebi.pride.spectracluster.hadoop.merge;
 import org.apache.hadoop.io.Text;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractClusterReducer;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 
 import java.io.IOException;
@@ -18,14 +17,6 @@ import java.util.Collection;
 public class MergeClusterByIDReducer extends AbstractClusterReducer {
 
     public static final int NUMBER_OF_CLUSTER_ITERATIONS = 3;
-
-    @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
-        super.setup(context);
-
-        // read and customize configuration, default will be used if not provided
-        ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
-    }
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {

@@ -36,6 +36,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
+
         String prefix = context.getConfiguration().get("clustering.file.prefix", "");
         setClusteringFilePrefix(prefix);
 

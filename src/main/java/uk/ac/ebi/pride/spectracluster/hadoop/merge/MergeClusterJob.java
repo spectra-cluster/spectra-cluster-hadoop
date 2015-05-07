@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
 
 /**
@@ -26,7 +27,7 @@ public class MergeClusterJob extends Configured implements Tool {
     @Override
     public int run(String[] args) throws Exception {
         if (args.length < 5) {
-            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <output directory> <input directory> [multiple cluster result directory]\n",
+            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <cluster similarity threshold> <output directory> <input directory> [multiple cluster result directory]\n",
                     getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
@@ -38,14 +39,17 @@ public class MergeClusterJob extends Configured implements Tool {
         // load custom configurations for the job
         configuration.addResource(args[1]);
 
+        // similarity threshold
+        configuration.setFloat(ConfigurableProperties.SIMILARITY_THRESHOLD_PROPERTY, new Float(args[3]));
+
         Job job = new Job(configuration);
         job.setJobName(args[0]);
         job.setJarByClass(getClass());
 
         // configure input and output path
-        FileInputFormat.addInputPath(job, new Path(args[4]));
-        if (args.length > 5) {
-            for (int i = 5; i < args.length; i++) {
+        FileInputFormat.addInputPath(job, new Path(args[5]));
+        if (args.length > 6) {
+            for (int i = 6; i < args.length; i++) {
                 FileInputFormat.addInputPath(job, new Path(args[i]));
             }
         }

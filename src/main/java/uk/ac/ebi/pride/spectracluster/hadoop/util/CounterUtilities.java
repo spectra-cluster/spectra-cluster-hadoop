@@ -23,6 +23,21 @@ public class CounterUtilities {
      * NOTE: bin - a particular m/z range
      * <p/>
      *
+     * @param context     Hadoop context
+     * @param mz peak m/z
+     */
+    public static void incrementMajorPeakCounters(Mapper.Context context, double mz) {
+        String counterName = String.format("%05d", mz).trim();
+        Counter counter = context.getCounter("MajorPeak", counterName);
+        counter.increment(1);
+    }
+
+    /**
+     * Increment the counter for a particular bin
+     * <p/>
+     * NOTE: bin - a particular m/z range
+     * <p/>
+     *
      * @param precursorMZ precursor m/z
      * @param context     Hadoop context
      */
