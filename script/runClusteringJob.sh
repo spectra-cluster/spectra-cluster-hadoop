@@ -5,10 +5,12 @@ ROOT_DIR=$1
 
 # make sure the parameter was set
 if [ -z "$ROOT_DIR" ]; then
-    echo "Usage: $0 [main directory] [job prefix = ''] [output folder = main directory]"
+    echo "Usage: $0 [main directory] [job prefix = ''] [similarity threshold settings = 0.9:0.1:4] [output folder = main directory]"
     echo "  [main directory]      Path on Hadoop to use as a working directory. The sub-"
     echo "                        directory 'spectra' will be used as input directory"
     echo "  [job prefix]          (optional) A prefix to add to the Hadoop job names."
+    echo "  [similarity threshold]          (optional) The similarity threshold settings,"
+    echo "                        in the format of <highest threshold>:<step size>:<number of steps>"
     echo "  [output folder]       (optional) If this option is set, the results are"
     echo "                        written to this folder instead of the [main directory]"
     exit 1
@@ -20,9 +22,29 @@ if [ "$2" != "" ]; then
     JOB_PREFIX="_$2"
 fi
 
-OUTPUT_ROOT="$ROOT_DIR"
-
+# similarity threshold settings (optional)
+UPPER_SIMILARITY_THRESHOLD="0.9"
+SIMILARITY_STEP_SIZE="0.1"
+NUMBER_OF_SIMILARITY_STEPS="4"
 if [ -n "$3" ]; then
+    SIMILARITY_SETTINGS=(${3//:/ })
+    UPPER_SIMILARITY_THRESHOLD="${SIMILARITY_SETTINGS[0]}"
+    SIMILARITY_STEP_SIZE="${SIMILARITY_SETTINGS[1]}"
+    NUMBER_OF_SIMILARITY_STEPS="${SIMILARITY_SETTINGS[2]}"
+fi
+
+# Create an array of similarity thresholds in descending order
+SIMILARITY_THRESHOLDS=("${UPPER_SIMILARITY_THRESHOLD}")
+CURRENT_THRESHOLD="${UPPER_SIMILARITY_THRESHOLD}"
+for i in $(seq 1 ${NUMBER_OF_SIMILARITY_STEPS});
+do
+    CURRENT_THRESHOLD=$(bc <<< "${CURRENT_THRESHOLD}-${SIMILARITY_STEP_SIZE}")
+    SIMILARITY_THRESHOLDS+=("${CURRENT_THRESHOLD}")
+done
+
+# job output directory
+OUTPUT_ROOT="$ROOT_DIR"
+if [ -n "$4" ]; then
     OUTPUT_ROOT="$3"
 fi
 
@@ -103,30 +125,60 @@ hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_COUNTER_FILE}
 hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_COUNTER_FILE}
 
 # execute the spectrum to cluster job
+echo "Start executing the spectrum to cluster job"
+
 hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.spectrum.SpectrumToClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "SPECTRUM_TO_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/spectrum-to-cluster.xml" ${SPECTRUM_TO_CLUSTER_COUNTER_FILE} ${SPECTRUM_TO_CLUSTER_DIR} ${INPUT_DIR}
 
 # check exit code of the spectrum to cluster job
 check_exit_code $? "Failed to finish the spectrum to cluster job" "The spectrum to cluster job has finished successfully"
 
 # execute the major peak job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR}
+echo "Start executing the major peak job using ${UPPER_SIMILARITY_THRESHOLD} as similarity threshold"
+
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR}
 
 # check exit code of the major peak job
 check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
 
-# execute merge cluster by offset job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${MERGE_BY_OFFSET_DIR} ${MAJOR_PEAK_DIR}
+# execute the existing peak job
+for key in ${!SIMILARITY_THRESHOLDS[@]};
+do
+    if [ "${key}" != "0" ]; then
+        echo "Start executing the existing major peak job using ${SIMILARITY_THRESHOLDS[${key}]} as similarity threshold"
 
-# check exit code for merge cluster by offset job
-check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
+        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR}
+
+        # check exit code of the existing peak job
+        check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
+    fi
+done
+
+
+# execute merge cluster by offset job
+for sim in ${SIMILARITY_THRESHOLDS[@]};
+do
+    echo "Starting executeing merger cluster by offset job using ${sim} as similarity threshold"
+
+    hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${sim} ${MERGE_BY_OFFSET_DIR} ${MAJOR_PEAK_DIR}
+
+    # check exit code for merge cluster by offset job
+    check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
+done
 
 # execute merge job
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${MERGE_DIR} ${MERGE_BY_OFFSET_DIR}
+for sim in ${SIMILARITY_THRESHOLDS[@]};
+do
+    echo "Starting executeing merger cluster job using ${sim} as similarity threshold"
 
-# check exit code for merge cluster job
-check_exit_code $? "Failed to finish the merge cluster job" "The merge cluster job has finished successfully"
+    hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${sim} ${MERGE_DIR} ${MERGE_BY_OFFSET_DIR}
+
+    # check exit code for merge cluster job
+    check_exit_code $? "Failed to finish the merge cluster job" "The merge cluster job has finished successfully"
+done
 
 # execute output job
+echo "Start executing the output job"
+
 hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.output.OutputClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "OUTPUT_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/output-cluster.xml" ${OUTPUT_COUNTER_FILE} ${OUTPUT_DIR} ${MERGE_DIR}
 
 # check exit code for the output job
