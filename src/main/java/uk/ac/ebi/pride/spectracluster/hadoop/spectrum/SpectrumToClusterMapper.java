@@ -14,6 +14,7 @@ import uk.ac.ebi.pride.spectracluster.spectrum.Spectrum;
 import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
+import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,6 +43,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
      * Reuse normalizer
      */
     private IIntensityNormalizer intensityNormalizer = Defaults.getDefaultIntensityNormalizer();
+    private IFunction<List<IPeak>, List<IPeak>> peakFilter = Defaults.getDefaultPeakFilter();
 
     @Override
     protected void map(Writable key, Text value, Context context) throws IOException, InterruptedException {
@@ -58,8 +60,11 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             // increment dalton bin counter
             CounterUtilities.incrementDaltonCounters(precursorMz, context);
 
-            // normalise all spectrum
+            // normalise all spectra
             ISpectrum normaliseSpectrum = normaliseSpectrum(spectrum);
+
+            // default peak filtering
+            normaliseSpectrum = new Spectrum(normaliseSpectrum, peakFilter.apply(normaliseSpectrum.getPeaks()));
 
             // generate a new cluster
             ICluster cluster = ClusterUtilities.asCluster(normaliseSpectrum);
