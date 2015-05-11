@@ -1,11 +1,13 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
+import uk.ac.ebi.pride.spectracluster.engine.EngineFactories;
 import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.engine.IncrementalClusteringEngineFactory;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
+import uk.ac.ebi.pride.spectracluster.util.IDefaultingFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.List;
  * @version $Id$
  */
 public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpectrumClusterReducer {
-    private final IncrementalClusteringEngineFactory engineFactory = new IncrementalClusteringEngineFactory();
+    private IDefaultingFactory<IIncrementalClusteringEngine> engineFactory;
     private IIncrementalClusteringEngine engine;
     private double clusterRetainThreshold = Defaults.getRetainThreshold();
 
@@ -27,6 +29,9 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
 
         // read and customize configuration, default will be used if not provided
         ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
+
+        // create the engine factory
+        engineFactory = EngineFactories.buildDefaultGreedyIncrementalClusteringEngineFactory((float) ClusterHadoopDefaults.getMajorPeakMZWindowSize());
     }
 
     @Override
@@ -68,7 +73,7 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
         return engine;
     }
 
-    public IncrementalClusteringEngineFactory getEngineFactory() {
+    public IDefaultingFactory<IIncrementalClusteringEngine> getEngineFactory() {
         return engineFactory;
     }
 

@@ -66,7 +66,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
         // set new cluster engine and new major peak
         if (peakMZKey != null) {
             // if not at end make a new engine
-            setEngine(getEngineFactory().getIncrementalClusteringEngine((float) majorPeakWindowSize));
+            setEngine(getEngineFactory().buildInstance((float) majorPeakWindowSize));
             setMajorPeak(((PeakMZKey) peakMZKey).getPeakMZ());
         } else {
             setEngine(null);
