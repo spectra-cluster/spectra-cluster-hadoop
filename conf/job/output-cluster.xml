@@ -134,8 +134,8 @@
         <value>uk.ac.ebi.pride.spectracluster.similarity.CombinedFisherIntensityTest</value>
     </property>
 
-    <propert>
+    <property>
         <name>pride.cluster.similarity.only_compare_n_highest_peaks</name>
         <value>1</value>
-    </propert>
+    </property>
 </configuration>
