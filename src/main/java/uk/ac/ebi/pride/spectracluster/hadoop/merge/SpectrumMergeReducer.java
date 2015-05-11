@@ -9,6 +9,7 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractIncrementalClusterRedu
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
+import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
+        Defaults.setDefaultPrecursorIonTolerance((float) spectrumMergeWindowSize);
 
         boolean offsetBins = context.getConfiguration().getBoolean("pride.cluster.offset.bins", false);
         if (offsetBins) {
@@ -83,7 +85,7 @@ public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
         }
 
         if (binMZKey != null) {
-            setEngine(getEngineFactory().getIncrementalClusteringEngine((float) getSpectrumMergeWindowSize()));
+            setEngine(getEngineFactory().buildInstance((float) getSpectrumMergeWindowSize()));
             setCurrentBin(((BinMZKey) binMZKey).getBin());
         } else {
             setEngine(null);

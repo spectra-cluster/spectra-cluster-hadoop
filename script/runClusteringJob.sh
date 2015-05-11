@@ -23,8 +23,8 @@ if [ "$2" != "" ]; then
 fi
 
 # similarity threshold settings (optional)
-UPPER_SIMILARITY_THRESHOLD="0.9"
-SIMILARITY_STEP_SIZE="0.1"
+UPPER_SIMILARITY_THRESHOLD="0.998"
+SIMILARITY_STEP_SIZE="0.002"
 NUMBER_OF_SIMILARITY_STEPS="4"
 if [ -n "$3" ]; then
     SIMILARITY_SETTINGS=(${3//:/ })

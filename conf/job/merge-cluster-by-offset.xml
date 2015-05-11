@@ -97,4 +97,14 @@
         <value>0</value>
         <description>the reducer tasks to be profiled</description>
     </property>
+
+    <property>
+        <name>pride.cluster.similarity.checker</name>
+        <value>uk.ac.ebi.pride.spectracluster.similarity.CombinedFisherIntensityTest</value>
+    </property>
+
+    <propert>
+        <name>pride.cluster.similarity.only_compare_n_highest_peaks</name>
+        <value>1</value>
+    </propert>
 </configuration>

@@ -31,7 +31,8 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
         ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
 
         // create the engine factory
-        engineFactory = EngineFactories.buildDefaultGreedyIncrementalClusteringEngineFactory((float) ClusterHadoopDefaults.getMajorPeakMZWindowSize());
+        Defaults.setDefaultPrecursorIonTolerance((float) ClusterHadoopDefaults.getMajorPeakMZWindowSize());
+        engineFactory = EngineFactories.buildDefaultGreedyIncrementalClusteringEngineFactory();
     }
 
     @Override

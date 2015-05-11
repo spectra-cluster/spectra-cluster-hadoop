@@ -20,6 +20,6 @@
 
     <property>
         <name>hadoop.job.ugi</name>
-        <value>rwang,audio</value>
+        <value>jg,Dim#1sEP</value>
     </property>
 </configuration>
