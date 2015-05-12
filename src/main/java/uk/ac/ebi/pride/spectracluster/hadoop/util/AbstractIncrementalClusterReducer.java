@@ -48,22 +48,26 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
      * Before writing out a cluster, remove all the non-fitting spectra and each out as a single-spectrum cluster
      */
     protected void writeCluster(Context context, ICluster cluster) throws IOException, InterruptedException {
-        final List<ICluster> allClusters = ClusterUtilities.findNoneFittingSpectra(cluster,
-                getEngine().getSimilarityChecker(), getClusterRetainThreshold());
+        // if removing spectra from the cluster is supported, do so
+        if (cluster.isRemoveSupported()) {
+            // TODO: this does not work with probabilistic scoring systems
+            final List<ICluster> allClusters = ClusterUtilities.findNoneFittingSpectra(cluster,
+                    getEngine().getSimilarityChecker(), getClusterRetainThreshold());
 
-        if (!allClusters.isEmpty()) {
+            if (!allClusters.isEmpty()) {
 
-            for (ICluster removedCluster : allClusters) {
+                for (ICluster removedCluster : allClusters) {
 
-                // drop all spectra
-                List<ISpectrum> clusteredSpectra = removedCluster.getClusteredSpectra();
-                ISpectrum[] allRemoved = clusteredSpectra.toArray(new ISpectrum[clusteredSpectra.size()]);
-                cluster.removeSpectra(allRemoved);
+                    // drop all spectra
+                    List<ISpectrum> clusteredSpectra = removedCluster.getClusteredSpectra();
+                    ISpectrum[] allRemoved = clusteredSpectra.toArray(new ISpectrum[clusteredSpectra.size()]);
+                    cluster.removeSpectra(allRemoved);
 
-                // and write as stand alone
-                super.writeCluster(context, removedCluster);
+                    // and write as stand alone
+                    super.writeCluster(context, removedCluster);
+                }
+
             }
-
         }
 
         // now write the original
