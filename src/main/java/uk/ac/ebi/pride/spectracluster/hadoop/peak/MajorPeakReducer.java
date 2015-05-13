@@ -9,6 +9,8 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Reducer to cluster spectra share the same major peaks
@@ -21,10 +23,14 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
 
     private double majorPeak;
     private final double majorPeakWindowSize = ClusterHadoopDefaults.getMajorPeakMZWindowSize();
+    /**
+     * Spectra that were already processed to prevent duplication
+     */
+    private final Set<String> clusteredSpectraIds = new HashSet<String>();
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-        int numOfValues = 0;
+        int numOfValues  = 0;
 
         PeakMZKey peakMZKey = new PeakMZKey(key.toString());
 
@@ -43,6 +49,11 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
                 context.progress();
 
             final ICluster cluster = IOUtilities.parseClusterFromCGFString(val.toString());
+
+            if (clusteredSpectraIds.contains(cluster.getId()))
+                continue;
+            else
+                clusteredSpectraIds.add(cluster.getId());
 
             // incrementally cluster
             final Collection<ICluster> removedClusters = getEngine().addClusterIncremental(cluster);
@@ -71,6 +82,8 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
         } else {
             setEngine(null);
         }
+
+        clusteredSpectraIds.clear();
     }
 
     public double getMajorPeak() {
