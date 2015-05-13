@@ -43,7 +43,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
      * Reuse normalizer
      */
     private IIntensityNormalizer intensityNormalizer = Defaults.getDefaultIntensityNormalizer();
-    private IFunction<List<IPeak>, List<IPeak>> peakFilter = Defaults.getDefaultPeakFilter();
+    private IFunction<ISpectrum, ISpectrum> peakFilter = Defaults.getDefaultPeakFilter();
 
     @Override
     protected void map(Writable key, Text value, Context context) throws IOException, InterruptedException {
@@ -64,7 +64,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             ISpectrum normaliseSpectrum = normaliseSpectrum(spectrum);
 
             // default peak filtering
-            normaliseSpectrum = new Spectrum(normaliseSpectrum, peakFilter.apply(normaliseSpectrum.getPeaks()));
+            normaliseSpectrum = peakFilter.apply(normaliseSpectrum);
 
             // generate a new cluster
             ICluster cluster = ClusterUtilities.asCluster(normaliseSpectrum);
