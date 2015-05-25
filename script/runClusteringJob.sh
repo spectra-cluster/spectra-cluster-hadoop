@@ -23,10 +23,10 @@ if [ "$2" != "" ]; then
 fi
 
 # similarity threshold settings (optional)
-UPPER_SIMILARITY_THRESHOLD="0.998"
+UPPER_SIMILARITY_THRESHOLD="0.9998"
 SIMILARITY_STEP_SIZE="0.002"
 NUMBER_OF_SIMILARITY_STEPS="4"
-FINAL_SIMILARITY_THRESHOLD="0.99"
+FINAL_SIMILARITY_THRESHOLD="0.999"
 if [ -n "$3" ]; then
     SIMILARITY_SETTINGS=(${3//:/ })
     UPPER_SIMILARITY_THRESHOLD="${SIMILARITY_SETTINGS[0]}"
@@ -151,7 +151,7 @@ do
         hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}_last
         hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}_last
 
-        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR}
+        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR}
 
         # check exit code of the existing peak job
         check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
