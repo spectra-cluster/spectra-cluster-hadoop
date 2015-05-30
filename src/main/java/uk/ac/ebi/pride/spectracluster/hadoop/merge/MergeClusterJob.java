@@ -54,7 +54,7 @@ public class MergeClusterJob extends Configured implements Tool {
             }
         }
 
-        Path outputDir = new Path(args[3]);
+        Path outputDir = new Path(args[4]);
         FileSystem fileSystem = outputDir.getFileSystem(configuration);
         FileOutputFormat.setOutputPath(job, outputDir);
 
