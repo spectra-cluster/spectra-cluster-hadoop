@@ -14,6 +14,7 @@ import java.io.IOException;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated // not adapted yet
 public class ExistingMajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
     /**

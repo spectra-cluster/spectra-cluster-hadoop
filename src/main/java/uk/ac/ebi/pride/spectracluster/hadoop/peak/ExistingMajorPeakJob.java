@@ -23,6 +23,7 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated // not adapted yet
 public class ExistingMajorPeakJob extends Configured implements Tool{
 
     @Override
