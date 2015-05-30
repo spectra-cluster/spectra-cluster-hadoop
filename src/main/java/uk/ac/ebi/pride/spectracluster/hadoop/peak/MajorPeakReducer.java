@@ -2,10 +2,16 @@ package uk.ac.ebi.pride.spectracluster.hadoop.peak;
 
 import org.apache.hadoop.io.Text;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
+import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractIncrementalClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
+import uk.ac.ebi.pride.spectracluster.util.Defaults;
+import uk.ac.ebi.pride.spectracluster.util.predicate.IComparisonPredicate;
+import uk.ac.ebi.pride.spectracluster.util.predicate.IPredicate;
+import uk.ac.ebi.pride.spectracluster.util.predicate.cluster_comparison.ClusterShareMajorPeakPredicate;
+import uk.ac.ebi.pride.spectracluster.util.predicate.cluster_comparison.IsKnownComparisonsPredicate;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -21,7 +27,7 @@ import java.util.Set;
  */
 public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
 
-    private double majorPeak;
+    private int currentBin;
     private final double majorPeakWindowSize = ClusterHadoopDefaults.getMajorPeakMZWindowSize();
     /**
      * Spectra that were already processed to prevent duplication
@@ -32,11 +38,10 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         int numOfValues  = 0;
 
-        PeakMZKey peakMZKey = new PeakMZKey(key.toString());
+        BinMZKey binMZKey = new BinMZKey(key.toString());
 
-        // if we are in a different bin - different peak
-        if (peakMZKey.getPeakMZ() != getMajorPeak()) {
-            updateEngine(context, peakMZKey);
+        if (binMZKey.getBin() != getCurrentBin()) {
+            updateEngine(context, binMZKey);
         }
 
         // iterate and cluster all the spectra
@@ -66,7 +71,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
     /**
      * Update the current engine when the major peak m/z value changes
      */
-    protected <T> void updateEngine(Context context, T peakMZKey) throws IOException, InterruptedException {
+    protected <T> void updateEngine(Context context, T binMZKey) throws IOException, InterruptedException {
 
         // if the current cluster engine is not null, write out all the existing clusters
         if (getEngine() != null) {
@@ -74,11 +79,19 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
             writeClusters(context, clusters);
         }
 
-        // set new cluster engine and new major peak
-        if (peakMZKey != null) {
+        // set new cluster engine and new current bin
+        if (binMZKey != null) {
+            int currentRound = context.getConfiguration().getInt(MajorPeakJob.CURRENT_CLUSTERING_ROUND, 1);
+            IComparisonPredicate<ICluster> clusteringPredicate;
+
+            if (currentRound == 1)
+                clusteringPredicate = new ClusterShareMajorPeakPredicate(Defaults.getMajorPeakCount());
+            else
+                clusteringPredicate = new IsKnownComparisonsPredicate();
+
             // if not at end make a new engine
-            setEngine(getEngineFactory().buildInstance((float) majorPeakWindowSize));
-            setMajorPeak(((PeakMZKey) peakMZKey).getPeakMZ());
+            setEngine(getEngineFactory().buildInstance((float) majorPeakWindowSize, clusteringPredicate));
+            setCurrentBin(((BinMZKey) binMZKey).getBin());
         } else {
             setEngine(null);
         }
@@ -86,11 +99,11 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
         clusteredSpectraIds.clear();
     }
 
-    public double getMajorPeak() {
-        return majorPeak;
+    public int getCurrentBin() {
+        return currentBin;
     }
 
-    public void setMajorPeak(double majorPeak) {
-        this.majorPeak = majorPeak;
+    public void setCurrentBin(int bin) {
+        this.currentBin = bin;
     }
 }

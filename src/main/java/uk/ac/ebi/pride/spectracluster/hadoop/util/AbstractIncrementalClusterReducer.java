@@ -4,6 +4,7 @@ import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.engine.EngineFactories;
 import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.engine.IncrementalClusteringEngineFactory;
+import uk.ac.ebi.pride.spectracluster.similarity.CombinedFisherIntensityTest;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
@@ -32,7 +33,14 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
 
         // create the engine factory
         Defaults.setDefaultPrecursorIonTolerance((float) ClusterHadoopDefaults.getMajorPeakMZWindowSize());
-        engineFactory = EngineFactories.buildDefaultGreedyIncrementalClusteringEngineFactory();
+        engineFactory = new EngineFactories.GreedyIncrementalClusteringEngineFactory(
+                new CombinedFisherIntensityTest(Defaults.getFragmentIonTolerance(), false),
+                Defaults.getDefaultSpectrumComparator(),
+                Defaults.getSimilarityThreshold(),
+                Defaults.getDefaultPrecursorIonTolerance(),
+                null, // no peak filter
+                null // no predicate
+        );
     }
 
     @Override

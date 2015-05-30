@@ -28,11 +28,12 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
  * @version $Id$
  */
 public class MajorPeakJob extends Configured implements Tool {
+    public static final String CURRENT_CLUSTERING_ROUND = "clustering.current.round";
 
     @Override
     public int run(String[] args) throws Exception {
         if (args.length < 5) {
-            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <cluster similarity threshold> <output directory> <input directory> [multiple cluster result directory]\n",
+            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <cluster similarity threshold> <current round> <output directory> <input directory> [multiple cluster result directory]\n",
                     getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
@@ -45,20 +46,21 @@ public class MajorPeakJob extends Configured implements Tool {
 
         // similarity threshold
         configuration.setFloat(ConfigurableProperties.SIMILARITY_THRESHOLD_PROPERTY, new Float(args[3]));
+        configuration.setInt(CURRENT_CLUSTERING_ROUND, new Integer(args[4]));
 
         Job job = new Job(configuration);
         job.setJobName(args[0]);
         job.setJarByClass(getClass());
 
         // configure input and output path
-        FileInputFormat.addInputPath(job, new Path(args[5]));
-        if (args.length > 6) {
-            for (int i = 6; i < args.length; i++) {
+        FileInputFormat.addInputPath(job, new Path(args[6]));
+        if (args.length > 7) {
+            for (int i = 7; i < args.length; i++) {
                 FileInputFormat.addInputPath(job, new Path(args[i]));
             }
         }
 
-        Path outputDir = new Path(args[4]);
+        Path outputDir = new Path(args[5]);
         FileSystem fileSystem = outputDir.getFileSystem(configuration);
         FileOutputFormat.setOutputPath(job, outputDir);
 
