@@ -11,6 +11,8 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
+import uk.ac.ebi.pride.spectracluster.util.predicate.IComparisonPredicate;
+import uk.ac.ebi.pride.spectracluster.util.predicate.cluster_comparison.ClusterShareMajorPeakPredicate;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -28,6 +30,7 @@ public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
     private double spectrumMergeWindowSize = ClusterHadoopDefaults.getSpectrumMergeMZWindowSize();
     private final Set<String> writtenSpectrumIdPerBin = new HashSet<String>();
     private final Set<String> seenSpectrumIdPerBin = new HashSet<String>();
+    private static final IComparisonPredicate<ICluster> comparisonPredicate = new ClusterShareMajorPeakPredicate(Defaults.getMajorPeakCount());
     private IWideBinner binner = ClusterHadoopDefaults.getBinner();
     private int currentBin;
 
@@ -85,7 +88,7 @@ public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
         }
 
         if (binMZKey != null) {
-            setEngine(getEngineFactory().buildInstance((float) getSpectrumMergeWindowSize()));
+            setEngine(getEngineFactory().buildInstance((float) getSpectrumMergeWindowSize(), comparisonPredicate));
             setCurrentBin(((BinMZKey) binMZKey).getBin());
         } else {
             setEngine(null);
