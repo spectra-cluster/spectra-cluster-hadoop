@@ -12,6 +12,7 @@ import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class MajorPeakPartitioner extends Partitioner<Text, Text> {
 
     @Override

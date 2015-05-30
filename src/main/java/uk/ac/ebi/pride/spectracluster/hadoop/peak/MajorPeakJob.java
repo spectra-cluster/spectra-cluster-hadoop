@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import uk.ac.ebi.pride.spectracluster.hadoop.merge.BinPartitioner;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
 
@@ -69,7 +70,7 @@ public class MajorPeakJob extends Configured implements Tool {
         // set mapper, reducer and partitioner
         job.setMapperClass(MajorPeakMapper.class);
         job.setReducerClass(MajorPeakReducer.class);
-        job.setPartitionerClass(MajorPeakPartitioner.class);
+        job.setPartitionerClass(BinPartitioner.class);
 
         // set output class
         job.setMapOutputKeyClass(Text.class);
