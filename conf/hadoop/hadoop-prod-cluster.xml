@@ -20,6 +20,6 @@
 
     <property>
         <name>hadoop.job.ugi</name>
-        <value>jg,Dim#1sEP</value>
+        <value>jgriss,test</value>
     </property>
 </configuration>
