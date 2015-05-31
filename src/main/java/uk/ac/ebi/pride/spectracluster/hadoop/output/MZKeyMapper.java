@@ -1,8 +1,11 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.output;
 
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
+import uk.ac.ebi.pride.spectracluster.cluster.GreedySpectralCluster;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
+import uk.ac.ebi.pride.spectracluster.cluster.SpectralCluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.util.function.Functions;
@@ -47,11 +50,9 @@ public class MZKeyMapper extends Mapper<Text, Text, Text, Text> {
         }
 
         // create function to filter empty peaks from consensus spectrum
-        String removeEmptyPeaks = context.getConfiguration().get("remove.empty.peaks", "");
+        //String removeEmptyPeaks = context.getConfiguration().get("remove.empty.peaks", "");
         IFunction<ICluster, ICluster> removeClusterEmptyPeaksFunction = Functions.nothing();
-        if (removeEmptyPeaks != null && "true".equalsIgnoreCase(removeEmptyPeaks)) {
-            removeClusterEmptyPeaksFunction = new RemoveClusterEmptyPeakFunction();
-        }
+        // JG: this has been disabled as it does not work with GreedySpectralClusters
 
         // combine predicate and function together
         IFunction<ICluster, ICluster> clusterFilter = Functions.condition(removeClusterEmptyPeaksFunction, miniNumOfSpectraPredicate);
