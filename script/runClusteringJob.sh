@@ -24,7 +24,7 @@ fi
 
 # similarity threshold settings (optional)
 UPPER_SIMILARITY_THRESHOLD="0.999"
-SIMILARITY_STEP_SIZE="0.316"
+SIMILARITY_STEP_SIZE="0.01225"
 NUMBER_OF_SIMILARITY_STEPS="4"
 FINAL_SIMILARITY_THRESHOLD="0.95"
 if [ -n "$3" ]; then
@@ -147,7 +147,7 @@ CURRENT_ROUND=1
 for key in ${!SIMILARITY_THRESHOLDS[@]};
 do
     if [ "${key}" != "0" ]; then
-        echo "Start executing the existing major peak job using ${SIMILARITY_THRESHOLDS[${key}]} as similarity threshold"
+        echo "Start executing the existing major peak job using ${SIMILARITY_THRESHOLDS[${key}]} as similarity threshold (round $CURRENT_ROUND)"
 
         CURRENT_ROUND=$[$CURRENT_ROUND+1]
 
