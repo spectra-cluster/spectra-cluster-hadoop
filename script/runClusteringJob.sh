@@ -46,7 +46,7 @@ done
 # job output directory
 OUTPUT_ROOT="$ROOT_DIR"
 if [ -n "$4" ]; then
-    OUTPUT_ROOT="$3"
+    OUTPUT_ROOT="$4"
 fi
 
 # inferred input directory and output directory
