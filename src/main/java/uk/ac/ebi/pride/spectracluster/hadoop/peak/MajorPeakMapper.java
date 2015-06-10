@@ -2,11 +2,14 @@ package uk.ac.ebi.pride.spectracluster.hadoop.peak;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.merge.MZNarrowBinMapper;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
@@ -33,11 +36,25 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
     private Text keyOutputText = new Text();
     private Text valueOutputText = new Text();
 
-    private static final double BIN_WIDTH = 1.0;
     private static final double BIN_OVERLAP = 0;
+    private static final float DEFAULT_BIN_WIDTH = 2F;
     private static final boolean OVERFLOW_BINS = true;
-    private static final IWideBinner binner = new SizedWideBinner
-            (MZIntensityUtilities.HIGHEST_USABLE_MZ, BIN_WIDTH, MZIntensityUtilities.LOWEST_USABLE_MZ, BIN_OVERLAP, OVERFLOW_BINS);
+
+    private double binWidth;
+    private IWideBinner binner;
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+        super.setup(context);
+
+        // read and customize configuration, default will be used if not provided
+        ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
+
+        binWidth = context.getConfiguration().getFloat(MajorPeakJob.CURRENT_BINNER_WINDOW_SIZE, DEFAULT_BIN_WIDTH);
+
+        binner = new SizedWideBinner
+                (MZIntensityUtilities.HIGHEST_USABLE_MZ, binWidth, MZIntensityUtilities.LOWEST_USABLE_MZ, BIN_OVERLAP, OVERFLOW_BINS);
+    }
 
     @Override
     protected void map(Writable key, Text value, Context context) throws IOException, InterruptedException {
@@ -56,6 +73,9 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
         // bin according the precursor mz
         int[] bins = binner.asBins(precursorMz);
+
+        Counter binCounter = context.getCounter(String.format("Bins per cluster %.1f m/z", binWidth), String.valueOf(bins.length));
+        binCounter.increment(1);
 
         for (int bin : bins) {
             BinMZKey binMZKey = new BinMZKey(bin, precursorMz);

@@ -34,6 +34,9 @@ if [ -n "$3" ]; then
     NUMBER_OF_SIMILARITY_STEPS="${SIMILARITY_SETTINGS[2]}"
 fi
 
+INITIAL_WINDOW_SIZE="1"
+FOLLOWING_WINDOW_SIZE="4"
+
 # Create an array of similarity thresholds in descending order
 SIMILARITY_THRESHOLDS=("${UPPER_SIMILARITY_THRESHOLD}")
 CURRENT_THRESHOLD="${UPPER_SIMILARITY_THRESHOLD}"
@@ -136,12 +139,12 @@ check_exit_code $? "Failed to finish the spectrum to cluster job" "The spectrum 
 # execute the major peak job
 echo "Start executing the major peak job using ${UPPER_SIMILARITY_THRESHOLD} as similarity threshold"
 
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} 1 ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${INITIAL_WINDOW_SIZE} 1 ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR}
 
 # check exit code of the major peak job
 check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
 
-CURRENT_ROUND=1
+CURRENT_ROUND=0 # start with first round as 1 to use sharing of major peaks with larger window size again
 
 # execute the existing peak job
 for key in ${!SIMILARITY_THRESHOLDS[@]};
@@ -155,7 +158,7 @@ do
         hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}_last
         hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}_last
 
-        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${SIMILARITY_THRESHOLDS[${key}]} $CURRENT_ROUND ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR}
+        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${SIMILARITY_THRESHOLDS[${key}]} ${FOLLOWING_WINDOW_SIZE} ${CURRENT_ROUND} ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR}
 
         # check exit code of the existing peak job
         check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
