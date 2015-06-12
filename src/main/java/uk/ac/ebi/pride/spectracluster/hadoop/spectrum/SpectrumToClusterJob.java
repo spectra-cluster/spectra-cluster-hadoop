@@ -23,11 +23,12 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
  * @version $Id$
  */
 public class SpectrumToClusterJob extends Configured implements Tool {
+    public static final String WINDOW_SIZE_PROPERTY = "mapper.window_size";
 
     @Override
     public int run(String[] args) throws Exception {
-        if (args.length != 5) {
-            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <output directory> <input directory> \n",
+        if (args.length != 6) {
+            System.err.printf("Usage: %s [generic options] <job name> <job configuration file> <counter file path> <output directory> <input directory> <window size> \n",
                     getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
@@ -48,6 +49,9 @@ public class SpectrumToClusterJob extends Configured implements Tool {
         Path outputDir = new Path(args[3]);
         FileSystem fileSystem = outputDir.getFileSystem(configuration);
         FileOutputFormat.setOutputPath(job, outputDir);
+
+        // set the window size
+        configuration.setFloat(WINDOW_SIZE_PROPERTY, new Float(args[5]));
 
         // input format
         job.setInputFormatClass(MGFInputFormat.class);

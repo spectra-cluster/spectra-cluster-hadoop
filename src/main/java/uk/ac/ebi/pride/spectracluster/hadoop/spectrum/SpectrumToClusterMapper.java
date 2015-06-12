@@ -5,7 +5,9 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopClusterProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.normalizer.IIntensityNormalizer;
 import uk.ac.ebi.pride.spectracluster.spectrum.IPeak;
@@ -14,6 +16,8 @@ import uk.ac.ebi.pride.spectracluster.spectrum.Spectrum;
 import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
+import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
+import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
 import uk.ac.ebi.pride.spectracluster.util.function.Functions;
 import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.peak.FractionTICPeakFunction;
@@ -51,6 +55,27 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
     private IFunction<List<IPeak>, List<IPeak>> peakFilter = new FractionTICPeakFunction(0.5F, 25);
 
 
+    private static final double BIN_OVERLAP = 0;
+    private static final float DEFAULT_BIN_WIDTH = 2F;
+    private static final boolean OVERFLOW_BINS = true;
+    private static final double LOWEST_MZ = 0;
+
+    private double binWidth;
+    private IWideBinner binner;
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+        super.setup(context);
+
+        // read and customize configuration, default will be used if not provided
+        ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
+
+        binWidth = context.getConfiguration().getFloat(SpectrumToClusterJob.WINDOW_SIZE_PROPERTY, DEFAULT_BIN_WIDTH);
+
+        binner = new SizedWideBinner(
+                MZIntensityUtilities.HIGHEST_USABLE_MZ, binWidth, LOWEST_MZ, BIN_OVERLAP, OVERFLOW_BINS);
+    }
+
     @Override
     protected void map(Writable key, Text value, Context context) throws IOException, InterruptedException {
         // check the validity of the input
@@ -76,6 +101,15 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
 
             // generate a new cluster
             ICluster cluster = ClusterUtilities.asCluster(normaliseSpectrum);
+
+            // get the bin(s)
+            int[] bins = binner.asBins(cluster.getPrecursorMz());
+            // this is the expected behaviour as there are no overlaps defined
+            if (bins.length == 1) {
+                cluster.setProperty(HadoopClusterProperties.CLUSTER_BIN, String.valueOf(bins[0]));
+                // increment the counter
+                context.getCounter("precursor_bins", String.format("mzBin_%d", bins[0])).increment(1);
+            }
 
             // generate an unique id for the cluster
             cluster.setId(UUID.randomUUID().toString());
