@@ -80,8 +80,6 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
             // get the bin mapping
             String spectrumToClusterBin = cluster.getProperty(HadoopClusterProperties.SPECTRUM_TO_CLUSTER_BIN);
 
-            context.getCounter("Spectrum Mapping", spectrumToClusterBin).increment(1);
-
             if (spectrumToClusterBin != null) {
                 int spectrumBin = new Integer(spectrumToClusterBin);
                 // use the mapped bin
