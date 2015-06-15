@@ -10,7 +10,7 @@ if [ -z "$ROOT_DIR" ]; then
     echo "                        directory 'spectra' will be used as input directory"
     echo "  [job prefix]          (optional) A prefix to add to the Hadoop job names."
     echo "  [similarity threshold]          (optional) The similarity threshold settings,"
-    echo "                        in the format of <highest threshold>:<step size>:<number of steps>"
+    echo "                        in the format of <highest threshold>:<final threshold>:<number of steps>"
     echo "  [output folder]       (optional) If this option is set, the results are"
     echo "                        written to this folder instead of the [main directory]"
     exit 1
@@ -24,18 +24,22 @@ fi
 
 # similarity threshold settings (optional)
 UPPER_SIMILARITY_THRESHOLD="0.999"
-SIMILARITY_STEP_SIZE="0.01225"
-NUMBER_OF_SIMILARITY_STEPS="4"
 FINAL_SIMILARITY_THRESHOLD="0.95"
+NUMBER_OF_SIMILARITY_STEPS="4"
+
+INITIAL_WINDOW_SIZE="1"
+FOLLOWING_WINDOW_SIZE="4" # TODO: remove this property as the window size has no effect in the major peak mapper
+SUBSEQUENT_ROUND="1" # set to 0 to use sharing of major peaks with larger window size again
+
 if [ -n "$3" ]; then
     SIMILARITY_SETTINGS=(${3//:/ })
     UPPER_SIMILARITY_THRESHOLD="${SIMILARITY_SETTINGS[0]}"
-    SIMILARITY_STEP_SIZE="${SIMILARITY_SETTINGS[1]}"
+    FINAL_SIMILARITY_THRESHOLD="${SIMILARITY_SETTINGS[1]}"
     NUMBER_OF_SIMILARITY_STEPS="${SIMILARITY_SETTINGS[2]}"
 fi
 
-INITIAL_WINDOW_SIZE="1"
-FOLLOWING_WINDOW_SIZE="4"
+# calculate the similarity step size
+SIMILARITY_STEP_SIZE=$( bc <<< "scale=7; (${UPPER_SIMILARITY_THRESHOLD} / ${FINAL_SIMILARITY_THRESHOLD}) / ${NUMBER_OF_SIMILARITY_STEPS}" )
 
 # Create an array of similarity thresholds in descending order
 SIMILARITY_THRESHOLDS=("${UPPER_SIMILARITY_THRESHOLD}")
@@ -131,7 +135,7 @@ hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_COUNTER_FILE}
 # execute the spectrum to cluster job
 echo "Start executing the spectrum to cluster job"
 
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.spectrum.SpectrumToClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "SPECTRUM_TO_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/spectrum-to-cluster.xml" ${SPECTRUM_TO_CLUSTER_COUNTER_FILE} ${SPECTRUM_TO_CLUSTER_DIR} ${INPUT_DIR}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.spectrum.SpectrumToClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "SPECTRUM_TO_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/spectrum-to-cluster.xml" ${SPECTRUM_TO_CLUSTER_COUNTER_FILE} ${SPECTRUM_TO_CLUSTER_DIR} ${INPUT_DIR} ${INITIAL_WINDOW_SIZE}
 
 # check exit code of the spectrum to cluster job
 check_exit_code $? "Failed to finish the spectrum to cluster job" "The spectrum to cluster job has finished successfully"
@@ -139,12 +143,12 @@ check_exit_code $? "Failed to finish the spectrum to cluster job" "The spectrum 
 # execute the major peak job
 echo "Start executing the major peak job using ${UPPER_SIMILARITY_THRESHOLD} as similarity threshold"
 
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${INITIAL_WINDOW_SIZE} 1 ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${INITIAL_WINDOW_SIZE} 1 ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 
 # check exit code of the major peak job
 check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
 
-CURRENT_ROUND=0 # start with first round as 1 to use sharing of major peaks with larger window size again
+CURRENT_ROUND="${SUBSEQUENT_ROUND}"
 
 # execute the existing peak job
 for key in ${!SIMILARITY_THRESHOLDS[@]};
@@ -158,7 +162,7 @@ do
         hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}_last
         hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}_last
 
-        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${SIMILARITY_THRESHOLDS[${key}]} ${FOLLOWING_WINDOW_SIZE} ${CURRENT_ROUND} ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR}
+        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${SIMILARITY_THRESHOLDS[${key}]} ${FOLLOWING_WINDOW_SIZE} ${CURRENT_ROUND} ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 
         # check exit code of the existing peak job
         check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
