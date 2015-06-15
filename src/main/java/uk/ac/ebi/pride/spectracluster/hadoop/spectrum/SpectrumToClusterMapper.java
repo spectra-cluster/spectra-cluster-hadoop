@@ -51,8 +51,9 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
      * Reuse normalizer
      */
     private IIntensityNormalizer intensityNormalizer = Defaults.getDefaultIntensityNormalizer();
-    private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter = Functions.join(new RemoveImpossiblyHighPeaksFunction(), new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()));
-    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new FractionTICPeakFunction(0.5F, 25);
+    //private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter = Functions.join(new RemoveImpossiblyHighPeaksFunction(), new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()));
+    private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter = Defaults.getDefaultPeakFilter();
+    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new FractionTICPeakFunction(0.5F, 20);
 
 
     private static final double BIN_OVERLAP = 0;
@@ -91,16 +92,16 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             // increment dalton bin counter
             CounterUtilities.incrementDaltonCounters(precursorMz, context);
 
-            // remove impossible peaks
+            // remove impossible peaks and limit to 150
             ISpectrum filteredSpectrum = initialSpectrumFilter.apply(spectrum);
-            // only retain the signal peaks
-            ISpectrum reducedSpectrum = new Spectrum(filteredSpectrum, peakFilter.apply(filteredSpectrum.getPeaks()));
 
-            // normalise all spectra
-            ISpectrum normaliseSpectrum = normaliseSpectrum(reducedSpectrum);
+            ISpectrum normalisedSpectrum = normaliseSpectrum(filteredSpectrum);
+
+            // only retain the signal peaks
+            ISpectrum reducedSpectrum = new Spectrum(filteredSpectrum, peakFilter.apply(normalisedSpectrum.getPeaks()));
 
             // generate a new cluster
-            ICluster cluster = ClusterUtilities.asCluster(normaliseSpectrum);
+            ICluster cluster = ClusterUtilities.asCluster(reducedSpectrum);
 
             // get the bin(s)
             int[] bins = binner.asBins(cluster.getPrecursorMz());
