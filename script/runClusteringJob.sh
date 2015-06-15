@@ -179,32 +179,38 @@ done
 
 
 # execute merge cluster by offset job
-#for sim in ${SIMILARITY_THRESHOLDS[@]};
-#do
-    sim=${FINAL_SIMILARITY_THRESHOLD}
-    echo "Starting executeing merger cluster by offset job using ${sim} as similarity threshold"
+MERGE_INPUT_DIR="${MAJOR_PEAK_DIR}"
+for sim in ${SIMILARITY_THRESHOLDS[@]};
+do
+    echo "Starting executing merger cluster by offset job using ${sim} as similarity threshold"
 
-    hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${sim} ${MERGE_BY_OFFSET_DIR} ${MAJOR_PEAK_DIR}
+    hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${sim} ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
+
+    MERGE_INPUT_DIR="${MERGE_BY_OFFSET_DIR}_last"
+    hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
 
     # check exit code for merge cluster by offset job
     check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
-#done
+done
 
 # execute merge job
-#for sim in ${SIMILARITY_THRESHOLDS[@]};
-#do
+for sim in ${SIMILARITY_THRESHOLDS[@]};
+do
     echo "Starting executeing merger cluster job using ${sim} as similarity threshold"
 
-    hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${sim} ${MERGE_DIR} ${MERGE_BY_OFFSET_DIR}
+    hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${sim} ${MERGE_DIR} ${MERGE_INPUT_DIR}
+
+    MERGE_INPUT_DIR="${MERGE_DIR}_last"
+    hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_DIR} ${MERGE_INPUT_DIR}
 
     # check exit code for merge cluster job
     check_exit_code $? "Failed to finish the merge cluster job" "The merge cluster job has finished successfully"
-#done
+done
 
 # execute output job
 echo "Start executing the output job"
 
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.output.OutputClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "OUTPUT_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/output-cluster.xml" ${OUTPUT_COUNTER_FILE} ${OUTPUT_DIR} ${MERGE_DIR}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.output.OutputClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "OUTPUT_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/output-cluster.xml" ${OUTPUT_COUNTER_FILE} ${OUTPUT_DIR} ${MERGE_INPUT_DIR}
 
 # check exit code for the output job
 check_exit_code $? "Failed to finish the output cluster job" "The output cluster job has finished successfully"
