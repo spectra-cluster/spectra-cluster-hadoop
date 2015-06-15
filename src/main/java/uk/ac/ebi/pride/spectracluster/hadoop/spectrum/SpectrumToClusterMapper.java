@@ -106,9 +106,12 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             int[] bins = binner.asBins(cluster.getPrecursorMz());
             // this is the expected behaviour as there are no overlaps defined
             if (bins.length == 1) {
-                cluster.setProperty(HadoopClusterProperties.CLUSTER_BIN, String.valueOf(bins[0]));
+                cluster.setProperty(HadoopClusterProperties.SPECTRUM_TO_CLUSTER_BIN, String.valueOf(bins[0]));
                 // increment the counter
-                context.getCounter("precursor_bins", String.format("mzBin_%d", bins[0])).increment(1);
+                context.getCounter("precursor_bins", String.format("%s%d", HadoopClusterProperties.BIN_PREFIX, bins[0])).increment(1);
+            }
+            else {
+                throw new InterruptedException("This implementation only works if now overlap is set during binning.");
             }
 
             // generate an unique id for the cluster

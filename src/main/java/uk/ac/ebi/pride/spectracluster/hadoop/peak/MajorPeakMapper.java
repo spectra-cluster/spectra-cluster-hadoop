@@ -11,6 +11,7 @@ import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.merge.MZNarrowBinMapper;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopClusterProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
@@ -39,6 +40,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
     private static final double BIN_OVERLAP = 0;
     private static final float DEFAULT_BIN_WIDTH = 2F;
     private static final boolean OVERFLOW_BINS = true;
+    private static final double LOWEST_MZ = 0;
 
     private double binWidth;
     private IWideBinner binner;
@@ -53,7 +55,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
         binWidth = context.getConfiguration().getFloat(MajorPeakJob.CURRENT_BINNER_WINDOW_SIZE, DEFAULT_BIN_WIDTH);
 
         binner = new SizedWideBinner
-                (MZIntensityUtilities.HIGHEST_USABLE_MZ, binWidth, MZIntensityUtilities.LOWEST_USABLE_MZ, BIN_OVERLAP, OVERFLOW_BINS);
+                (MZIntensityUtilities.HIGHEST_USABLE_MZ, binWidth, LOWEST_MZ, BIN_OVERLAP, OVERFLOW_BINS);
     }
 
     @Override
@@ -64,24 +66,47 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
         // read the original content as cluster
         ICluster cluster = IOUtilities.parseClusterFromCGFString(value.toString());
+        int bin = -1;
 
-        // precursor m/z
-        float precursorMz = cluster.getPrecursorMz();
-
-        // increment dalton bin counter
-        CounterUtilities.incrementDaltonCounters(precursorMz, context);
-
-        // bin according the precursor mz
-        int[] bins = binner.asBins(precursorMz);
-
-        Counter binCounter = context.getCounter(String.format("Bins per cluster %.1f m/z", binWidth), String.valueOf(bins.length));
-        binCounter.increment(1);
-
-        for (int bin : bins) {
-            BinMZKey binMZKey = new BinMZKey(bin, precursorMz);
-            keyOutputText.set(binMZKey.toString());
-            valueOutputText.set(value.toString());
-            context.write(keyOutputText, valueOutputText);
+        // use the previous bin if available
+        String clusterBin = cluster.getProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN);
+        if (clusterBin != null) {
+            bin = new Integer(clusterBin);
+            context.getCounter("Binning Procedure", "pre-existing bin").increment(1);
         }
+
+        // use the spectrum to cluster bin
+        if (bin < 0) {
+            // get the bin mapping
+            String spectrumToClusterBin = cluster.getProperty(HadoopClusterProperties.SPECTRUM_TO_CLUSTER_BIN);
+
+            context.getCounter("Spectrum Mapping", spectrumToClusterBin).increment(1);
+
+            if (spectrumToClusterBin != null) {
+                int spectrumBin = new Integer(spectrumToClusterBin);
+                // use the mapped bin
+                bin = context.getConfiguration().getInt(String.format("mapping_%d", spectrumBin), -1);
+                if (bin >= 0) {
+                    cluster.setProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN, String.valueOf(bin));
+                    context.getCounter("Binning Procedure", "updated-bin").increment(1);
+                }
+            }
+        }
+
+        // as a fall back bin use the original binner
+        if (bin < 0) {
+            // precursor m/z
+            float precursorMz = cluster.getPrecursorMz();
+            // bin according the precursor mz
+            bin = binner.asBins(precursorMz)[0];
+            context.getCounter("Binning Procedure", "re-mapped bin").increment(1);
+        }
+
+        BinMZKey binMZKey = new BinMZKey(bin, cluster.getPrecursorMz());
+        keyOutputText.set(binMZKey.toString());
+        valueOutputText.set(value.toString());
+        context.write(keyOutputText, valueOutputText);
+
+        context.getCounter("Bin frequency counter", "peakBin_" + String.valueOf(bin)).increment(1);
     }
 }

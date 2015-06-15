@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.spectracluster.hadoop.util;
 import org.apache.hadoop.mapreduce.Counter;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.engine.EngineFactories;
+import uk.ac.ebi.pride.spectracluster.engine.GreedyIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.engine.IncrementalClusteringEngineFactory;
 import uk.ac.ebi.pride.spectracluster.similarity.CombinedFisherIntensityTest;
@@ -44,6 +45,9 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
         );
         Counter counter = context.getCounter("Similarity Threshold", String.valueOf(Defaults.getSimilarityThreshold()));
         counter.increment(1);
+
+        Counter minSpectra = context.getCounter("Min comparison spectra (CDF)", String.valueOf(GreedyIncrementalClusteringEngine.MIN_NUMBER_COMPARISONS));
+        minSpectra.increment(1);
     }
 
     @Override
