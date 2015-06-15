@@ -39,7 +39,7 @@ if [ -n "$3" ]; then
 fi
 
 # calculate the similarity step size
-SIMILARITY_STEP_SIZE=$( bc <<< "scale=7; (${UPPER_SIMILARITY_THRESHOLD} / ${FINAL_SIMILARITY_THRESHOLD}) / ${NUMBER_OF_SIMILARITY_STEPS}" )
+SIMILARITY_STEP_SIZE=$( bc <<< "scale=7; (${UPPER_SIMILARITY_THRESHOLD} - ${FINAL_SIMILARITY_THRESHOLD}) / ${NUMBER_OF_SIMILARITY_STEPS}" )
 
 # Create an array of similarity thresholds in descending order
 SIMILARITY_THRESHOLDS=("${UPPER_SIMILARITY_THRESHOLD}")
