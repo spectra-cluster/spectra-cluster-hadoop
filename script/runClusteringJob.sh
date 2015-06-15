@@ -187,6 +187,7 @@ do
     hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${sim} ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
 
     MERGE_INPUT_DIR="${MERGE_BY_OFFSET_DIR}_last"
+    hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_INPUT_DIR}
     hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
 
     # check exit code for merge cluster by offset job
@@ -201,6 +202,7 @@ do
     hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${sim} ${MERGE_DIR} ${MERGE_INPUT_DIR}
 
     MERGE_INPUT_DIR="${MERGE_DIR}_last"
+    hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_INPUT_DIR}
     hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_DIR} ${MERGE_INPUT_DIR}
 
     # check exit code for merge cluster job
