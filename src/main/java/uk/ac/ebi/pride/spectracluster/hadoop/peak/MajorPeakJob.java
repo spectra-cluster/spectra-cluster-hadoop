@@ -107,6 +107,9 @@ public class MajorPeakJob extends Configured implements Tool {
     }
 
     private Configuration setBinMappings(Configuration configuration, String binningCounterFilePath) throws Exception {
+        // TODO: this was disabled since we may only have 120 bins...
+        if (true) return configuration;
+
         // open the file
         FileSystem fs = FileSystem.get(new Configuration());
         FSDataInputStream inputStream = fs.open(new Path(binningCounterFilePath));

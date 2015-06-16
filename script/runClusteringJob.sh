@@ -76,9 +76,10 @@ MERGE_COUNTER_FILE="${OUTPUT_ROOT}/merge.counter"
 OUTPUT_COUNTER_FILE="${OUTPUT_ROOT}/output.counter"
 
 # General hadoop configuration
-HADOOP_CONF=conf/hadoop/hadoop-prod-cluster.xml
+#HADOOP_CONF=conf/hadoop/hadoop-prod-cluster.xml
 #HADOOP_CONF=conf/hadoop/hadoop-dev-cluster.xml
 #HADOOP_CONF=conf/hadoop/hadoop-local.xml
+HADOOP_CONF=conf/hadoop/hadoop-prod-new-cluster.xml
 
 # Path to configuration files for each job
 # NOTE: conf is on the classpath, so there is not need for specific the full path

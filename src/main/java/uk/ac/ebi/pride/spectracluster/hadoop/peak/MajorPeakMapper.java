@@ -105,6 +105,6 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
         valueOutputText.set(value.toString());
         context.write(keyOutputText, valueOutputText);
 
-        context.getCounter("Bin frequency counter", "peakBin_" + String.valueOf(bin)).increment(1);
+        //context.getCounter("Bin frequency counter", "peakBin_" + String.valueOf(bin)).increment(1);
     }
 }

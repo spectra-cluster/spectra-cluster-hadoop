@@ -15,7 +15,7 @@ import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
  */
 public final class ClusterHadoopDefaults {
 
-    public static final double DEFAULT_MAJOR_PEAK_MZ_WINDOW = 2.0; // major peak sliding window is this
+    public static final double DEFAULT_MAJOR_PEAK_MZ_WINDOW = 4.0; // major peak sliding window is this
 
     public static final double DEFAULT_SPECTRUM_MERGE_WINDOW = 0.5;
 
@@ -24,8 +24,8 @@ public final class ClusterHadoopDefaults {
     /**
      * binning sizes
      */
-    private static final double NARRROW_BIN_WIDTH = 0.6; // 0.15; //0.005; // 0.3;
-    private static final double NARRROW_BIN_OVERLAP = 0.15; // 0.03; //0.002; // 0.1;
+    private static final double NARRROW_BIN_WIDTH = 1; // 0.15; //0.005; // 0.3;
+    private static final double NARRROW_BIN_OVERLAP = 0; // 0.03; //0.002; // 0.1;
 
     public static final IWideBinner DEFAULT_WIDE_MZ_BINNER = new SizedWideBinner(
             MZIntensityUtilities.HIGHEST_USABLE_MZ,

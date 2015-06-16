@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<!--
+    Distributed mode configuration for Hadoop
+
+    You can test this configuration xml using the command below:
+    hadoop fs -conf conf/hadoop/hadoop-prod-cluster.xml -ls .
+-->
+
+<configuration>
+    <property>
+        <name>fs.default.name</name>
+        <value>hdfs://hh-rover10-1.ebi.ac.uk:8020</value>
+    </property>
+
+    <property>
+        <name>mapred.job.tracker</name>
+        <value>hh-rover09-1.ebi.ac.uk</value>
+    </property>
+
+    <property>
+        <name>hadoop.job.ugi</name>
+        <value>jgriss,test</value>
+    </property>
+</configuration>

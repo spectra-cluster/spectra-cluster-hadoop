@@ -52,9 +52,10 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
      */
     private IIntensityNormalizer intensityNormalizer = Defaults.getDefaultIntensityNormalizer();
     //private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter = Functions.join(new RemoveImpossiblyHighPeaksFunction(), new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()));
-    private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter = Defaults.getDefaultPeakFilter();
-    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new FractionTICPeakFunction(0.5F, 20);
-
+    private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter =  Functions.join(
+            new RemoveImpossiblyHighPeaksFunction(),
+            new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()));
+    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new FractionTICPeakFunction(0.5F, 25);
 
     private static final double BIN_OVERLAP = 0;
     private static final float DEFAULT_BIN_WIDTH = 2F;
@@ -90,7 +91,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
 
         if (precursorMz < MZIntensityUtilities.HIGHEST_USABLE_MZ) {
             // increment dalton bin counter
-            CounterUtilities.incrementDaltonCounters(precursorMz, context);
+            //CounterUtilities.incrementDaltonCounters(precursorMz, context);
 
             // remove impossible peaks and limit to 150
             ISpectrum filteredSpectrum = initialSpectrumFilter.apply(spectrum);
@@ -109,7 +110,8 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             if (bins.length == 1) {
                 cluster.setProperty(HadoopClusterProperties.SPECTRUM_TO_CLUSTER_BIN, String.valueOf(bins[0]));
                 // increment the counter
-                context.getCounter("precursor_bins", String.format("%s%d", HadoopClusterProperties.BIN_PREFIX, bins[0])).increment(1);
+                // - number of counters is limited to 120...
+                //context.getCounter("precursor_bins", String.format("%s%d", HadoopClusterProperties.BIN_PREFIX, bins[0])).increment(1);
             }
             else {
                 throw new InterruptedException("This implementation only works if now overlap is set during binning.");

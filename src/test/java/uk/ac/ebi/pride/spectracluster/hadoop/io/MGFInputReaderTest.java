@@ -1,12 +1,13 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.io;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.TaskAttemptContext;
+import org.apache.hadoop.mapred.TaskAttemptContextImpl;
+import org.apache.hadoop.mapred.TaskAttemptID;
 import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.junit.Before;
@@ -28,7 +29,7 @@ public class MGFInputReaderTest {
 
     @Before
     public void setUp() throws Exception {
-        Configuration configuration = new Configuration(false);
+        JobConf configuration = new JobConf(false);
         configuration.set("fs.default.name", "file:///");
         configuration.set("fs.file.impl", LocalFileSystem.class.getName());
 
@@ -38,7 +39,7 @@ public class MGFInputReaderTest {
         FileSplit split = new FileSplit(path, 0, mgfFile.length(), null);
 
         MGFInputFormat mgfInputFormat = ReflectionUtils.newInstance(MGFInputFormat.class, configuration);
-        TaskAttemptContext taskAttemptContext = new TaskAttemptContext(configuration, new TaskAttemptID());
+        TaskAttemptContext taskAttemptContext = new TaskAttemptContextImpl(configuration, new TaskAttemptID());
 
         recordReader = mgfInputFormat.createRecordReader(split, taskAttemptContext);
 
