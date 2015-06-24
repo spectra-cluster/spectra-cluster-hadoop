@@ -26,6 +26,7 @@ fi
 UPPER_SIMILARITY_THRESHOLD="0.999"
 FINAL_SIMILARITY_THRESHOLD="0.95"
 NUMBER_OF_SIMILARITY_STEPS="4"
+DO_MERGING="1"
 
 INITIAL_WINDOW_SIZE="1"
 FOLLOWING_WINDOW_SIZE="4" # TODO: remove this property as the window size has no effect in the major peak mapper
@@ -181,34 +182,37 @@ done
 
 # execute merge cluster by offset job
 MERGE_INPUT_DIR="${MAJOR_PEAK_DIR}"
-for sim in ${SIMILARITY_THRESHOLDS[@]};
-do
-    echo "Starting executing merger cluster by offset job using ${sim} as similarity threshold"
 
-    hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${sim} ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
+if [ ${DO_MERGING} -eq 1 ]; then
+    for sim in ${SIMILARITY_THRESHOLDS[@]};
+    do
+        echo "Starting executing merger cluster by offset job using ${sim} as similarity threshold"
 
-    MERGE_INPUT_DIR="${MERGE_BY_OFFSET_DIR}_last"
-    hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_INPUT_DIR}
-    hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
+        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${sim} ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
 
-    # check exit code for merge cluster by offset job
-    check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
-done
+        MERGE_INPUT_DIR="${MERGE_BY_OFFSET_DIR}_last"
+        hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_INPUT_DIR}
+        hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
 
-# execute merge job
-for sim in ${SIMILARITY_THRESHOLDS[@]};
-do
-    echo "Starting executeing merger cluster job using ${sim} as similarity threshold"
+        # check exit code for merge cluster by offset job
+        check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
+    done
 
-    hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${sim} ${MERGE_DIR} ${MERGE_INPUT_DIR}
+    # execute merge job
+    for sim in ${SIMILARITY_THRESHOLDS[@]};
+    do
+        echo "Starting executeing merger cluster job using ${sim} as similarity threshold"
 
-    MERGE_INPUT_DIR="${MERGE_DIR}_last"
-    hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_INPUT_DIR}
-    hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_DIR} ${MERGE_INPUT_DIR}
+        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${sim} ${MERGE_DIR} ${MERGE_INPUT_DIR}
 
-    # check exit code for merge cluster job
-    check_exit_code $? "Failed to finish the merge cluster job" "The merge cluster job has finished successfully"
-done
+        MERGE_INPUT_DIR="${MERGE_DIR}_last"
+        hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_INPUT_DIR}
+        hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_DIR} ${MERGE_INPUT_DIR}
+
+        # check exit code for merge cluster job
+        check_exit_code $? "Failed to finish the merge cluster job" "The merge cluster job has finished successfully"
+    done
+fi
 
 # execute output job
 echo "Start executing the output job"
