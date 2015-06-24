@@ -32,7 +32,7 @@ public class ConfigurableProperties {
     public static final String SIMILARITY_THRESHOLD_PROPERTY = "pride.cluster.similarity.threshold";
     public static final String SPECTRUM_MERGE_WINDOW_PROPERTY = "pride.cluster.spectrum.merge.window";
     public static final String MAJOR_PEAK_WINDOW_PROPERTY = "pride.cluster.major.peak.window";
-    public static final String ONLY_COMPARE_N_HIGHEST_MATCHES = "pride.cluster.similarity.only_compare_n_highest_peaks";
+    public static final String CDF_MIN_NUMBER_COMPARISONS = "cdf.min_number_comparisons";
 
     public static final String SIMILARITY_CHECKER_PROPERTY = "pride.cluster.similarity.checker";
 
@@ -46,7 +46,7 @@ public class ConfigurableProperties {
         Defaults.setFragmentIonTolerance(configuration.getFloat(FRAGMENT_ION_TOLERANCE_PROPERTY, new Float(Defaults.DEFAULT_FRAGMENT_ION_TOLERANCE)));
         Defaults.setRetainThreshold(configuration.getFloat(RETAIN_THRESHOLD_PROPERTY, new Float(Defaults.DEFAULT_RETAIN_THRESHOLD)));
         Defaults.setSimilarityThreshold(configuration.getFloat(SIMILARITY_THRESHOLD_PROPERTY, new Float(Defaults.DEFAULT_SIMILARITY_THRESHOLD)));
-        Defaults.setOnlyCompareNHighestMatches(configuration.getBoolean(ONLY_COMPARE_N_HIGHEST_MATCHES, new Boolean(Defaults.DEFAULT_ONLY_COMPARE_N_HIGHEST_MATCHES)));
+        Defaults.setMinNumberComparisons(configuration.getInt(CDF_MIN_NUMBER_COMPARISONS, Defaults.DEFAULT_MIN_NUMBER_COMPARISONS));
 
         // similarity checker - this must be created AFTER the fragmentIonTolerance property is being read
         Defaults.setDefaultSimilarityChecker(getSimilarityCheckerFromConfiguration(configuration));

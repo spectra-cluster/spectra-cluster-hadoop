@@ -98,8 +98,8 @@
     </property>
 
     <property>
-        <name>pride.cluster.similarity.only_compare_n_highest_peaks</name>
-        <value>1</value>
+        <name>cdf.min_number_comparisons</name>
+        <value>0</value>
     </property>
 
 
