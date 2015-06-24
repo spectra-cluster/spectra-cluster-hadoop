@@ -3,14 +3,15 @@ package uk.ac.ebi.pride.spectracluster.hadoop.util;
 import org.apache.hadoop.mapreduce.Counter;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.engine.EngineFactories;
-import uk.ac.ebi.pride.spectracluster.engine.GreedyIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
-import uk.ac.ebi.pride.spectracluster.engine.IncrementalClusteringEngineFactory;
 import uk.ac.ebi.pride.spectracluster.similarity.CombinedFisherIntensityTest;
+import uk.ac.ebi.pride.spectracluster.spectrum.IPeak;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
 import uk.ac.ebi.pride.spectracluster.util.ClusterUtilities;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.IDefaultingFactory;
+import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
+import uk.ac.ebi.pride.spectracluster.util.function.peak.FractionTICPeakFunction;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,6 +26,7 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
     private IDefaultingFactory<IIncrementalClusteringEngine> engineFactory;
     private IIncrementalClusteringEngine engine;
     private double clusterRetainThreshold = Defaults.getRetainThreshold();
+    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new FractionTICPeakFunction(0.5F, 25);
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -40,13 +42,13 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
                 Defaults.getDefaultSpectrumComparator(),
                 Defaults.getSimilarityThreshold(),
                 Defaults.getDefaultPrecursorIonTolerance(),
-                null, // no peak filter
+                peakFilter, // signal peak filter
                 null // no predicate
         );
         Counter counter = context.getCounter("Similarity Threshold", String.valueOf(Defaults.getSimilarityThreshold()));
         counter.increment(1);
 
-        Counter minSpectra = context.getCounter("Min comparison spectra (CDF)", String.valueOf(GreedyIncrementalClusteringEngine.MIN_NUMBER_COMPARISONS));
+        Counter minSpectra = context.getCounter("Min comparison spectra (CDF)", String.valueOf(Defaults.getMinNumberComparisons()));
         minSpectra.increment(1);
     }
 
