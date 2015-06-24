@@ -103,7 +103,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
         BinMZKey binMZKey = new BinMZKey(bin, cluster.getPrecursorMz());
         keyOutputText.set(binMZKey.toString());
-        valueOutputText.set(value.toString());
+        valueOutputText.set(IOUtilities.convertClusterToCGFString(cluster));
         context.write(keyOutputText, valueOutputText);
 
         //context.getCounter("Bin frequency counter", "peakBin_" + String.valueOf(bin)).increment(1);
