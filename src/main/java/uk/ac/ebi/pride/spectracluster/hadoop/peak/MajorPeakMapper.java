@@ -38,7 +38,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
     private Text valueOutputText = new Text();
 
     private static final double BIN_OVERLAP = 0;
-    private static final float DEFAULT_BIN_WIDTH = 2F;
+    private static final float DEFAULT_BIN_WIDTH = 4F;
     private static final boolean OVERFLOW_BINS = true;
     private static final double LOWEST_MZ = 0;
 
@@ -97,6 +97,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
             float precursorMz = cluster.getPrecursorMz();
             // bin according the precursor mz
             bin = binner.asBins(precursorMz)[0];
+            cluster.setProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN, String.valueOf(bin));
             context.getCounter("Binning Procedure", "re-mapped bin").increment(1);
         }
 
