@@ -85,4 +85,8 @@
         <description>the reducer tasks to be profiled</description>
     </property>
 
+    <property>
+        <name>initial.highest.peak.filter</name>
+        <value>150</value>
+    </property>
 </configuration>

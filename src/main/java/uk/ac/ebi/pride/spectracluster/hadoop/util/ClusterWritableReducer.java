@@ -55,6 +55,9 @@ public abstract class ClusterWritableReducer extends Reducer<Text, Text, Text, T
             Counter counter = context.getCounter("Cluster Size", "Written cluster");
             counter.increment(1);
 
+            counter = context.getCounter("Cluster Size", "Written spectra");
+            counter.increment(cluster.getClusteredSpectraCount());
+
             context.write(keyOutputText, valueOutputText);
         }
     }

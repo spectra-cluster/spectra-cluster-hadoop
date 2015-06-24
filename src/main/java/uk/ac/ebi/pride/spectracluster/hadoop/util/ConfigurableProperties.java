@@ -26,6 +26,8 @@ import java.io.IOException;
  */
 public class ConfigurableProperties {
 
+
+
     public static final String NUMBER_COMPARED_PEAKS_PROPERTY = "pride.cluster.number.compared.peaks";
     public static final String FRAGMENT_ION_TOLERANCE_PROPERTY = "pride.cluster.similarity.fragment.tolerance";
     public static final String RETAIN_THRESHOLD_PROPERTY = "pride.cluster.retain.threshold";
@@ -33,6 +35,8 @@ public class ConfigurableProperties {
     public static final String SPECTRUM_MERGE_WINDOW_PROPERTY = "pride.cluster.spectrum.merge.window";
     public static final String MAJOR_PEAK_WINDOW_PROPERTY = "pride.cluster.major.peak.window";
     public static final String CDF_MIN_NUMBER_COMPARISONS = "cdf.min_number_comparisons";
+    public static final String ENABLE_COMPARISON_PEAK_FILTER = "enable.comparison.peak.filter";
+    public static final String INITIAL_HIGHEST_PEAK_FILTER = "initial.highest.peak.filter";
 
     public static final String SIMILARITY_CHECKER_PROPERTY = "pride.cluster.similarity.checker";
 
@@ -54,6 +58,8 @@ public class ConfigurableProperties {
         // hadoop related properties
         ClusterHadoopDefaults.setMajorPeakMZWindowSize(configuration.getFloat(MAJOR_PEAK_WINDOW_PROPERTY, new Float(ClusterHadoopDefaults.DEFAULT_MAJOR_PEAK_MZ_WINDOW)));
         ClusterHadoopDefaults.setSpectrumMergeMZWindowSize(configuration.getFloat(SPECTRUM_MERGE_WINDOW_PROPERTY, new Float(ClusterHadoopDefaults.DEFAULT_SPECTRUM_MERGE_WINDOW)));
+        ClusterHadoopDefaults.setEnableComparisonPeakFilter(configuration.getBoolean(ENABLE_COMPARISON_PEAK_FILTER, ClusterHadoopDefaults.DEFAULT_ENABLE_COMPARISON_PEAK_FILTER));
+        ClusterHadoopDefaults.setInitialHighestPeakFilter(configuration.getInt(INITIAL_HIGHEST_PEAK_FILTER, ClusterHadoopDefaults.DEFAULT_INITIAL_HIGHEST_PEAK_FILTER));
     }
 
     private static ISimilarityChecker getSimilarityCheckerFromConfiguration(Configuration configuration) {

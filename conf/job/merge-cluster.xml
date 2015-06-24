@@ -105,7 +105,12 @@
 
     <property>
         <name>cdf.min_number_comparisons</name>
-        <value>0</value>
+        <value>5000</value>
+    </property>
+
+    <property>
+        <name>enable.comparison.peak.filter</name>
+        <value>true</value>
     </property>
 
 </configuration>

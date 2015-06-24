@@ -5,10 +5,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopClusterProperties;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.*;
 import uk.ac.ebi.pride.spectracluster.normalizer.IIntensityNormalizer;
 import uk.ac.ebi.pride.spectracluster.spectrum.IPeak;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
@@ -56,7 +53,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
     private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter =  Functions.join(
             new RemoveImpossiblyHighPeaksFunction(),
             new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()));
-    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new HighestNPeakFunction(150); // only keep the 150 highest peaks per spectrum
+    private IFunction<List<IPeak>, List<IPeak>> peakFilter;
 
     private static final double BIN_OVERLAP = 0;
     private static final float DEFAULT_BIN_WIDTH = 4F;
@@ -79,6 +76,8 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
                 MZIntensityUtilities.HIGHEST_USABLE_MZ, binWidth, LOWEST_MZ, BIN_OVERLAP, OVERFLOW_BINS);
 
         context.getCounter("bin-width", String.valueOf(binWidth)).increment(1);
+
+        peakFilter = new HighestNPeakFunction(ClusterHadoopDefaults.getInitialHighestPeakFilter()); // only keep the 150 highest peaks per spectrum
     }
 
     @Override

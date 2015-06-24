@@ -21,6 +21,10 @@ public final class ClusterHadoopDefaults {
 
     public static final String DEFAULT_BINNING_RESOURCE = "/pride-binning.tsv";
 
+    public static final boolean DEFAULT_ENABLE_COMPARISON_PEAK_FILTER = true;
+
+    public static final int DEFAULT_INITIAL_HIGHEST_PEAK_FILTER = 150;
+
     /**
      * binning sizes
      */
@@ -41,6 +45,10 @@ public final class ClusterHadoopDefaults {
     private static String binningResource = DEFAULT_BINNING_RESOURCE;
 
     private static IWideBinner binner = DEFAULT_WIDE_MZ_BINNER;
+
+    private static boolean enableComparisonPeakFilter = DEFAULT_ENABLE_COMPARISON_PEAK_FILTER;
+
+    private static int initialHighestPeakFilter = DEFAULT_INITIAL_HIGHEST_PEAK_FILTER;
 
     private ClusterHadoopDefaults() {
     }
@@ -75,5 +83,21 @@ public final class ClusterHadoopDefaults {
 
     public static void setMajorPeakMZWindowSize(double majorPeakMZWindowSize) {
         ClusterHadoopDefaults.majorPeakMZWindowSize = majorPeakMZWindowSize;
+    }
+
+    public static boolean isEnableComparisonPeakFilter() {
+        return enableComparisonPeakFilter;
+    }
+
+    public static void setEnableComparisonPeakFilter(boolean enableComparisonPeakFilter) {
+        ClusterHadoopDefaults.enableComparisonPeakFilter = enableComparisonPeakFilter;
+    }
+
+    public static int getInitialHighestPeakFilter() {
+        return initialHighestPeakFilter;
+    }
+
+    public static void setInitialHighestPeakFilter(int initialHighestPeakFilter) {
+        ClusterHadoopDefaults.initialHighestPeakFilter = initialHighestPeakFilter;
     }
 }

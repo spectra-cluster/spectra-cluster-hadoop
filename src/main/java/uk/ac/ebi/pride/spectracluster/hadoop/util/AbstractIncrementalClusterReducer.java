@@ -26,7 +26,7 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
     private IDefaultingFactory<IIncrementalClusteringEngine> engineFactory;
     private IIncrementalClusteringEngine engine;
     private double clusterRetainThreshold = Defaults.getRetainThreshold();
-    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new FractionTICPeakFunction(0.5F, 25);
+    private IFunction<List<IPeak>, List<IPeak>> peakFilter;
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -34,6 +34,14 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
 
         // read and customize configuration, default will be used if not provided
         ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
+
+        // set the peak filter based on the configuration
+        if (ClusterHadoopDefaults.isEnableComparisonPeakFilter()) {
+            peakFilter = new FractionTICPeakFunction(0.5F, 25);
+        }
+        else {
+            peakFilter = null;
+        }
 
         // create the engine factory
         Defaults.setDefaultPrecursorIonTolerance((float) ClusterHadoopDefaults.getMajorPeakMZWindowSize());
