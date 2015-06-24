@@ -24,13 +24,13 @@ fi
 
 # similarity threshold settings (optional)
 UPPER_SIMILARITY_THRESHOLD="0.999"
-FINAL_SIMILARITY_THRESHOLD="0.95"
+FINAL_SIMILARITY_THRESHOLD="0.99"
 NUMBER_OF_SIMILARITY_STEPS="4"
 DO_MERGING="1"
 
-INITIAL_WINDOW_SIZE="1"
+INITIAL_WINDOW_SIZE="0.5"
 FOLLOWING_WINDOW_SIZE="4" # TODO: remove this property as the window size has no effect in the major peak mapper
-SUBSEQUENT_ROUND="1" # set to 0 to use sharing of major peaks with larger window size again
+SUBSEQUENT_ROUND="0" # set to 0 to use sharing of major peaks with larger window size again
 
 if [ -n "$3" ]; then
     SIMILARITY_SETTINGS=(${3//:/ })
