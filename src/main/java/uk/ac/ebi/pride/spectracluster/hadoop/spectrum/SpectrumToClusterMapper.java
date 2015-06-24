@@ -21,6 +21,7 @@ import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
 import uk.ac.ebi.pride.spectracluster.util.function.Functions;
 import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.peak.FractionTICPeakFunction;
+import uk.ac.ebi.pride.spectracluster.util.function.peak.HighestNPeakFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemoveImpossiblyHighPeaksFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemovePrecursorPeaksFunction;
 
@@ -55,10 +56,10 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
     private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter =  Functions.join(
             new RemoveImpossiblyHighPeaksFunction(),
             new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()));
-    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new FractionTICPeakFunction(0.5F, 25);
+    private IFunction<List<IPeak>, List<IPeak>> peakFilter = new HighestNPeakFunction(150); // only keep the 150 highest peaks per spectrum
 
     private static final double BIN_OVERLAP = 0;
-    private static final float DEFAULT_BIN_WIDTH = 2F;
+    private static final float DEFAULT_BIN_WIDTH = 4F;
     private static final boolean OVERFLOW_BINS = true;
     private static final double LOWEST_MZ = 0;
 
@@ -76,6 +77,8 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
 
         binner = new SizedWideBinner(
                 MZIntensityUtilities.HIGHEST_USABLE_MZ, binWidth, LOWEST_MZ, BIN_OVERLAP, OVERFLOW_BINS);
+
+        context.getCounter("bin-width", String.valueOf(binWidth)).increment(1);
     }
 
     @Override
@@ -92,6 +95,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
         if (precursorMz < MZIntensityUtilities.HIGHEST_USABLE_MZ) {
             // increment dalton bin counter
             //CounterUtilities.incrementDaltonCounters(precursorMz, context);
+            context.getCounter("normal precursor", "spectra < " + String.valueOf(MZIntensityUtilities.HIGHEST_USABLE_MZ)).increment(1);
 
             // remove impossible peaks and limit to 150
             ISpectrum filteredSpectrum = initialSpectrumFilter.apply(spectrum);
@@ -125,6 +129,9 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             keyOutputText.set(mzKey.toString());
             valueOutputText.set(IOUtilities.convertClusterToCGFString(cluster));
             context.write(keyOutputText, valueOutputText);
+        }
+        else {
+            context.getCounter("high precursor", "spectra > " + String.valueOf(MZIntensityUtilities.HIGHEST_USABLE_MZ)).increment(1);
         }
     }
 
