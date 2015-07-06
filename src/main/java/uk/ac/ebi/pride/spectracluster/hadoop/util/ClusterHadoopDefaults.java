@@ -26,6 +26,12 @@ public final class ClusterHadoopDefaults {
     public static final int DEFAULT_INITIAL_HIGHEST_PEAK_FILTER = 150;
 
     /**
+     * If this option is > 0, a new clustering engine is being
+     * created if the total number of clusters is reached
+     */
+    public static final int DEFAULT_MAXIMUM_NUMBER_OF_CLUSTERS = 0;
+
+    /**
      * binning sizes
      */
     private static final double NARRROW_BIN_WIDTH = 1; // 0.15; //0.005; // 0.3;
@@ -49,6 +55,8 @@ public final class ClusterHadoopDefaults {
     private static boolean enableComparisonPeakFilter = DEFAULT_ENABLE_COMPARISON_PEAK_FILTER;
 
     private static int initialHighestPeakFilter = DEFAULT_INITIAL_HIGHEST_PEAK_FILTER;
+
+    private static int maximumNumberOfClusters = DEFAULT_MAXIMUM_NUMBER_OF_CLUSTERS;
 
     private ClusterHadoopDefaults() {
     }
@@ -99,5 +107,13 @@ public final class ClusterHadoopDefaults {
 
     public static void setInitialHighestPeakFilter(int initialHighestPeakFilter) {
         ClusterHadoopDefaults.initialHighestPeakFilter = initialHighestPeakFilter;
+    }
+
+    public static int getMaximumNumberOfClusters() {
+        return maximumNumberOfClusters;
+    }
+
+    public static void setMaximumNumberOfClusters(int maximumNumberOfClusters) {
+        ClusterHadoopDefaults.maximumNumberOfClusters = maximumNumberOfClusters;
     }
 }

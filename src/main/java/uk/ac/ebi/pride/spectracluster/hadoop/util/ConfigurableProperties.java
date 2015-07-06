@@ -37,6 +37,7 @@ public class ConfigurableProperties {
     public static final String CDF_MIN_NUMBER_COMPARISONS = "cdf.min_number_comparisons";
     public static final String ENABLE_COMPARISON_PEAK_FILTER = "enable.comparison.peak.filter";
     public static final String INITIAL_HIGHEST_PEAK_FILTER = "initial.highest.peak.filter";
+    public static final String MAXIMUM_NUMBER_CLUSTERS = "pride.cluster.maximum_number_clusters";
 
     public static final String SIMILARITY_CHECKER_PROPERTY = "pride.cluster.similarity.checker";
 
@@ -60,6 +61,7 @@ public class ConfigurableProperties {
         ClusterHadoopDefaults.setSpectrumMergeMZWindowSize(configuration.getFloat(SPECTRUM_MERGE_WINDOW_PROPERTY, new Float(ClusterHadoopDefaults.DEFAULT_SPECTRUM_MERGE_WINDOW)));
         ClusterHadoopDefaults.setEnableComparisonPeakFilter(configuration.getBoolean(ENABLE_COMPARISON_PEAK_FILTER, ClusterHadoopDefaults.DEFAULT_ENABLE_COMPARISON_PEAK_FILTER));
         ClusterHadoopDefaults.setInitialHighestPeakFilter(configuration.getInt(INITIAL_HIGHEST_PEAK_FILTER, ClusterHadoopDefaults.DEFAULT_INITIAL_HIGHEST_PEAK_FILTER));
+        ClusterHadoopDefaults.setMaximumNumberOfClusters(configuration.getInt(MAXIMUM_NUMBER_CLUSTERS, ClusterHadoopDefaults.DEFAULT_MAXIMUM_NUMBER_OF_CLUSTERS));
     }
 
     private static ISimilarityChecker getSimilarityCheckerFromConfiguration(Configuration configuration) {

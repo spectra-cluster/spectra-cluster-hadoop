@@ -145,7 +145,7 @@ check_exit_code $? "Failed to finish the spectrum to cluster job" "The spectrum 
 # execute the major peak job
 echo "Start executing the major peak job using ${UPPER_SIMILARITY_THRESHOLD} as similarity threshold"
 
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${INITIAL_WINDOW_SIZE} 1 ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak-first_run.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${INITIAL_WINDOW_SIZE} 1 ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 
 # check exit code of the major peak job
 check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"

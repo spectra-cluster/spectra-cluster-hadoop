@@ -60,6 +60,11 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
             else
                 clusteredSpectraIds.add(cluster.getId());
 
+            // update engine if total number of clusters is above threshold
+            if (getEngine().getClusters().size() > ClusterHadoopDefaults.getMaximumNumberOfClusters()) {
+                updateEngine(context, binMZKey);
+            }
+
             // incrementally cluster
             final Collection<ICluster> removedClusters = getEngine().addClusterIncremental(cluster);
 

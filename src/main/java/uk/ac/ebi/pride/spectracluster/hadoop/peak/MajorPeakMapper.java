@@ -85,7 +85,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
                 // use the mapped bin
                 bin = context.getConfiguration().getInt(String.format("mapping_%d", spectrumBin), -1);
                 if (bin >= 0) {
-                    cluster.setProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN, String.valueOf(bin));
+                    //cluster.setProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN, String.valueOf(bin));
                     context.getCounter("Binning Procedure", "updated-bin").increment(1);
                 }
             }
@@ -97,7 +97,7 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
             float precursorMz = cluster.getPrecursorMz();
             // bin according the precursor mz
             bin = binner.asBins(precursorMz)[0];
-            cluster.setProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN, String.valueOf(bin));
+            //cluster.setProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN, String.valueOf(bin));
             context.getCounter("Binning Procedure", "re-mapped bin").increment(1);
         }
 
