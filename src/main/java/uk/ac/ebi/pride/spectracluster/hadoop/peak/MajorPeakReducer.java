@@ -42,6 +42,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
 
         if (binMZKey.getBin() != getCurrentBin()) {
             updateEngine(context, binMZKey);
+            context.getCounter("Cluster Size", "Processed bins").increment(1);
         }
 
         // iterate and cluster all the spectra
@@ -55,14 +56,17 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
 
             final ICluster cluster = IOUtilities.parseClusterFromCGFString(val.toString());
 
-            if (clusteredSpectraIds.contains(cluster.getId()))
+            if (clusteredSpectraIds.contains(cluster.getId())) {
+                context.getCounter("Cluster Size", "Duplicated input spectra").increment(1);
                 continue;
+            }
             else
                 clusteredSpectraIds.add(cluster.getId());
 
             // update engine if total number of clusters is above threshold
-            if (getEngine().getClusters().size() > ClusterHadoopDefaults.getMaximumNumberOfClusters()) {
+            if (getEngine().getClusters().size() > ClusterHadoopDefaults.getMaximumNumberOfClusters() && ClusterHadoopDefaults.getMaximumNumberOfClusters() > 0) {
                 updateEngine(context, binMZKey);
+                context.getCounter("Cluster size", "Engine updates in bin").increment(1);
             }
 
             // incrementally cluster
