@@ -2,24 +2,27 @@
 
 # input options (required)
 ROOT_DIR=$1
+PREV_ROOT_DIR="$2"
 
 # make sure the parameter was set
 if [ -z "$ROOT_DIR" ]; then
-    echo "Usage: $0 [main directory] [job prefix = ''] [similarity threshold settings = 0.9:0.1:4] [output folder = main directory]"
-    echo "  [main directory]      Path on Hadoop to use as a working directory. The sub-"
-    echo "                        directory 'spectra' will be used as input directory"
-    echo "  [job prefix]          (optional) A prefix to add to the Hadoop job names."
-    echo "  [similarity threshold]          (optional) The similarity threshold settings,"
-    echo "                        in the format of <highest threshold>:<final threshold>:<number of steps>"
-    echo "  [output folder]       (optional) If this option is set, the results are"
-    echo "                        written to this folder instead of the [main directory]"
+    echo "Usage: $0 [main directory] [previous main directory] [job prefix = ''] [similarity threshold settings = 0.999:0.99:4] [output folder = main directory]"
+    echo "  [main directory]           Path on Hadoop to use as a working directory. The sub-"
+    echo "                             directory 'spectra' will be used as input directory"
+    echo "  [previous main directory]  Path on Hadoop that was used as a working directory of the"
+    echo "                             previous clustering run."
+    echo "  [job prefix]               (optional) A prefix to add to the Hadoop job names."
+    echo "  [similarity threshold]     (optional) The similarity threshold settings,"
+    echo "                             in the format of <highest threshold>:<final threshold>:<number of steps>"
+    echo "  [output folder]            (optional) If this option is set, the results are"
+    echo "                             written to this folder instead of the [main directory]"
     exit 1
 fi
 
 # job prefix (optional)
 JOB_PREFIX=""
-if [ "$2" != "" ]; then
-    JOB_PREFIX="_$2"
+if [ "$3" != "" ]; then
+    JOB_PREFIX="_$3"
 fi
 
 # similarity threshold settings (optional)
@@ -32,8 +35,8 @@ INITIAL_WINDOW_SIZE="0.5"
 FOLLOWING_WINDOW_SIZE="4" # TODO: remove this property as the window size has no effect in the major peak mapper
 SUBSEQUENT_ROUND="0" # set to 0 to use sharing of major peaks with larger window size again
 
-if [ -n "$3" ]; then
-    SIMILARITY_SETTINGS=(${3//:/ })
+if [ -n "$4" ]; then
+    SIMILARITY_SETTINGS=(${4//:/ })
     UPPER_SIMILARITY_THRESHOLD="${SIMILARITY_SETTINGS[0]}"
     FINAL_SIMILARITY_THRESHOLD="${SIMILARITY_SETTINGS[1]}"
     NUMBER_OF_SIMILARITY_STEPS="${SIMILARITY_SETTINGS[2]}"
@@ -53,8 +56,8 @@ done
 
 # job output directory
 OUTPUT_ROOT="$ROOT_DIR"
-if [ -n "$4" ]; then
-    OUTPUT_ROOT="$4"
+if [ -n "$5" ]; then
+    OUTPUT_ROOT="$5"
 fi
 
 # inferred input directory and output directory
@@ -141,6 +144,9 @@ hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.
 
 # check exit code of the spectrum to cluster job
 check_exit_code $? "Failed to finish the spectrum to cluster job" "The spectrum to cluster job has finished successfully"
+
+# copy the previous results
+hadoop fs -cp ${PREV_ROOT_DIR}/merge_last/part-* ${SPECTRUM_TO_CLUSTER_DIR}
 
 # execute the major peak job
 echo "Start executing the major peak job using ${UPPER_SIMILARITY_THRESHOLD} as similarity threshold"
