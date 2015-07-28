@@ -22,7 +22,7 @@
     <!-- number of reduce tasks -->
     <property>
         <name>mapred.reduce.tasks</name>
-        <value>300</value>
+        <value>1200</value>
         <description>The number of reducers used for the job</description>
     </property>
 
