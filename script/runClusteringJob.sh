@@ -121,18 +121,18 @@ function check_exit_code() {
 build_library_jars
 
 # remove the intermediate directories if they exists
-hadoop fs -conf ${HADOOP_CONF} -rmr ${SPECTRUM_TO_CLUSTER_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_OFFSET_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${SPECTRUM_TO_CLUSTER_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_DIR}
 
 # remove existing counter files
-hadoop fs -conf ${HADOOP_CONF} -rmr ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_OFFSET_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_COUNTER_FILE}
 
 # execute the spectrum to cluster job
 echo "Start executing the spectrum to cluster job"
@@ -161,8 +161,8 @@ do
         CURRENT_ROUND=$[$CURRENT_ROUND+1]
 
         # make sure the directories were deleted
-        hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}_last
-        hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}_last
+        hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}_last
+        hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_COUNTER_FILE}_last
 
         hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${SIMILARITY_THRESHOLDS[${key}]} ${FOLLOWING_WINDOW_SIZE} ${CURRENT_ROUND} ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 
@@ -170,8 +170,8 @@ do
         check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
 
         # delete old results
-        hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}
-        hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}
+        hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}
+        hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_COUNTER_FILE}
 
         # move the new results
         hadoop fs -conf ${HADOOP_CONF} -mv ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR}
@@ -191,7 +191,7 @@ if [ ${DO_MERGING} -eq 1 ]; then
         hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${sim} ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
 
         MERGE_INPUT_DIR="${MERGE_BY_OFFSET_DIR}_last"
-        hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_INPUT_DIR}
+        hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_INPUT_DIR}
         hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
 
         # check exit code for merge cluster by offset job
@@ -206,7 +206,7 @@ if [ ${DO_MERGING} -eq 1 ]; then
         hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${sim} ${MERGE_DIR} ${MERGE_INPUT_DIR}
 
         MERGE_INPUT_DIR="${MERGE_DIR}_last"
-        hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_INPUT_DIR}
+        hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_INPUT_DIR}
         hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_DIR} ${MERGE_INPUT_DIR}
 
         # check exit code for merge cluster job
