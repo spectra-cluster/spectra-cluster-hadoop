@@ -93,20 +93,20 @@ function check_exit_code() {
 build_library_jars
 
 # remove the intermediate directories if they exists
-hadoop fs -conf ${HADOOP_CONF} -rmr ${SPECTRUM_TO_CLUSTER_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_ID_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_OFFSET_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${SPECTRUM_TO_CLUSTER_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_ID_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_DIR}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_DIR}
 
 # remove existing counter files
-hadoop fs -conf ${HADOOP_CONF} -rmr ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MAJOR_PEAK_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_ID_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_BY_OFFSET_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${MERGE_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rmr ${OUTPUT_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_ID_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_COUNTER_FILE}
+hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_COUNTER_FILE}
 
 # execute the spectrum to cluster job
 hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.spectrum.SpectrumToClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "SPECTRUM_TO_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/spectrum-to-cluster.xml" ${SPECTRUM_TO_CLUSTER_COUNTER_FILE} ${SPECTRUM_TO_CLUSTER_DIR} ${INPUT_DIR}
