@@ -77,7 +77,8 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
 
         context.getCounter("bin-width", String.valueOf(binWidth)).increment(1);
 
-        peakFilter = new HighestNPeakFunction(ClusterHadoopDefaults.getInitialHighestPeakFilter()); // only keep the 150 highest peaks per spectrum
+        // only keep the N highest peaks per spectrum
+        peakFilter = new HighestNPeakFunction(ClusterHadoopDefaults.getInitialHighestPeakFilter());
     }
 
     @Override
@@ -96,7 +97,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             //CounterUtilities.incrementDaltonCounters(precursorMz, context);
             context.getCounter("normal precursor", "spectra < " + String.valueOf(MZIntensityUtilities.HIGHEST_USABLE_MZ)).increment(1);
 
-            // remove impossible peaks and limit to 150
+            // do initial filtering (ie. precursor removal, impossible high peaks, etc.)
             ISpectrum filteredSpectrum = initialSpectrumFilter.apply(spectrum);
 
             ISpectrum normalisedSpectrum = normaliseSpectrum(filteredSpectrum);

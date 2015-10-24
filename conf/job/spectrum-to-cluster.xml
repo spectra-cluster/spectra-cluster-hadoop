@@ -87,6 +87,6 @@
 
     <property>
         <name>initial.highest.peak.filter</name>
-        <value>150</value>
+        <value>70</value>
     </property>
 </configuration>

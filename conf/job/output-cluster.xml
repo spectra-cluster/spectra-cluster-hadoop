@@ -21,7 +21,11 @@
     <property>
         <name>clustering.file.include.spectra</name>
         <value>false</value>
-        <description>if set to "true" the spectra are included in the .clustering file</description>
+        <description>
+            if set to "true" the spectra are included in the .clustering file. This no
+            This no longer works in the "spectraLess" versions of the algorithm were
+            clustered spectra are no longer stored.
+        </description>
     </property>
 
     <property>

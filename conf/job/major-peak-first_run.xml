@@ -109,7 +109,7 @@
 
     <property>
         <name>pride.cluster.maximum_number_clusters</name>
-        <value>1000000</value>
+        <value>10000</value>
     </property>
 
 </configuration>

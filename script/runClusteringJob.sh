@@ -5,7 +5,7 @@ ROOT_DIR=$1
 
 # make sure the parameter was set
 if [ -z "$ROOT_DIR" ]; then
-    echo "Usage: $0 [main directory] [job prefix = ''] [similarity threshold settings = 0.9:0.1:4] [output folder = main directory]"
+    echo "Usage: $0 [main directory] [job prefix = ''] [similarity threshold settings = 0.999:0.99:4] [output folder = main directory]"
     echo "  [main directory]      Path on Hadoop to use as a working directory. The sub-"
     echo "                        directory 'spectra' will be used as input directory"
     echo "  [job prefix]          (optional) A prefix to add to the Hadoop job names."
