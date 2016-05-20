@@ -41,8 +41,17 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
         BinMZKey binMZKey = new BinMZKey(key.toString());
 
         if (binMZKey.getBin() != getCurrentBin()) {
+            System.out.println("Processing bin " + binMZKey.toString());
             updateEngine(context, binMZKey);
             context.getCounter("Cluster Size", "Processed bins").increment(1);
+        }
+
+        // this should never happen
+        if (getEngine() == null) {
+            System.out.println("Current engine = null: bin key = " +
+                    String.valueOf(binMZKey.getBin()) + " (" + binMZKey.toString() + "), current bin = " +
+                    String.valueOf(getCurrentBin()));
+            updateEngine(context, binMZKey);
         }
 
         // iterate and cluster all the spectra
