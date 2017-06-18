@@ -20,6 +20,7 @@ import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.peak.FractionTICPeakFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.peak.HighestNPeakFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemoveImpossiblyHighPeaksFunction;
+import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemoveIonContaminantsPeaksFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemovePrecursorPeaksFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemoveWindowPeaksFunction;
 
@@ -53,6 +54,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
     private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter =  Functions.join(
             new RemoveImpossiblyHighPeaksFunction(),
             new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()),
+            new RemoveIonContaminantsPeaksFunction(Defaults.getFragmentIonTolerance()),
             new RemoveWindowPeaksFunction(150F, Float.MAX_VALUE));
     private IFunction<List<IPeak>, List<IPeak>> peakFilter;
 
