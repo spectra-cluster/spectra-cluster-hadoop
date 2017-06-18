@@ -66,28 +66,19 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
         // read the original content as cluster
         ICluster cluster = IOUtilities.parseClusterFromCGFString(value.toString());
-        int bin = -1;
-
-        // use the previous bin if available
-        String clusterBin = cluster.getProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN);
-        if (clusterBin != null) {
-            bin = new Integer(clusterBin);
-            context.getCounter("Binning Procedure", "pre-existing bin").increment(1);
-        }
 
         // use the spectrum to cluster bin
-        if (bin < 0) {
-            // get the bin mapping
-            String spectrumToClusterBin = cluster.getProperty(HadoopClusterProperties.SPECTRUM_TO_CLUSTER_BIN);
+        int bin = -1;
 
-            if (spectrumToClusterBin != null) {
-                int spectrumBin = new Integer(spectrumToClusterBin);
-                // use the mapped bin
-                bin = context.getConfiguration().getInt(String.format("mapping_%d", spectrumBin), -1);
-                if (bin >= 0) {
-                    //cluster.setProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN, String.valueOf(bin));
-                    context.getCounter("Binning Procedure", "updated-bin").increment(1);
-                }
+        // get the bin mapping
+        String spectrumToClusterBin = cluster.getProperty(HadoopClusterProperties.SPECTRUM_TO_CLUSTER_BIN);
+
+        if (spectrumToClusterBin != null) {
+            int spectrumBin = new Integer(spectrumToClusterBin);
+            // use the mapped bin
+            bin = context.getConfiguration().getInt(String.format("mapping_%d", spectrumBin), -1);
+            if (bin >= 0) {
+                context.getCounter("Binning Procedure", "updated-bin").increment(1);
             }
         }
 
@@ -97,7 +88,6 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
             float precursorMz = cluster.getPrecursorMz();
             // bin according the precursor mz
             bin = binner.asBins(precursorMz)[0];
-            //cluster.setProperty(HadoopClusterProperties.MAJOR_PEAK_CLUSTER_BIN, String.valueOf(bin));
             context.getCounter("Binning Procedure", "re-mapped bin").increment(1);
         }
 
@@ -105,7 +95,5 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
         keyOutputText.set(binMZKey.toString());
         valueOutputText.set(IOUtilities.convertClusterToCGFString(cluster));
         context.write(keyOutputText, valueOutputText);
-
-        //context.getCounter("Bin frequency counter", "peakBin_" + String.valueOf(bin)).increment(1);
     }
 }

@@ -23,6 +23,7 @@ import java.util.Set;
  *
  * @author Steve Lewis
  * @author Rui Wang
+ * @author Johannes Griss
  * @version $Id$
  */
 public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
@@ -73,7 +74,9 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
                 clusteredSpectraIds.add(cluster.getId());
 
             // update engine if total number of clusters is above threshold
-            if (getEngine().getClusters().size() > ClusterHadoopDefaults.getMaximumNumberOfClusters() && ClusterHadoopDefaults.getMaximumNumberOfClusters() > 0) {
+            // this option is only used in the initial clustering round where
+            if (getEngine().getClusters().size() > ClusterHadoopDefaults.getMaximumNumberOfClusters() &&
+                    ClusterHadoopDefaults.getMaximumNumberOfClusters() > 0) {
                 updateEngine(context, binMZKey);
                 context.getCounter("Cluster size", "Engine updates in bin").increment(1);
             }
