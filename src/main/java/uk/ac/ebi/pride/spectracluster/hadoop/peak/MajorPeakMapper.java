@@ -25,10 +25,13 @@ import java.io.IOException;
  * Mapper that gets the highest peaks of a spectrum and then send corresponding copies of spectra
  * along with the highest peak to the reducer
  *
+ * This class has been replaced by the PrecursorBinMapper class.
+ *
  * @author Steve Lewis
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
 
     /**
@@ -95,5 +98,6 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
         keyOutputText.set(binMZKey.toString());
         valueOutputText.set(IOUtilities.convertClusterToCGFString(cluster));
         context.write(keyOutputText, valueOutputText);
+        context.getCounter("Bins", "Bin_" + binMZKey.toString().substring(0, 6)).increment(1);
     }
 }

@@ -80,7 +80,7 @@ public class MajorPeakJob extends Configured implements Tool {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         // set mapper, reducer and partitioner
-        job.setMapperClass(MajorPeakMapper.class);
+        job.setMapperClass(PrecursorBinMapper.class);
         job.setReducerClass(MajorPeakReducer.class);
         job.setPartitionerClass(BinPartitioner.class);
 
