@@ -48,8 +48,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spectra-cluster.version>1.0.11-SNAPSHOT</spectra-cluster.version>
-        <!--<hadoop-core.version>0.20.2</hadoop-core.version>-->
-        <hadoop-core.version>1.2.1</hadoop-core.version>
+        <hadoop.version>2.7.0</hadoop.version>
         <junit.version>4.11</junit.version>
     </properties>
 
@@ -63,13 +62,19 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>2.7.0</version>
+            <version>${hadoop.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>2.7.0</version>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
         </dependency>
 
         <dependency>
