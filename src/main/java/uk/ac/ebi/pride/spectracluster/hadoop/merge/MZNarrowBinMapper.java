@@ -17,6 +17,7 @@ import java.io.IOException;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
 
     private IWideBinner binner = ClusterHadoopDefaults.getBinner();

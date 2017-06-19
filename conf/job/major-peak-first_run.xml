@@ -5,6 +5,47 @@
 -->
 
 <configuration>
+    <!--
+        #### Clustering Settings ####
+    -->
+    <property>
+        <name>pride.cluster.similarity.checker</name>
+        <value>uk.ac.ebi.pride.spectracluster.similarity.CombinedFisherIntensityTest</value>
+        <description>Name of the similarity checker class to use. This should generally not be changed</description>
+    </property>
+
+    <property>
+        <name>cdf.min_number_comparisons</name>
+        <value>5000</value>
+        <description>Sets the internal correction factor to calculate the clustering accuracy</description>
+    </property>
+
+    <property>
+        <name>pride.cluster.major.peak.window</name>
+        <value>0.5</value>
+        <description>The window size of the clustering engine in m/z. This is equivalent to a search engine's precursor tolerance.
+            This option only has an effect if it is smaller than the mapper's window size.</description>
+    </property>
+
+    <property>
+        <name>enable.comparison.peak.filter</name>
+        <value>true</value>
+        <description>This option can be used to disable the comparison peak filter. This is only sensible
+            if the spectra were already heavily pre-processed during loading</description>
+    </property>
+
+    <property>
+        <name>pride.cluster.maximum_number_clusters</name>
+        <value>10000</value>
+        <description>If this option is set, only the set amount of clusters are kept in memory. Afterwards,
+                     the internal clusters are reset and the clustering is started from scratch. This
+                     option is only used in the intial round and disabled afterwards.
+                     To disable this feature, set this value to "0". </description>
+    </property>
+
+    <!--
+        #### Hadoop Settings ####
+    -->
 
     <!-- The number of reducer tasks -->
     <property>
@@ -92,24 +133,6 @@
         <description>the reducer tasks to be profiled</description>
     </property>
 
-    <property>
-        <name>pride.cluster.similarity.checker</name>
-        <value>uk.ac.ebi.pride.spectracluster.similarity.CombinedFisherIntensityTest</value>
-    </property>
 
-    <property>
-        <name>cdf.min_number_comparisons</name>
-        <value>5000</value>
-    </property>
-
-    <property>
-        <name>enable.comparison.peak.filter</name>
-        <value>true</value>
-    </property>
-
-    <property>
-        <name>pride.cluster.maximum_number_clusters</name>
-        <value>10000</value>
-    </property>
 
 </configuration>

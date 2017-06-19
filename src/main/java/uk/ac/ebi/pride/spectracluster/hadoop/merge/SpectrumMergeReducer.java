@@ -25,6 +25,7 @@ import java.util.Set;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
 
     private double spectrumMergeWindowSize = ClusterHadoopDefaults.getSpectrumMergeMZWindowSize();

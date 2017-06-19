@@ -9,6 +9,12 @@
         #### Clustering Settings ####
     -->
     <property>
+        <name>pride.cluster.offset.bins</name>
+        <value>true</value>
+        <description>Indicates whether to shift the bins by half the window size</description>
+    </property>
+
+    <property>
         <name>pride.cluster.similarity.checker</name>
         <value>uk.ac.ebi.pride.spectracluster.similarity.CombinedFisherIntensityTest</value>
         <description>Name of the similarity checker class to use. This should generally not be changed</description>
@@ -24,14 +30,14 @@
         <name>pride.cluster.major.peak.window</name>
         <value>2.0</value>
         <description>The window size of the clustering engine in m/z. This is equivalent to a search engine's precursor tolerance.
-                     This option only has an effect if it is smaller than the mapper's window size.</description>
+            This option only has an effect if it is smaller than the mapper's window size.</description>
     </property>
 
     <property>
         <name>enable.comparison.peak.filter</name>
         <value>true</value>
         <description>This option can be used to disable the comparison peak filter. This is only sensible
-                     if the spectra were already heavily pre-processed during loading</description>
+            if the spectra were already heavily pre-processed during loading</description>
     </property>
 
     <!--

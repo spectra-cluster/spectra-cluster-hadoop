@@ -17,6 +17,7 @@ import java.io.IOException;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class BinPartitioner extends Partitioner<Text, Text> {
     private APrioriBinning prePartitioning;
     private final IWideBinner binner = ClusterHadoopDefaults.getBinner();

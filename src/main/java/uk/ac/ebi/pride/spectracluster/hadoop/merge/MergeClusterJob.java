@@ -22,6 +22,7 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class MergeClusterJob extends Configured implements Tool {
 
     @Override

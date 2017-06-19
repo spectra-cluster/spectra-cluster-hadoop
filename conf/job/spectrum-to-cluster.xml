@@ -5,7 +5,18 @@
 -->
 
 <configuration>
+    <!--
+        #### Clustering Settings ####
+    -->
+    <!-- The number of highest peaks to retain in each spectrum -->
+    <property>
+        <name>initial.highest.peak.filter</name>
+        <value>70</value>
+    </property>
 
+    <!--
+        #### Hadoop Settings ####
+    -->
     <!-- JVM memory allocation -->
     <property>
         <name>mapred.child.java.opts</name>
@@ -83,10 +94,5 @@
         <name>mapred.task.profile.reduces</name>
         <value>0</value>
         <description>the reducer tasks to be profiled</description>
-    </property>
-
-    <property>
-        <name>initial.highest.peak.filter</name>
-        <value>70</value>
     </property>
 </configuration>

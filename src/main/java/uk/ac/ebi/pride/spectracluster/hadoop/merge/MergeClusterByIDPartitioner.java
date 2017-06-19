@@ -9,6 +9,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class MergeClusterByIDPartitioner extends Partitioner<Text, Text> {
 
     @Override
