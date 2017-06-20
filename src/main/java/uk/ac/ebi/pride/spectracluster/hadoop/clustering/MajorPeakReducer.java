@@ -1,15 +1,13 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.peak;
+package uk.ac.ebi.pride.spectracluster.hadoop.clustering;
 
 import org.apache.hadoop.io.Text;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.AbstractIncrementalClusterReducer;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.predicate.IComparisonPredicate;
-import uk.ac.ebi.pride.spectracluster.util.predicate.IPredicate;
 import uk.ac.ebi.pride.spectracluster.util.predicate.cluster_comparison.ClusterShareMajorPeakPredicate;
 import uk.ac.ebi.pride.spectracluster.util.predicate.cluster_comparison.IsKnownComparisonsPredicate;
 
@@ -90,7 +88,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
     }
 
     /**
-     * Update the current engine when the major peak m/z value changes
+     * Update the current engine when the major clustering m/z value changes
      */
     protected <T> void updateEngine(Context context, T binMZKey) throws IOException, InterruptedException {
 

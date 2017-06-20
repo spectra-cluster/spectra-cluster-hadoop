@@ -1,7 +1,7 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import org.apache.hadoop.conf.Configuration;
-import uk.ac.ebi.pride.spectracluster.similarity.*;
+import uk.ac.ebi.pride.spectracluster.similarity.ISimilarityChecker;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.NumberUtilities;
 
@@ -34,10 +34,10 @@ public class ConfigurableProperties {
     public static final String RETAIN_THRESHOLD_PROPERTY = "pride.cluster.retain.threshold";
     public static final String SIMILARITY_THRESHOLD_PROPERTY = "pride.cluster.similarity.threshold";
     public static final String SPECTRUM_MERGE_WINDOW_PROPERTY = "pride.cluster.spectrum.merge.window";
-    public static final String MAJOR_PEAK_WINDOW_PROPERTY = "pride.cluster.major.peak.window";
+    public static final String MAJOR_PEAK_WINDOW_PROPERTY = "pride.cluster.major.clustering.window";
     public static final String CDF_MIN_NUMBER_COMPARISONS = "cdf.min_number_comparisons";
-    public static final String ENABLE_COMPARISON_PEAK_FILTER = "enable.comparison.peak.filter";
-    public static final String INITIAL_HIGHEST_PEAK_FILTER = "initial.highest.peak.filter";
+    public static final String ENABLE_COMPARISON_PEAK_FILTER = "enable.comparison.clustering.filter";
+    public static final String INITIAL_HIGHEST_PEAK_FILTER = "initial.highest.clustering.filter";
     public static final String MAXIMUM_NUMBER_CLUSTERS = "pride.cluster.maximum_number_clusters";
 
     public static final String SIMILARITY_CHECKER_PROPERTY = "pride.cluster.similarity.checker";

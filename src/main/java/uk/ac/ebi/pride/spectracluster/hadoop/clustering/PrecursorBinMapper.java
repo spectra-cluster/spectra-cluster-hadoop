@@ -1,15 +1,12 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.peak;
+package uk.ac.ebi.pride.spectracluster.hadoop.clustering;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
-import uk.ac.ebi.pride.spectracluster.util.NumberUtilities;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
 

@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.merge;
+package uk.ac.ebi.pride.spectracluster.hadoop.clustering;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -17,7 +17,6 @@ import java.io.IOException;
  * @author Rui Wang
  * @version $Id$
  */
-@Deprecated
 public class BinPartitioner extends Partitioner<Text, Text> {
     private APrioriBinning prePartitioning;
     private final IWideBinner binner = ClusterHadoopDefaults.getBinner();

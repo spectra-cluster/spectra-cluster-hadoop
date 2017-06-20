@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import uk.ac.ebi.pride.spectracluster.engine.EngineFactories;
 import uk.ac.ebi.pride.spectracluster.engine.IClusteringEngine;
-import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.util.IDefaultingFactory;
 
 import java.io.IOException;

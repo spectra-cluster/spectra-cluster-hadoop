@@ -24,7 +24,7 @@ public class CounterUtilities {
      * <p/>
      *
      * @param context     Hadoop context
-     * @param mz peak m/z
+     * @param mz clustering m/z
      */
     public static void incrementMajorPeakCounters(Mapper.Context context, double mz) {
         String counterName = String.format("%05d", mz).trim();

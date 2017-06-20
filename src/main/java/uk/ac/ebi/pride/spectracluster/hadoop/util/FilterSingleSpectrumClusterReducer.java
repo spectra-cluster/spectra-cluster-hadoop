@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * FilterSingleSpectrumClusterReducer filters out single-spectrum clusters which have been
  * written out before. This class is for reducing the number of duplicated clusters produced
- * by the major peak cluster job.
+ * by the major clustering cluster job.
  *
  * @author Rui Wang
  * @version $Id$
