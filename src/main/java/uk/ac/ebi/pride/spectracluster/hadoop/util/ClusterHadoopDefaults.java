@@ -15,7 +15,7 @@ import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
  */
 public final class ClusterHadoopDefaults {
 
-    public static final double DEFAULT_MAJOR_PEAK_MZ_WINDOW = 4.0; // major peak sliding window is this
+    public static final double DEFAULT_MAJOR_PEAK_MZ_WINDOW = 4.0; // major clustering sliding window is this
 
     public static final double DEFAULT_SPECTRUM_MERGE_WINDOW = 0.5;
 

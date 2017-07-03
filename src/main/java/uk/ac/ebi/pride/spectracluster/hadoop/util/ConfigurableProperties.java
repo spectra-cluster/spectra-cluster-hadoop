@@ -1,7 +1,7 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import org.apache.hadoop.conf.Configuration;
-import uk.ac.ebi.pride.spectracluster.similarity.*;
+import uk.ac.ebi.pride.spectracluster.similarity.ISimilarityChecker;
 import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.NumberUtilities;
 
@@ -22,6 +22,7 @@ import java.io.IOException;
  *
  * @author Steve Lewis
  * @author Rui Wang
+ * @author Johannes Griss
  * @version $Id$
  */
 public class ConfigurableProperties {
@@ -33,13 +34,15 @@ public class ConfigurableProperties {
     public static final String RETAIN_THRESHOLD_PROPERTY = "pride.cluster.retain.threshold";
     public static final String SIMILARITY_THRESHOLD_PROPERTY = "pride.cluster.similarity.threshold";
     public static final String SPECTRUM_MERGE_WINDOW_PROPERTY = "pride.cluster.spectrum.merge.window";
-    public static final String MAJOR_PEAK_WINDOW_PROPERTY = "pride.cluster.major.peak.window";
+    public static final String MAJOR_PEAK_WINDOW_PROPERTY = "pride.cluster.major.clustering.window";
     public static final String CDF_MIN_NUMBER_COMPARISONS = "cdf.min_number_comparisons";
-    public static final String ENABLE_COMPARISON_PEAK_FILTER = "enable.comparison.peak.filter";
-    public static final String INITIAL_HIGHEST_PEAK_FILTER = "initial.highest.peak.filter";
+    public static final String ENABLE_COMPARISON_PEAK_FILTER = "enable.comparison.clustering.filter";
+    public static final String INITIAL_HIGHEST_PEAK_FILTER = "initial.highest.clustering.filter";
     public static final String MAXIMUM_NUMBER_CLUSTERS = "pride.cluster.maximum_number_clusters";
 
     public static final String SIMILARITY_CHECKER_PROPERTY = "pride.cluster.similarity.checker";
+
+    public static final String CONSENSUS_SPEC_MIN_PEAKS = "pride.cluster.consensus_min_peaks";
 
     /**
      * this method and the one below
@@ -52,6 +55,7 @@ public class ConfigurableProperties {
         Defaults.setRetainThreshold(configuration.getFloat(RETAIN_THRESHOLD_PROPERTY, new Float(Defaults.DEFAULT_RETAIN_THRESHOLD)));
         Defaults.setSimilarityThreshold(configuration.getFloat(SIMILARITY_THRESHOLD_PROPERTY, new Float(Defaults.DEFAULT_SIMILARITY_THRESHOLD)));
         Defaults.setMinNumberComparisons(configuration.getInt(CDF_MIN_NUMBER_COMPARISONS, Defaults.DEFAULT_MIN_NUMBER_COMPARISONS));
+        Defaults.setDefaultConsensusMinPeaks(configuration.getInt(CONSENSUS_SPEC_MIN_PEAKS, Defaults.DEFAULT_CONSENSUS_MIN_PEAKS));
 
         // similarity checker - this must be created AFTER the fragmentIonTolerance property is being read
         Defaults.setDefaultSimilarityChecker(getSimilarityCheckerFromConfiguration(configuration));
@@ -92,6 +96,7 @@ public class ConfigurableProperties {
             out.append(RETAIN_THRESHOLD_PROPERTY).append("=").append(NumberUtilities.formatDouble(Defaults.getRetainThreshold(), 3)).append("\n");
             out.append(MAJOR_PEAK_WINDOW_PROPERTY).append("=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getMajorPeakMZWindowSize(), 3)).append("\n");
             out.append(SPECTRUM_MERGE_WINDOW_PROPERTY).append("=").append(NumberUtilities.formatDouble(ClusterHadoopDefaults.getSpectrumMergeMZWindowSize(), 3)).append("\n");
+            out.append(CONSENSUS_SPEC_MIN_PEAKS).append("=").append(String.valueOf(Defaults.getDefaultConsensusMinPeaks())).append("\n");
             // TODO: discuss how to add the used ISimilarityChecker here
         } catch (IOException e) {
             throw new RuntimeException(e);

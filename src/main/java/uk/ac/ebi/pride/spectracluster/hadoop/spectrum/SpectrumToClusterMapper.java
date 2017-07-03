@@ -5,7 +5,10 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.*;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopClusterProperties;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.normalizer.IIntensityNormalizer;
 import uk.ac.ebi.pride.spectracluster.spectrum.IPeak;
 import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
@@ -19,7 +22,9 @@ import uk.ac.ebi.pride.spectracluster.util.function.Functions;
 import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.peak.HighestNPeakFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemoveImpossiblyHighPeaksFunction;
+import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemoveIonContaminantsPeaksFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemovePrecursorPeaksFunction;
+import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemoveWindowPeaksFunction;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,10 +53,11 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
      * Reuse normalizer
      */
     private IIntensityNormalizer intensityNormalizer = Defaults.getDefaultIntensityNormalizer();
-    //private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter = Functions.join(new RemoveImpossiblyHighPeaksFunction(), new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()));
     private IFunction<ISpectrum, ISpectrum> initialSpectrumFilter =  Functions.join(
             new RemoveImpossiblyHighPeaksFunction(),
-            new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()));
+            new RemovePrecursorPeaksFunction(Defaults.getFragmentIonTolerance()),
+            new RemoveIonContaminantsPeaksFunction(Defaults.getFragmentIonTolerance()),
+            new RemoveWindowPeaksFunction(150F, Float.MAX_VALUE));
     private IFunction<List<IPeak>, List<IPeak>> peakFilter;
 
     private static final double BIN_OVERLAP = 0;
@@ -76,7 +82,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
 
         context.getCounter("bin-width", String.valueOf(binWidth)).increment(1);
 
-        // only keep the N highest peaks per spectrum
+        // only keep the N (default = 150) highest peaks per spectrum
         peakFilter = new HighestNPeakFunction(ClusterHadoopDefaults.getInitialHighestPeakFilter());
     }
 
@@ -93,7 +99,6 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
 
         if (precursorMz < MZIntensityUtilities.HIGHEST_USABLE_MZ) {
             // increment dalton bin counter
-            //CounterUtilities.incrementDaltonCounters(precursorMz, context);
             context.getCounter("normal precursor", "spectra < " + String.valueOf(MZIntensityUtilities.HIGHEST_USABLE_MZ)).increment(1);
 
             // do initial filtering (ie. precursor removal, impossible high peaks, etc.)
@@ -101,7 +106,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
 
             ISpectrum normalisedSpectrum = normaliseSpectrum(filteredSpectrum);
 
-            // only retain the signal peaks
+            // only retain the signal peaks (default = 150 highest peaks)
             ISpectrum reducedSpectrum = new Spectrum(filteredSpectrum, peakFilter.apply(normalisedSpectrum.getPeaks()));
 
             // generate a new cluster
@@ -109,16 +114,14 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
 
             // get the bin(s)
             int[] bins = binner.asBins(cluster.getPrecursorMz());
-            // this is the expected behaviour as there are no overlaps defined
-            if (bins.length == 1) {
-                cluster.setProperty(HadoopClusterProperties.SPECTRUM_TO_CLUSTER_BIN, String.valueOf(bins[0]));
-                // increment the counter
-                // - number of counters is limited to 120...
-                //context.getCounter("precursor_bins", String.format("%s%d", HadoopClusterProperties.BIN_PREFIX, bins[0])).increment(1);
-            }
-            else {
+
+            // make sure the spectrum is only placed in a single bin since overlaps cannot happen in this config
+            if (bins.length != 1) {
                 throw new InterruptedException("This implementation only works if now overlap is set during binning.");
             }
+
+            // save the bin as a property for further use
+            cluster.setProperty(HadoopClusterProperties.SPECTRUM_TO_CLUSTER_BIN, String.valueOf(bins[0]));
 
             // generate an unique id for the cluster
             cluster.setId(UUID.randomUUID().toString());
@@ -131,7 +134,9 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             context.write(keyOutputText, valueOutputText);
         }
         else {
-            context.getCounter("high precursor", "spectra > " + String.valueOf(MZIntensityUtilities.HIGHEST_USABLE_MZ)).increment(1);
+            // count the number of spectra with an impossibly high precursor
+            context.getCounter("high precursor", "spectra > " +
+                    String.valueOf(MZIntensityUtilities.HIGHEST_USABLE_MZ)).increment(1);
         }
     }
 

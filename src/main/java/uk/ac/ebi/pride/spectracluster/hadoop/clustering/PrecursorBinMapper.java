@@ -1,25 +1,25 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.merge;
+package uk.ac.ebi.pride.spectracluster.hadoop.clustering;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.ClusterHadoopDefaults;
+import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
+import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
+import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
 
 import java.io.IOException;
 
 /**
- * Mapper using narrow bins
- *
- * @author Steve Lewis
- * @author Rui Wang
- * @version $Id$
+ * This Mapper maps spectra / clusters based on their precursor m/z
+ * value into bins based on the set bin size.
  */
-public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
+public class PrecursorBinMapper extends Mapper<Text, Text, Text, Text> {
 
-    private IWideBinner binner = ClusterHadoopDefaults.getBinner();
+    private IWideBinner binner;
+    public final float DEFAULT_BIN_WIDTH = 4.0F;
 
     /**
      * Output object reuse
@@ -30,6 +30,18 @@ public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
+
+        // read and customize configuration, default will be used if not provided
+        ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
+
+        float binWidth = context.getConfiguration().getFloat(MajorPeakJob.CURRENT_BINNER_WINDOW_SIZE, DEFAULT_BIN_WIDTH);
+
+        setBinner(new SizedWideBinner(
+                MZIntensityUtilities.HIGHEST_USABLE_MZ,
+                binWidth,
+                0,
+                0,
+                true));
 
         boolean offsetBins = context.getConfiguration().getBoolean("pride.cluster.offset.bins", false);
         if (offsetBins) {
@@ -51,16 +63,18 @@ public class MZNarrowBinMapper extends Mapper<Text, Text, Text, Text> {
             float precursorMz = cluster.getPrecursorMz();
             int[] bins = binner.asBins(precursorMz);
 
-            for (int bin : bins) {
-                BinMZKey binMZKey = new BinMZKey(bin, precursorMz);
-
-                // increment partition counter
-//                CounterUtilities.incrementPartitionCounter(context, binMZKey);
-
-                keyOutputText.set(binMZKey.toString());
-                valueOutputText.set(value.toString());
-                context.write(keyOutputText, valueOutputText);
+            // must only be in one bin
+            if (bins.length > 1) {
+                throw new InterruptedException("Multiple bins found for " + String.valueOf(precursorMz));
             }
+            else if (bins.length == 0) {
+                continue;
+            }
+
+            BinMZKey binMZKey = new BinMZKey(bins[0], precursorMz);
+            keyOutputText.set(binMZKey.toString());
+            valueOutputText.set(value.toString());
+            context.write(keyOutputText, valueOutputText);
         }
     }
 

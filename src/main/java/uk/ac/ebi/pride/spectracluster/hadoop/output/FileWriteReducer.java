@@ -12,7 +12,9 @@ import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.io.DotClusterClusterAppender;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 

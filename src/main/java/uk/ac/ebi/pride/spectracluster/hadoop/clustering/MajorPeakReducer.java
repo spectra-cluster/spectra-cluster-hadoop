@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.spectracluster.hadoop.peak;
+package uk.ac.ebi.pride.spectracluster.hadoop.clustering;
 
 import org.apache.hadoop.io.Text;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
@@ -21,6 +21,7 @@ import java.util.Set;
  *
  * @author Steve Lewis
  * @author Rui Wang
+ * @author Johannes Griss
  * @version $Id$
  */
 public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
@@ -39,8 +40,17 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
         BinMZKey binMZKey = new BinMZKey(key.toString());
 
         if (binMZKey.getBin() != getCurrentBin()) {
+            System.out.println("Processing bin " + binMZKey.toString());
             updateEngine(context, binMZKey);
             context.getCounter("Cluster Size", "Processed bins").increment(1);
+        }
+
+        // this should never happen
+        if (getEngine() == null) {
+            System.out.println("Current engine = null: bin key = " +
+                    String.valueOf(binMZKey.getBin()) + " (" + binMZKey.toString() + "), current bin = " +
+                    String.valueOf(getCurrentBin()));
+            updateEngine(context, binMZKey);
         }
 
         // iterate and cluster all the spectra
@@ -62,7 +72,9 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
                 clusteredSpectraIds.add(cluster.getId());
 
             // update engine if total number of clusters is above threshold
-            if (getEngine().getClusters().size() > ClusterHadoopDefaults.getMaximumNumberOfClusters() && ClusterHadoopDefaults.getMaximumNumberOfClusters() > 0) {
+            // this option is only used in the initial clustering round where
+            if (getEngine().getClusters().size() > ClusterHadoopDefaults.getMaximumNumberOfClusters() &&
+                    ClusterHadoopDefaults.getMaximumNumberOfClusters() > 0) {
                 updateEngine(context, binMZKey);
                 context.getCounter("Cluster size", "Engine updates in bin").increment(1);
             }
@@ -76,7 +88,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
     }
 
     /**
-     * Update the current engine when the major peak m/z value changes
+     * Update the current engine when the major clustering m/z value changes
      */
     protected <T> void updateEngine(Context context, T binMZKey) throws IOException, InterruptedException {
 

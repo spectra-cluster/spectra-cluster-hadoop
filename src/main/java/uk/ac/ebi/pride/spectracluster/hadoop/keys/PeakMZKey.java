@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.spectracluster.hadoop.keys;
 
 
 /**
- * key represents charge peak and precursor mz
+ * key represents charge clustering and precursor mz
  *
  * @author Steve Lewis
  * @author Rui Wang

@@ -29,7 +29,8 @@ NUMBER_OF_SIMILARITY_STEPS="4"
 DO_MERGING="1"
 
 INITIAL_WINDOW_SIZE="0.5"
-FOLLOWING_WINDOW_SIZE="4" # TODO: remove this property as the window size has no effect in the major peak mapper
+FOLLOWING_WINDOW_SIZE="4" # This option only affects the mapper but not the clustering's precursor tolerance. The
+                          # precursor tolerance is defined in the job's XML config file.
 SUBSEQUENT_ROUND="0" # set to 0 to use sharing of major peaks with larger window size again
 
 if [ -n "$3" ]; then
@@ -66,13 +67,11 @@ OUTPUT_DIR="${OUTPUT_ROOT}/clustering_results"
 # intermediate directorys for storing intermediate results from different steps
 SPECTRUM_TO_CLUSTER_DIR="${OUTPUT_ROOT}/spectrum_to_cluster"
 MAJOR_PEAK_DIR="${OUTPUT_ROOT}/major_peak"
-MERGE_BY_OFFSET_DIR="${OUTPUT_ROOT}/merge_by_offset"
 MERGE_DIR="${OUTPUT_ROOT}/merge"
 
 # counter files, used by each job to store the numbers in counters
 SPECTRUM_TO_CLUSTER_COUNTER_FILE="${OUTPUT_ROOT}/spectrum_to_cluster.counter"
 MAJOR_PEAK_COUNTER_FILE="${OUTPUT_ROOT}/major_peak.counter"
-MERGE_BY_OFFSET_COUNTER_FILE="${OUTPUT_ROOT}/merge_by_offset.counter"
 MERGE_COUNTER_FILE="${OUTPUT_ROOT}/merge.counter"
 OUTPUT_COUNTER_FILE="${OUTPUT_ROOT}/output.counter"
 
@@ -126,40 +125,38 @@ build_library_jars
 # remove the intermediate directories if they exists
 hadoop fs -conf ${HADOOP_CONF} -rm -r ${SPECTRUM_TO_CLUSTER_DIR}
 hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_DIR}
 hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_DIR}
 hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_DIR}
 
 # remove existing counter files
 hadoop fs -conf ${HADOOP_CONF} -rm -r ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_COUNTER_FILE}
-hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_BY_OFFSET_COUNTER_FILE}
 hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_COUNTER_FILE}
 hadoop fs -conf ${HADOOP_CONF} -rm -r ${OUTPUT_COUNTER_FILE}
 
 # execute the spectrum to cluster job
 echo "Start executing the spectrum to cluster job"
 
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.spectrum.SpectrumToClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "SPECTRUM_TO_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/spectrum-to-cluster.xml" ${SPECTRUM_TO_CLUSTER_COUNTER_FILE} ${SPECTRUM_TO_CLUSTER_DIR} ${INPUT_DIR} ${INITIAL_WINDOW_SIZE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.spectrum.SpectrumToClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "SPECTRUM_TO_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/spectrum-to-cluster.xml" ${SPECTRUM_TO_CLUSTER_COUNTER_FILE} ${SPECTRUM_TO_CLUSTER_DIR} ${INPUT_DIR} ${FOLLOWING_WINDOW_SIZE}
 
 # check exit code of the spectrum to cluster job
 check_exit_code $? "Failed to finish the spectrum to cluster job" "The spectrum to cluster job has finished successfully"
 
-# execute the major peak job
-echo "Start executing the major peak job using ${UPPER_SIMILARITY_THRESHOLD} as similarity threshold"
+# execute the major clustering job
+echo "Start executing the major clustering job using ${UPPER_SIMILARITY_THRESHOLD} as similarity threshold"
 
-hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak-first_run.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${INITIAL_WINDOW_SIZE} 1 ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
+hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.clustering.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-clustering-first_run.xml" ${MAJOR_PEAK_COUNTER_FILE} ${UPPER_SIMILARITY_THRESHOLD} ${INITIAL_WINDOW_SIZE} 1 ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 
-# check exit code of the major peak job
-check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
+# check exit code of the major clustering job
+check_exit_code $? "Failed to finish the major clustering job" "The major clustering job has finished successfully"
 
 CURRENT_ROUND="${SUBSEQUENT_ROUND}"
 
-# execute the existing peak job
+# execute the existing clustering job
 for key in ${!SIMILARITY_THRESHOLDS[@]};
 do
     if [ "${key}" != "0" ]; then
-        echo "Start executing the existing major peak job using ${SIMILARITY_THRESHOLDS[${key}]} as similarity threshold (round $CURRENT_ROUND)"
+        echo "Start executing the existing major clustering job using ${SIMILARITY_THRESHOLDS[${key}]} as similarity threshold (round $CURRENT_ROUND)"
 
         CURRENT_ROUND=$[$CURRENT_ROUND+1]
 
@@ -167,10 +164,10 @@ do
         hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}_last
         hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_COUNTER_FILE}_last
 
-        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.peak.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-peak.xml" ${MAJOR_PEAK_COUNTER_FILE} ${SIMILARITY_THRESHOLDS[${key}]} ${FOLLOWING_WINDOW_SIZE} ${CURRENT_ROUND} ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
+        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.clustering.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK${JOB_PREFIX}" "${JOB_CONF}/major-clustering.xml" ${MAJOR_PEAK_COUNTER_FILE} ${SIMILARITY_THRESHOLDS[${key}]} ${FOLLOWING_WINDOW_SIZE} ${CURRENT_ROUND} ${MAJOR_PEAK_DIR}_last ${MAJOR_PEAK_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 
-        # check exit code of the existing peak job
-        check_exit_code $? "Failed to finish the major peak job" "The major peak job has finished successfully"
+        # check exit code of the existing clustering job
+        check_exit_code $? "Failed to finish the major clustering job" "The major clustering job has finished successfully"
 
         # delete old results
         hadoop fs -conf ${HADOOP_CONF} -rm -r ${MAJOR_PEAK_DIR}
@@ -185,37 +182,25 @@ done
 
 # execute merge cluster by offset job
 MERGE_INPUT_DIR="${MAJOR_PEAK_DIR}"
+CURRENT_ROUND="${SUBSEQUENT_ROUND}"
 
-if [ ${DO_MERGING} -eq 1 ]; then
-    for sim in ${SIMILARITY_THRESHOLDS[@]};
-    do
-        echo "Starting executing merger cluster by offset job using ${sim} as similarity threshold"
+# execute the merging job
+for key in ${!SIMILARITY_THRESHOLDS[@]};
+do
+    if [ "${key}" != "0" ]; then
+        echo "Start executing the existing major clustering merging job using ${SIMILARITY_THRESHOLDS[${key}]} as similarity threshold (round $CURRENT_ROUND)"
 
-        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER_BY_OFFSET${JOB_PREFIX}" "${JOB_CONF}/merge-cluster-by-offset.xml" ${MERGE_BY_OFFSET_COUNTER_FILE} ${sim} ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
-
-        MERGE_INPUT_DIR="${MERGE_BY_OFFSET_DIR}_last"
-        hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_INPUT_DIR}
-        hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_BY_OFFSET_DIR} ${MERGE_INPUT_DIR}
-
-        # check exit code for merge cluster by offset job
-        check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
-    done
-
-    # execute merge job
-    for sim in ${SIMILARITY_THRESHOLDS[@]};
-    do
-        echo "Starting executeing merger cluster job using ${sim} as similarity threshold"
-
-        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.merge.MergeClusterJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MERGE_CLUSTER${JOB_PREFIX}" "${JOB_CONF}/merge-cluster.xml" ${MERGE_COUNTER_FILE} ${sim} ${MERGE_DIR} ${MERGE_INPUT_DIR}
+        CURRENT_ROUND=$[$CURRENT_ROUND+1]
+        hadoop jar ${project.build.finalName}.jar uk.ac.ebi.pride.spectracluster.hadoop.clustering.MajorPeakJob -libjars ${LIB_JARS} -conf ${HADOOP_CONF} "MAJOR_PEAK_MERGE${JOB_PREFIX}" "${JOB_CONF}/major-clustering-merging.xml" ${MERGE_COUNTER_FILE} ${SIMILARITY_THRESHOLDS[${key}]} ${FOLLOWING_WINDOW_SIZE} ${CURRENT_ROUND} ${MERGE_DIR} ${MERGE_INPUT_DIR} ${SPECTRUM_TO_CLUSTER_COUNTER_FILE}
 
         MERGE_INPUT_DIR="${MERGE_DIR}_last"
         hadoop fs -conf ${HADOOP_CONF} -rm -r ${MERGE_INPUT_DIR}
         hadoop fs -conf ${HADOOP_CONF} -mv ${MERGE_DIR} ${MERGE_INPUT_DIR}
 
-        # check exit code for merge cluster job
-        check_exit_code $? "Failed to finish the merge cluster job" "The merge cluster job has finished successfully"
-    done
-fi
+        # check exit code for merge cluster by offset job
+        check_exit_code $? "Failed to finish the merge cluster by offset job" "The merge cluster by offset job has finished successfully"
+    fi
+done
 
 # execute output job
 echo "Start executing the output job"

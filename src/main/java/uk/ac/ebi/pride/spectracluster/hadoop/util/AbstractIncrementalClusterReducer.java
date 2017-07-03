@@ -35,7 +35,7 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
         // read and customize configuration, default will be used if not provided
         ConfigurableProperties.configureAnalysisParameters(context.getConfiguration());
 
-        // set the peak filter based on the configuration
+        // set the clustering filter based on the configuration
         if (ClusterHadoopDefaults.isEnableComparisonPeakFilter()) {
             peakFilter = new FractionTICPeakFunction(0.5F, 25);
         }
@@ -50,7 +50,7 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
                 Defaults.getDefaultSpectrumComparator(),
                 Defaults.getSimilarityThreshold(),
                 Defaults.getDefaultPrecursorIonTolerance(),
-                peakFilter, // signal peak filter
+                peakFilter, // signal clustering filter
                 null // no predicate
         );
         Counter counter = context.getCounter("Similarity Threshold", String.valueOf(Defaults.getSimilarityThreshold()));
