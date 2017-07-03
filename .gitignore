@@ -1,4 +1,18 @@
 *.iml
-.idea/*
 
+# Do not include idea config files
+.idea/*
+.idea/
+
+# Do not include the compile files
 target/*
+target/
+
+# Remove the lib dependencies
+lib/*
+lib/
+
+# Do not include the Log files
+log/
+log/*
+
