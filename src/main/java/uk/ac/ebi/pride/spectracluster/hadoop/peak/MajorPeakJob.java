@@ -13,6 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 import uk.ac.ebi.pride.spectracluster.hadoop.merge.BinPartitioner;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopClusterProperties;
@@ -38,6 +39,7 @@ public class MajorPeakJob extends Configured implements Tool {
     public static final String CURRENT_CLUSTERING_ROUND = "clustering.current.round";
     public static final String CURRENT_BINNER_WINDOW_SIZE = "mapper.window.size";
     public static final int MAX_SPECTRA_PER_BIN = 50000;
+
 
     @Override
     public int run(String[] args) throws Exception {
@@ -119,7 +121,7 @@ public class MajorPeakJob extends Configured implements Tool {
         int minBinIndex = Integer.MAX_VALUE;
         int maxBinIndex = 0;
 
-        Map<Integer, Integer> binSizePerIndex = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> binSizePerIndex = new HashMap<>();
 
         while ((line = reader.readLine()) != null) {
             if (!line.startsWith(HadoopClusterProperties.BIN_PREFIX)) {

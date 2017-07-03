@@ -2,19 +2,13 @@ package uk.ac.ebi.pride.spectracluster.hadoop.peak;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.log4j.Logger;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.BinMZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.keys.PeakMZKey;
-import uk.ac.ebi.pride.spectracluster.hadoop.merge.MZNarrowBinMapper;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.ConfigurableProperties;
-import uk.ac.ebi.pride.spectracluster.hadoop.util.CounterUtilities;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopClusterProperties;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
-import uk.ac.ebi.pride.spectracluster.spectrum.ISpectrum;
-import uk.ac.ebi.pride.spectracluster.util.Defaults;
 import uk.ac.ebi.pride.spectracluster.util.MZIntensityUtilities;
 import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
@@ -42,6 +36,8 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
     private static final boolean OVERFLOW_BINS = true;
     private static final double LOWEST_MZ = 0;
 
+    private static final Logger LOGGER = Logger.getLogger(MajorPeakMapper.class);
+
     private double binWidth;
     private IWideBinner binner;
 
@@ -63,6 +59,8 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
         // check the validity of the input
         if (key.toString().length() == 0 || value.toString().length() == 0)
             return;
+
+        LOGGER.debug("Starting the Running of the Map Job -> MajorPeakMapper");
 
         // read the original content as cluster
         ICluster cluster = IOUtilities.parseClusterFromCGFString(value.toString());
@@ -105,6 +103,8 @@ public class MajorPeakMapper extends Mapper<Writable, Text, Text, Text> {
         keyOutputText.set(binMZKey.toString());
         valueOutputText.set(IOUtilities.convertClusterToCGFString(cluster));
         context.write(keyOutputText, valueOutputText);
+
+        LOGGER.debug("End the Running of the Map Job -> MajorPeakMapper");
 
         //context.getCounter("Bin frequency counter", "peakBin_" + String.valueOf(bin)).increment(1);
     }

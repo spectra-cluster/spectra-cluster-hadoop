@@ -13,6 +13,7 @@ import java.io.IOException;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class MergeClusterByIDMapper extends Mapper<Text, Text, Text, Text> {
 
     /**

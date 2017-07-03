@@ -22,7 +22,7 @@ import java.util.Set;
  * @author Rui Wang
  * @version $Id$
  */
-public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWritable> {
+class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWritable> {
 
     private static final String CLUSTERING_FILE_EXTENSION = "clustering";
 
@@ -31,7 +31,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
     // TODO: this includes the spectra in the .clustering files...
     private DotClusterClusterAppender clusterAppender = DotClusterClusterAppender.PEAK_INSTANCE;
     private PrintWriter currentFileWriter;
-    private final Set<String> currentClusteredSpectraIds = new HashSet<String>();
+    private final Set<String> currentClusteredSpectraIds = new HashSet<>();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -41,7 +41,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
         setClusteringFilePrefix(prefix);
 
         String includeSpectraString = context.getConfiguration().get("clustering.file.include.spectra", "");
-        boolean includeSpectra = (includeSpectraString == null) ? false : Boolean.parseBoolean(includeSpectraString);
+        boolean includeSpectra = includeSpectraString != null && Boolean.parseBoolean(includeSpectraString);
         setClusterAppender(includeSpectra? DotClusterClusterAppender.PEAK_INSTANCE : DotClusterClusterAppender.INSTANCE);
     }
 
@@ -108,27 +108,27 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
         }
     }
 
-    public MZKey getCurrentKey() {
+    private MZKey getCurrentKey() {
         return currentKey;
     }
 
-    public void setCurrentKey(MZKey currentKey) {
+    private void setCurrentKey(MZKey currentKey) {
         this.currentKey = currentKey;
     }
 
-    public DotClusterClusterAppender getClusterAppender() {
+    private DotClusterClusterAppender getClusterAppender() {
         return clusterAppender;
     }
 
-    public void setClusterAppender(DotClusterClusterAppender clusterAppender) {
+    private void setClusterAppender(DotClusterClusterAppender clusterAppender) {
         this.clusterAppender = clusterAppender;
     }
 
-    public PrintWriter getCurrentFileWriter() {
+    private PrintWriter getCurrentFileWriter() {
         return currentFileWriter;
     }
 
-    public void setCurrentFileWriter(PrintWriter currentFileWriter) {
+    private void setCurrentFileWriter(PrintWriter currentFileWriter) {
         this.currentFileWriter = currentFileWriter;
     }
 
@@ -136,7 +136,7 @@ public class FileWriteReducer extends Reducer<Text, Text, NullWritable, NullWrit
         return clusteringFilePrefix;
     }
 
-    public void setClusteringFilePrefix(String clusteringFilePrefix) {
+    private void setClusteringFilePrefix(String clusteringFilePrefix) {
         this.clusteringFilePrefix = clusteringFilePrefix;
     }
 }

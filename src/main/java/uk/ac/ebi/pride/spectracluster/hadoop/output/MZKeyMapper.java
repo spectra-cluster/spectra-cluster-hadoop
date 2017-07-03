@@ -1,16 +1,12 @@
 package uk.ac.ebi.pride.spectracluster.hadoop.output;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
-import uk.ac.ebi.pride.spectracluster.cluster.GreedySpectralCluster;
 import uk.ac.ebi.pride.spectracluster.cluster.ICluster;
-import uk.ac.ebi.pride.spectracluster.cluster.SpectralCluster;
 import uk.ac.ebi.pride.spectracluster.hadoop.keys.MZKey;
 import uk.ac.ebi.pride.spectracluster.hadoop.util.IOUtilities;
 import uk.ac.ebi.pride.spectracluster.util.function.Functions;
 import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
-import uk.ac.ebi.pride.spectracluster.util.function.cluster.RemoveClusterEmptyPeakFunction;
 import uk.ac.ebi.pride.spectracluster.util.predicate.IPredicate;
 import uk.ac.ebi.pride.spectracluster.util.predicate.Predicates;
 import uk.ac.ebi.pride.spectracluster.util.predicate.cluster.ClusterSizePredicate;

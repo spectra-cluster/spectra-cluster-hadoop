@@ -18,11 +18,11 @@ public abstract class FilterSingleSpectrumClusterReducer extends ClusterWritable
     /**
      * Spectrum ids have been written in the current reduce step
      */
-    private final Set<String> writtenSpectra = new HashSet<String>();
+    private final Set<String> writtenSpectra = new HashSet<>();
     /**
      * Spectrum ids have been written in the previous reduce step
      */
-    private final Set<String> previousWrittenSpectra = new HashSet<String>();
+    private final Set<String> previousWrittenSpectra = new HashSet<>();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -49,13 +49,13 @@ public abstract class FilterSingleSpectrumClusterReducer extends ClusterWritable
         super.writeOneCluster(context, cluster);
     }
 
-    protected void updateCache() {
+    void updateCache() {
         previousWrittenSpectra.clear();
         previousWrittenSpectra.addAll(writtenSpectra); // keep one set
         writtenSpectra.clear(); // ready for next set
     }
 
-    protected void clearCache() {
+    private void clearCache() {
         previousWrittenSpectra.clear();
         writtenSpectra.clear();
     }

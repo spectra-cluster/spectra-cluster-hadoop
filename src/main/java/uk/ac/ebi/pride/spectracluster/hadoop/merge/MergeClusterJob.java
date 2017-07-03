@@ -24,6 +24,8 @@ import uk.ac.ebi.pride.spectracluster.hadoop.util.HadoopUtilities;
  */
 public class MergeClusterJob extends Configured implements Tool {
 
+
+
     @Override
     public int run(String[] args) throws Exception {
         if (args.length < 5) {

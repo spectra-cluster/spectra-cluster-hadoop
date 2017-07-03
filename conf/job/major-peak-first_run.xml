@@ -56,7 +56,7 @@
     <!-- mapper buffer -->
     <property>
         <name>io.sort.mb</name>
-        <value>600</value>
+        <value>1003</value>
         <description>Each mapper task has a circular memory that it writes the output to</description>
     </property>
 

@@ -17,7 +17,6 @@ import uk.ac.ebi.pride.spectracluster.util.binner.IWideBinner;
 import uk.ac.ebi.pride.spectracluster.util.binner.SizedWideBinner;
 import uk.ac.ebi.pride.spectracluster.util.function.Functions;
 import uk.ac.ebi.pride.spectracluster.util.function.IFunction;
-import uk.ac.ebi.pride.spectracluster.util.function.peak.FractionTICPeakFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.peak.HighestNPeakFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemoveImpossiblyHighPeaksFunction;
 import uk.ac.ebi.pride.spectracluster.util.function.spectrum.RemovePrecursorPeaksFunction;
@@ -127,6 +126,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             // output cluster
             MZKey mzKey = new MZKey(precursorMz);
             keyOutputText.set(mzKey.toString());
+            //Spectrum to Cluster Annotation.
             valueOutputText.set(IOUtilities.convertClusterToCGFString(cluster));
             context.write(keyOutputText, valueOutputText);
         }

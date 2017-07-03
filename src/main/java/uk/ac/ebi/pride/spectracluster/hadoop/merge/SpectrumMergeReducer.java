@@ -28,8 +28,8 @@ import java.util.Set;
 public class SpectrumMergeReducer extends AbstractIncrementalClusterReducer {
 
     private double spectrumMergeWindowSize = ClusterHadoopDefaults.getSpectrumMergeMZWindowSize();
-    private final Set<String> writtenSpectrumIdPerBin = new HashSet<String>();
-    private final Set<String> seenSpectrumIdPerBin = new HashSet<String>();
+    private final Set<String> writtenSpectrumIdPerBin = new HashSet<>();
+    private final Set<String> seenSpectrumIdPerBin = new HashSet<>();
     private static final IComparisonPredicate<ICluster> comparisonPredicate = new ClusterShareMajorPeakPredicate(Defaults.getMajorPeakCount());
     private IWideBinner binner = ClusterHadoopDefaults.getBinner();
     private int currentBin;

@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.spectracluster.hadoop.util;
 
 import uk.ac.ebi.pride.spectracluster.engine.EngineFactories;
 import uk.ac.ebi.pride.spectracluster.engine.IClusteringEngine;
-import uk.ac.ebi.pride.spectracluster.engine.IIncrementalClusteringEngine;
 import uk.ac.ebi.pride.spectracluster.util.IDefaultingFactory;
 
 import java.io.IOException;
@@ -34,15 +33,15 @@ public abstract class AbstractClusterReducer extends FilterSingleSpectrumCluster
 
     protected abstract <T> void updateEngine(final Context context, final T key) throws IOException, InterruptedException;
 
-    public IClusteringEngine getEngine() {
+    protected IClusteringEngine getEngine() {
         return engine;
     }
 
-    public IDefaultingFactory<IClusteringEngine> getEngineFactory() {
+    protected IDefaultingFactory<IClusteringEngine> getEngineFactory() {
         return engineFactory;
     }
 
-    public void setEngine(IClusteringEngine engine) {
+    protected void setEngine(IClusteringEngine engine) {
         this.engine = engine;
         updateCache();
     }

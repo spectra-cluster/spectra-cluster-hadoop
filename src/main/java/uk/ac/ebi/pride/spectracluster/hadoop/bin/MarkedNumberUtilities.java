@@ -24,7 +24,7 @@ public final class MarkedNumberUtilities {
     public static Map<Integer, Integer> partitionFromBinner(@Nonnull List<MarkedNumber<String>> inItems, int numberOfReducers, IWideBinner binner) {
         List<MarkedNumber<String>> items = normalize(inItems);
         double minBin = Double.MAX_VALUE;
-        Map<String, MarkedNumber> toTotal = new HashMap<String, MarkedNumber>();
+        Map<String, MarkedNumber> toTotal = new HashMap<>();
         for (MarkedNumber<String> item : items) {
             double value = item.getValue();
             if (value > 0)
@@ -34,7 +34,7 @@ public final class MarkedNumberUtilities {
 
 
         double[] totals = new double[numberOfReducers];
-        Map<Integer, Integer> ret = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> ret = new HashMap<>();
         for (int i = binner.getMinBin(); i < binner.getMaxBin(); i++) {
             double mz = binner.fromBin(i);
             String s = describeDaltons(mz);
@@ -58,7 +58,7 @@ public final class MarkedNumberUtilities {
      */
     public static <T> Map<T, Integer> partitionIntoBins(@Nonnull List<MarkedNumber<T>> inItems, int numberBins) {
         List<MarkedNumber<T>> items = normalize(inItems);
-        Map<T, Integer> ret = new HashMap<T, Integer>();
+        Map<T, Integer> ret = new HashMap<>();
         double[] totals = new double[numberBins];
         for (MarkedNumber<T> item : items) {
             int thisBin = findBestBin(totals);
@@ -98,9 +98,9 @@ public final class MarkedNumberUtilities {
         if (total == 1)
             return items;
 
-        List<MarkedNumber<T>> holder = new ArrayList<MarkedNumber<T>>();
+        List<MarkedNumber<T>> holder = new ArrayList<>();
         for (MarkedNumber<T> item : items) {
-            holder.add(new MarkedNumber<T>(item.getMark(), item.getValue() / total));
+            holder.add(new MarkedNumber<>(item.getMark(), item.getValue() / total));
         }
 
         Collections.sort(holder);

@@ -14,6 +14,7 @@ import java.util.Collection;
  * @author Rui Wang
  * @version $Id$
  */
+@Deprecated
 public class MergeClusterByIDReducer extends AbstractClusterReducer {
 
     public static final int NUMBER_OF_CLUSTER_ITERATIONS = 3;

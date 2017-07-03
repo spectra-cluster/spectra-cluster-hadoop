@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class ClusteringFileWriteReducer extends Reducer<Text, Text, NullWritable, Text> {
 
-    private final Set<String> currentClusteredSpectraIds = new HashSet<String>();
+    private final Set<String> currentClusteredSpectraIds = new HashSet<>();
 
     private final Text outputValue = new Text();
 
