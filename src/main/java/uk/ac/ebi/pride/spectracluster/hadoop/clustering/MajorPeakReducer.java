@@ -31,7 +31,7 @@ public class MajorPeakReducer extends AbstractIncrementalClusterReducer {
     /**
      * Spectra that were already processed to prevent duplication
      */
-    private final Set<String> clusteredSpectraIds = new HashSet<String>();
+    private final Set<String> clusteredSpectraIds = new HashSet<>();
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {

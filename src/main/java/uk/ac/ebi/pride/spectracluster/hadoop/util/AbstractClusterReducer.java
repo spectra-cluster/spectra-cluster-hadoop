@@ -33,15 +33,15 @@ public abstract class AbstractClusterReducer extends FilterSingleSpectrumCluster
 
     protected abstract <T> void updateEngine(final Context context, final T key) throws IOException, InterruptedException;
 
-    public IClusteringEngine getEngine() {
+    protected IClusteringEngine getEngine() {
         return engine;
     }
 
-    public IDefaultingFactory<IClusteringEngine> getEngineFactory() {
+    protected IDefaultingFactory<IClusteringEngine> getEngineFactory() {
         return engineFactory;
     }
 
-    public void setEngine(IClusteringEngine engine) {
+    protected void setEngine(IClusteringEngine engine) {
         this.engine = engine;
         updateCache();
     }

@@ -60,9 +60,9 @@ public class HadoopUtilities {
      * @param job
      * @return
      */
-    public static Map<String, Long> getAllJobCounters(Job job) {
+    private static Map<String, Long> getAllJobCounters(Job job) {
         try {
-            Map<String, Long> ret = new HashMap<String, Long>();
+            Map<String, Long> ret = new HashMap<>();
             Counters counters = job.getCounters();
             for (CounterGroup counterGroup : counters) {
                 for (Counter c : counterGroup) {

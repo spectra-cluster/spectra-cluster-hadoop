@@ -99,11 +99,11 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
         super.writeCluster(context, cluster);     // nothing removed
     }
 
-    public IIncrementalClusteringEngine getEngine() {
+    protected IIncrementalClusteringEngine getEngine() {
         return engine;
     }
 
-    public IDefaultingFactory<IIncrementalClusteringEngine> getEngineFactory() {
+    protected IDefaultingFactory<IIncrementalClusteringEngine> getEngineFactory() {
         return engineFactory;
     }
 
@@ -112,7 +112,7 @@ public abstract class AbstractIncrementalClusterReducer extends FilterSingleSpec
         updateCache();
     }
 
-    public double getClusterRetainThreshold() {
+    private double getClusterRetainThreshold() {
         return clusterRetainThreshold;
     }
 

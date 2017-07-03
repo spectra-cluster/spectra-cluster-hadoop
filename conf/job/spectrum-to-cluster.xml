@@ -20,7 +20,7 @@
     <!-- JVM memory allocation -->
     <property>
         <name>mapred.child.java.opts</name>
-        <value>-Xmx2600m</value>
+        <value>-Xmx6600m</value>
         <description>Memory assigned to each task node JVM</description>
     </property>
 

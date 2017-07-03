@@ -9,7 +9,7 @@ import java.util.List;
 
 public class APrioriBinningTest {
 
-    public static final int NUMBER_BINS = 300;
+    private static final int NUMBER_BINS = 300;
 
     @Test
     public void testDefaultBinning() throws IOException {

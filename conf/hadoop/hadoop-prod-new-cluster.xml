@@ -20,6 +20,6 @@
 
     <property>
         <name>hadoop.job.ugi</name>
-        <value>jgriss,test</value>
+        <value>yperez,test</value>
     </property>
 </configuration>

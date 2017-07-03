@@ -7,12 +7,11 @@ package uk.ac.ebi.pride.spectracluster.hadoop.keys;
  */
 public interface IPartitionable {
 
-
     /**
      * here is an int that a partitioner would use
      *
      * @return
      */
-    public int getPartitionHash();
+    int getPartitionHash();
 
 }

@@ -41,14 +41,14 @@
     <!-- The number of reducer tasks -->
     <property>
         <name>mapred.reduce.tasks</name>
-        <value>1200</value>
+        <value>1</value>
         <description>The number of reducers used for the job</description>
     </property>
 
     <!-- JVM memory allocation -->
     <property>
         <name>mapred.child.java.opts</name>
-        <value>-Xmx4600m</value>
+        <value>-Xmx15600m</value>
         <description>Memory assigned to each task node JVM</description>
     </property>
 

@@ -78,8 +78,9 @@ OUTPUT_COUNTER_FILE="${OUTPUT_ROOT}/output.counter"
 # General hadoop configuration
 #HADOOP_CONF=conf/hadoop/hadoop-prod-cluster.xml
 #HADOOP_CONF=conf/hadoop/hadoop-dev-cluster.xml
-#HADOOP_CONF=conf/hadoop/hadoop-local.xml
+#HADOOP_CONF=conf/hadoop/hadoop-localhost.xml
 HADOOP_CONF=conf/hadoop/hadoop-prod-new-cluster.xml
+#HADOOP_CONF=conf/hadoop/hadoop-local.xml
 
 # Path to configuration files for each job
 # NOTE: conf is on the classpath, so there is not need for specific the full path
@@ -99,6 +100,8 @@ function build_library_jars() {
         fi
     done
 }
+
+echo ${LIB_JARS}
 
 # check exit code, if detect error, then exit the script and print out an error message
 # otherwise, print out a success message

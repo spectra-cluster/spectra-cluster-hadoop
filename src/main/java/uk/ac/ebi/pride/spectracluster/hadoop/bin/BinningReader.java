@@ -21,12 +21,12 @@ public final class BinningReader {
         InputStream resourceAsStream = APrioriBinning.class.getResourceAsStream(realName);
         LineNumberReader rdr = new LineNumberReader(new InputStreamReader(resourceAsStream));
 
-        List<MarkedNumber<String>> holder = new ArrayList<MarkedNumber<String>>();
+        List<MarkedNumber<String>> holder = new ArrayList<>();
         String line;
         while ((line = rdr.readLine()) != null) {
             String[] items = line.split("\t");
             if (items.length == 2) {
-                MarkedNumber<String> mark = new MarkedNumber<String>(items[0], Double.parseDouble(items[1]));
+                MarkedNumber<String> mark = new MarkedNumber<>(items[0], Double.parseDouble(items[1]));
                 holder.add(mark);
             }
         }

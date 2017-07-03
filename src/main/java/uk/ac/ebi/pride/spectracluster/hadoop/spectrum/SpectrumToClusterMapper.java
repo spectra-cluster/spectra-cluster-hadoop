@@ -129,6 +129,7 @@ public class SpectrumToClusterMapper extends Mapper<Writable, Text, Text, Text> 
             // output cluster
             MZKey mzKey = new MZKey(precursorMz);
             keyOutputText.set(mzKey.toString());
+            //Spectrum to Cluster Annotation.
             valueOutputText.set(IOUtilities.convertClusterToCGFString(cluster));
             context.write(keyOutputText, valueOutputText);
         }
